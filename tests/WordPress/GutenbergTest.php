@@ -612,6 +612,45 @@ HTML
         ], $output);
     }
 
+    #[Test]
+    public function it_returns_hook_output()
+    {
+        Gutenberg::hook('core/paragraph', function ($node) {
+            return [
+                'type' => 'paragraph',
+                'content' => [
+                    [
+                        'type' => 'text',
+                        'text' => 'Hello, world!',
+                    ],
+                ],
+            ];
+        });
+
+        $output = Gutenberg::toBard(
+            config: [],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('content'),
+            value: <<<'HTML'
+<!-- wp:paragraph -->
+<p>As long as the hook is working, whatever we have here won't be returned.</p>
+<!-- /wp:paragraph -->
+HTML
+        );
+
+        $this->assertEquals([
+            [
+                'type' => 'paragraph',
+                'content' => [
+                    [
+                        'type' => 'text',
+                        'text' => 'Hello, world!',
+                    ],
+                ],
+            ],
+        ], $output);
+    }
+
     protected function assertSetExists(string $handle, $field): void
     {
         $setExists = collect($field->get('sets', []))->contains(

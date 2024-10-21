@@ -144,10 +144,4 @@ XML
         $this->assertEquals('bar', $entry->get('foo'));
         $this->assertEquals('baz', $entry->get('bar'));
     }
-
-    #[Test]
-    public function transformer_can_be_registered()
-    {
-        //        Importer::registerTransformer('foo', FooTransformer::class);
-    }
 }
