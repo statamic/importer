@@ -1,0 +1,40 @@
+{
+    "name": "statamic/importer",
+    "autoload": {
+        "psr-4": {
+            "Statamic\\Importer\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Statamic\\Importer\\Tests\\": "tests"
+        }
+    },
+    "require": {
+        "statamic/cms": "^5.0",
+        "spatie/simple-excel": "^3.7",
+        "symfony/dom-crawler": "^7.1",
+        "laravel/pint": "^1.18"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pixelfear/composer-dist-plugin": true
+        }
+    },
+    "extra": {
+        "statamic": {
+            "name": "Importer",
+            "description": "Importer addon"
+        },
+        "laravel": {
+            "providers": [
+                "Statamic\\Importer\\ServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
