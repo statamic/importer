@@ -25,14 +25,14 @@ class Gutenberg
         return collect($blocks)
             ->filter(fn ($block) => $block['blockName'])
             ->map(function (array $block) use ($config, $blueprint, $field): ?array {
-                $hook = (new self)->runHooks($block['blockName'], [
+                $hook = (new self)->runHooks($block['blockName'], $payload = [
                     'block' => $block,
                     'config' => $config,
                     'blueprint' => $blueprint,
                     'field' => $field,
                 ]);
 
-                if ($hook !== $block) {
+                if ($hook !== $payload) {
                     return $hook;
                 }
 
