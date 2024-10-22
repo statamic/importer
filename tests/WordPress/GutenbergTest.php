@@ -226,14 +226,15 @@ HTML
             'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
         ]);
 
-        Http::preventStrayRequests();
-
         AssetContainer::make('assets')->disk('public')->save();
 
         Storage::disk('public')->assertMissing('2024/10/image.png');
 
         $output = Gutenberg::toBard(
-            config: ['assets_base_url' => 'https://example.com/wp-content/uploads'],
+            config: [
+                'assets_base_url' => 'https://example.com/wp-content/uploads',
+                'assets_download_when_missing' => true,
+            ],
             blueprint: $this->blueprint,
             field: $this->blueprint->field('content'),
             value: <<<'HTML'
@@ -259,6 +260,34 @@ HTML
         ], $output);
 
         Storage::disk('public')->assertExists('2024/10/image.png');
+    }
+
+    #[Test]
+    public function it_transforms_image_blocks_but_doesnt_attempt_to_download_assets_that_dont_exist_in_the_asset_container()
+    {
+        Http::preventStrayRequests();
+
+        AssetContainer::make('assets')->disk('public')->save();
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
+
+        $output = Gutenberg::toBard(
+            config: [
+                'assets_base_url' => 'https://example.com/wp-content/uploads',
+                'assets_download_when_missing' => false,
+            ],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('content'),
+            value: <<<'HTML'
+<!-- wp:image {"id":41,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/10/image.png" alt="" class="wp-image-41"/></figure>
+<!-- /wp:image -->
+HTML
+        );
+
+        $this->assertEquals([], $output);
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
     }
 
     #[Test]

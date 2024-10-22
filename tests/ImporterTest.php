@@ -40,20 +40,19 @@ CSV
 
         $this->assertNull(Entry::query()->where('imported_id', 'one')->first());
 
-        Importer::import(
-            config: [
-                'destination' => ['type' => 'entries', 'collection' => 'team'],
-                'unique_key' => 'imported_id',
-                'mappings' => [
-                    'first_name' => ['key' => 'First Name'],
-                    'last_name' => ['key' => 'Last Name'],
-                    'email' => ['key' => 'Email'],
-                    'role' => ['key' => 'Role'],
-                    'imported_id' => ['key' => 'ID'],
-                ],
+        Importer::import([
+            'type' => 'csv',
+            'path' => storage_path('import.csv'),
+            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'unique_key' => 'imported_id',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
+                'imported_id' => ['key' => 'ID'],
             ],
-            path: storage_path('import.csv')
-        );
+        ]);
 
         $entry = Entry::query()->where('imported_id', 'one')->first();
 
@@ -78,8 +77,6 @@ CSV
                         ['handle' => 'content', 'field' => ['type' => 'text']],
                         ['handle' => 'excerpt', 'field' => ['type' => 'text']],
                         ['handle' => 'imported_id', 'field' => ['type' => 'text']],
-                        ['handle' => 'foo', 'field' => ['type' => 'text']],
-                        ['handle' => 'bar', 'field' => ['type' => 'text']],
                     ],
                 ],
             ], ['handle' => 'date', 'field' => ['type' => 'date']],
@@ -101,15 +98,12 @@ CSV
 			<content:encoded><![CDATA[<h2>Inventore autem reprehenderit et</h2>]]></content:encoded>
 			<excerpt:encoded><![CDATA[In excepteur ex aliquip laborum velit proident est officia in ex labore do.]]></excerpt:encoded>
 			<wp:post_id>one</wp:post_id>
+			<category domain="category" nicename="uncategorized"><![CDATA[Uncategorized]]></category>
 			<wp:postmeta>
-				<wp:meta_key><![CDATA[foo]]></wp:meta_key>
-				<wp:meta_value><![CDATA[bar]]></wp:meta_value>
-			</wp:postmeta>
-			<wp:postmeta>
-				<wp:meta_key><![CDATA[bar]]></wp:meta_key>
-				<wp:meta_value><![CDATA[baz]]></wp:meta_value>
-			</wp:postmeta>
-		</item>
+		        <wp:meta_key><![CDATA[foo]]></wp:meta_key>
+		        <wp:meta_value><![CDATA[bar]]></wp:meta_value>
+		    </wp:postmeta>
+        </item>
 	</channel>
 </rss>
 XML
@@ -117,22 +111,19 @@ XML
 
         $this->assertNull(Entry::query()->where('imported_id', 'one')->first());
 
-        Importer::import(
-            config: [
-                'destination' => ['type' => 'entries', 'collection' => 'posts'],
-                'unique_key' => 'imported_id',
-                'mappings' => [
-                    'title' => ['key' => 'title'],
-                    'date' => ['key' => 'pubDate'],
-                    'content' => ['key' => 'content:encoded'],
-                    'excerpt' => ['key' => 'excerpt:encoded'],
-                    'imported_id' => ['key' => 'wp:post_id'],
-                    'foo' => ['key' => "wp:postmeta[wp:meta_key='foo']/wp:meta_value"],
-                    'bar' => ['key' => "wp:postmeta[wp:meta_key='bar']/wp:meta_value"],
-                ],
+        Importer::import([
+            'type' => 'xml',
+            'path' => storage_path('import.xml'),
+            'destination' => ['type' => 'entries', 'collection' => 'posts'],
+            'unique_key' => 'imported_id',
+            'mappings' => [
+                'title' => ['key' => 'title'],
+                'date' => ['key' => 'pubDate'],
+                'content' => ['key' => 'content:encoded'],
+                'excerpt' => ['key' => 'excerpt:encoded'],
+                'imported_id' => ['key' => 'wp:post_id'],
             ],
-            path: storage_path('import.xml')
-        );
+        ]);
 
         $entry = Entry::query()->where('imported_id', 'one')->first();
 
@@ -141,7 +132,5 @@ XML
         $this->assertEquals('2024-06-03', $entry->date()->format('Y-m-d'));
         $this->assertEquals('<h2>Inventore autem reprehenderit et</h2>', $entry->get('content'));
         $this->assertEquals('In excepteur ex aliquip laborum velit proident est officia in ex labore do.', $entry->get('excerpt'));
-        $this->assertEquals('bar', $entry->get('foo'));
-        $this->assertEquals('baz', $entry->get('bar'));
     }
 }

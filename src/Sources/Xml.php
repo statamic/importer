@@ -2,7 +2,6 @@
 
 namespace Statamic\Importer\Sources;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\LazyCollection;
 
 class Xml extends AbstractSource
@@ -13,13 +12,25 @@ class Xml extends AbstractSource
 
         return LazyCollection::make(function () use ($xml) {
             foreach ($xml->channel->item as $item) {
-                yield collect($this->config('mappings'))
-                    ->mapWithKeys(function (array $mapping, string $fieldHandle) use ($item) {
-                        $value = (string) Arr::first($item->xpath($mapping['key']));
+                $array = [];
 
-                        return [$fieldHandle => $value];
-                    })
-                    ->all();
+                foreach ($item as $key => $value) {
+                    $array[$key] = (string) $value;
+                }
+
+                foreach ($item->getDocNamespaces(true) as $namespace => $uri) {
+                    // Access namespaced elements using the namespace prefix
+                    foreach ($item->children($uri) as $key => $value) {
+                        $array[$namespace . ':' . $key] = (string) $value;
+                    }
+
+                    // If you want to access attributes in the namespaced elements
+                    foreach ($item->attributes($uri) as $key => $value) {
+                        $array[$namespace . ':' . $key] = (string) $value;
+                    }
+                }
+
+                yield $array;
             }
         });
     }

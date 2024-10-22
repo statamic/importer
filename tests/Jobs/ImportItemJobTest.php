@@ -77,10 +77,10 @@ class ImportItemJobTest extends TestCase
                 ],
             ],
             item: [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => 'john.doe@example.com',
-                'role' => 'CEO',
+                'First Name' => 'John',
+                'Last Name' => 'Doe',
+                'Email' => 'john.doe@example.com',
+                'Role' => 'CEO',
             ]
         );
 
@@ -111,10 +111,10 @@ class ImportItemJobTest extends TestCase
                 ],
             ],
             item: [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => 'john.doe@example.com',
-                'role' => 'CEO',
+                'First Name' => 'John',
+                'Last Name' => 'Doe',
+                'Email' => 'john.doe@example.com',
+                'Role' => 'CEO',
             ]
         );
 
@@ -141,7 +141,7 @@ class ImportItemJobTest extends TestCase
                 ],
             ],
             item: [
-                'title' => 'Statamic',
+                'Title' => 'Statamic',
             ]
         );
 
@@ -167,7 +167,7 @@ class ImportItemJobTest extends TestCase
                 ],
             ],
             item: [
-                'title' => 'Statamic',
+                'Title' => 'Statamic',
             ]
         );
 
@@ -194,9 +194,9 @@ class ImportItemJobTest extends TestCase
                 ],
             ],
             item: [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => 'john.doe@example.com',
+                'First Name' => 'John',
+                'Last Name' => 'Doe',
+                'Email' => 'john.doe@example.com',
             ]
         );
 
@@ -225,9 +225,9 @@ class ImportItemJobTest extends TestCase
                 ],
             ],
             item: [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => 'john.doe@example.com',
+                'First Name' => 'John',
+                'Last Name' => 'Doe',
+                'Email' => 'john.doe@example.com',
             ]
         );
 

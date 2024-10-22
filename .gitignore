@@ -3,3 +3,5 @@ vendor
 mix-manifest.json
 .idea
 composer.lock
+resources/dist
+.env

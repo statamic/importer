@@ -27,8 +27,9 @@ class ImportItemJob implements ShouldQueue
         $blueprint = $this->getBlueprint();
 
         $data = collect($this->config('mappings'))
+            ->reject(fn ($mapping) => empty($mapping['key']))
             ->mapWithKeys(function (array $mapping, string $fieldHandle) use ($blueprint) {
-                $value = Arr::get($this->item, $fieldHandle);
+                $value = Arr::get($this->item, $mapping['key']);
                 $field = $blueprint->field($fieldHandle);
 
                 if (! $value) {

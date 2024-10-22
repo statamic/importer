@@ -10,14 +10,11 @@ class Importer
 {
     protected static $transformers = [];
 
-    public static function import(array $config, string $path): void
+    public static function import(array $config): void
     {
-        $extension = pathinfo($path, PATHINFO_EXTENSION);
-
-        $items = match ($extension) {
-            'csv' => (new Csv($config))->getItems($path),
-            'xml' => (new Xml($config))->getItems($path),
-            default => throw new \Exception("Couldn't find a source for [{$extension}] files."),
+        $items = match ($config['type']) {
+            'csv' => (new Csv($config))->getItems($config['path']),
+            'xml' => (new Xml($config))->getItems($config['path']),
         };
 
         $items->each(fn (array $item) => ImportItemJob::dispatch($config, $item));

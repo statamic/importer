@@ -2,6 +2,9 @@
 
 namespace Statamic\Importer;
 
+use Statamic\Facades\Utility;
+use Statamic\Importer\Http\Controllers\ImportController;
+use Statamic\Importer\Http\Controllers\MappingsController;
 use Statamic\Providers\AddonServiceProvider;
 
 class ServiceProvider extends AddonServiceProvider
@@ -15,10 +18,27 @@ class ServiceProvider extends AddonServiceProvider
         'users' => Transformers\UsersTransformer::class,
     ];
 
+    protected $vite = [
+        'publicDirectory' => 'resources/dist',
+        'hotFile' => 'vendor/importer/hot',
+        'input' => [
+            'resources/js/cp.js',
+        ],
+    ];
+
     public function bootAddon()
     {
         foreach ($this->transformers as $fieldtype => $transformer) {
             Importer::registerTransformer($fieldtype, $transformer);
         }
+
+        Utility::extend(function () {
+            Utility::register('import')
+                ->action([ImportController::class, 'index'])
+                ->routes(function ($router) {
+                    $router->post('/', [ImportController::class, 'store'])->name('store');
+                    $router->post('mappings', MappingsController::class)->name('mappings');
+                });
+        });
     }
 }

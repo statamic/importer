@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Transformers;
 
 use Illuminate\Support\Arr;
+use Statamic\Extend\HasFields;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
 use Statamic\Importer\Contracts\Transformer;

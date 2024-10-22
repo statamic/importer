@@ -74,8 +74,13 @@ class Gutenberg
                     $asset = static::findOrDownloadAsset(
                         assetContainer: $assetContainer,
                         url: $url,
-                        baseUrl: $config['assets_base_url'] ?? null
+                        baseUrl: $config['assets_base_url'] ?? null,
+                        downloadWhenMissing: $config['assets_download_when_missing'] ?? false
                     );
+
+                    if (! $asset) {
+                        return null;
+                    }
 
                     return [
                         'type' => 'paragraph',
@@ -119,11 +124,13 @@ class Gutenberg
                                         $asset = static::findOrDownloadAsset(
                                             assetContainer: $assetContainer,
                                             url: $url,
-                                            baseUrl: $config['assets_base_url'] ?? null
+                                            baseUrl: $config['assets_base_url'] ?? null,
+                                            downloadWhenMissing: $config['assets_download_when_missing'] ?? false
                                         );
 
                                         return $asset?->path();
                                     })
+                                    ->filter()
                                     ->all(),
                             ],
                         ],
@@ -358,7 +365,7 @@ class Gutenberg
         return (new BardAugmentor($field->fieldtype()))->renderHtmlToProsemirror($html)['content'][0];
     }
 
-    protected static function findOrDownloadAsset(AssetContainerContract $assetContainer, string $url, string $baseUrl): ?Asset
+    protected static function findOrDownloadAsset(AssetContainerContract $assetContainer, string $url, string $baseUrl, bool $downloadWhenMissing): ?Asset
     {
         $path = Str::of($url)
             ->after(Str::removeRight($baseUrl, '/'))
@@ -367,7 +374,7 @@ class Gutenberg
 
         $asset = $assetContainer->asset($path);
 
-        if (! $asset) {
+        if (! $asset && $downloadWhenMissing) {
             $request = Http::get(Str::removeRight($baseUrl, '/').Str::ensureLeft($path, '/'));
 
             if (! $request->ok()) {
