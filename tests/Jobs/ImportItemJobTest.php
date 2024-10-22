@@ -8,6 +8,7 @@ use Statamic\Facades\Entry;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\Term;
 use Statamic\Facades\User;
+use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Jobs\ImportItemJob;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
@@ -65,24 +66,23 @@ class ImportItemJobTest extends TestCase
     {
         $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
 
-        ImportItemJob::dispatch(
-            config: [
-                'destination' => ['type' => 'entries', 'collection' => 'team'],
-                'unique_key' => 'email',
-                'mappings' => [
-                    'first_name' => ['key' => 'First Name'],
-                    'last_name' => ['key' => 'Last Name'],
-                    'email' => ['key' => 'Email'],
-                    'role' => ['key' => 'Role'],
-                ],
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'unique_key' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
             ],
-            item: [
-                'First Name' => 'John',
-                'Last Name' => 'Doe',
-                'Email' => 'john.doe@example.com',
-                'Role' => 'CEO',
-            ]
-        );
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
 
         $entry = Entry::query()->where('email', 'john.doe@example.com')->first();
 
@@ -99,24 +99,23 @@ class ImportItemJobTest extends TestCase
         $entry = Entry::make()->collection('team')->data(['email' => 'john.doe@example.com', 'role' => 'CTO']);
         $entry->save();
 
-        ImportItemJob::dispatch(
-            config: [
-                'destination' => ['type' => 'entries', 'collection' => 'team'],
-                'unique_key' => 'email',
-                'mappings' => [
-                    'first_name' => ['key' => 'First Name'],
-                    'last_name' => ['key' => 'Last Name'],
-                    'email' => ['key' => 'Email'],
-                    'role' => ['key' => 'Role'],
-                ],
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'unique_key' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
             ],
-            item: [
-                'First Name' => 'John',
-                'Last Name' => 'Doe',
-                'Email' => 'john.doe@example.com',
-                'Role' => 'CEO',
-            ]
-        );
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
 
         $entry->fresh();
 
@@ -132,18 +131,17 @@ class ImportItemJobTest extends TestCase
     {
         $this->assertNull(Term::query()->where('title', 'Statamic')->first());
 
-        ImportItemJob::dispatch(
-            config: [
-                'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
-                'unique_key' => 'title',
-                'mappings' => [
-                    'title' => ['key' => 'Title'],
-                ],
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'unique_key' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
             ],
-            item: [
-                'Title' => 'Statamic',
-            ]
-        );
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+        ]);
 
         $term = Term::query()->where('title', 'Statamic')->first();
 
@@ -158,18 +156,17 @@ class ImportItemJobTest extends TestCase
         $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic');
         $term->save();
 
-        ImportItemJob::dispatch(
-            config: [
-                'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
-                'unique_key' => 'title',
-                'mappings' => [
-                    'title' => ['key' => 'Title'],
-                ],
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'unique_key' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
             ],
-            item: [
-                'Title' => 'Statamic',
-            ]
-        );
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+        ]);
 
         $term->fresh();
 
@@ -183,22 +180,21 @@ class ImportItemJobTest extends TestCase
     {
         $this->assertNull(User::findByEmail('john.doe@example.com'));
 
-        ImportItemJob::dispatch(
-            config: [
-                'destination' => ['type' => 'users'],
-                'unique_key' => 'email',
-                'mappings' => [
-                    'first_name' => ['key' => 'First Name'],
-                    'last_name' => ['key' => 'Last Name'],
-                    'email' => ['key' => 'Email'],
-                ],
+        $import = Import::make()->config([
+            'destination' => ['type' => 'users'],
+            'unique_key' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
             ],
-            item: [
-                'First Name' => 'John',
-                'Last Name' => 'Doe',
-                'Email' => 'john.doe@example.com',
-            ]
-        );
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+        ]);
 
         $user = User::findByEmail('john.doe@example.com');
 
@@ -214,22 +210,21 @@ class ImportItemJobTest extends TestCase
         $user = User::make()->email('john.doe@example.com');
         $user->save();
 
-        ImportItemJob::dispatch(
-            config: [
-                'destination' => ['type' => 'users'],
-                'unique_key' => 'email',
-                'mappings' => [
-                    'first_name' => ['key' => 'First Name'],
-                    'last_name' => ['key' => 'Last Name'],
-                    'email' => ['key' => 'Email'],
-                ],
+        $import = Import::make()->config([
+            'destination' => ['type' => 'users'],
+            'unique_key' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
             ],
-            item: [
-                'First Name' => 'John',
-                'Last Name' => 'Doe',
-                'Email' => 'john.doe@example.com',
-            ]
-        );
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+        ]);
 
         $user->fresh();
 

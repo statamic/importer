@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
@@ -15,19 +16,20 @@ use Statamic\Facades\Term;
 use Statamic\Facades\User;
 use Statamic\Fields\Blueprint;
 use Statamic\Importer\Importer;
+use Statamic\Importer\Imports\Import;
 
 class ImportItemJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;
 
-    public function __construct(public array $config, public array $item) {}
+    public function __construct(public Import $import, public array $item) {}
 
     public function handle(): void
     {
         $blueprint = $this->getBlueprint();
 
-        $data = collect($this->config('mappings'))
-            ->reject(fn ($mapping) => empty($mapping['key']))
+        $data = collect($this->import->get('mappings'))
+            ->reject(fn (array $mapping) => empty($mapping['key']))
             ->mapWithKeys(function (array $mapping, string $fieldHandle) use ($blueprint) {
                 $value = Arr::get($this->item, $mapping['key']);
                 $field = $blueprint->field($fieldHandle);
@@ -36,15 +38,16 @@ class ImportItemJob implements ShouldQueue
                     return [$fieldHandle => null];
                 }
 
-                $transformer = Importer::getTransformer($field->type());
-                $value = $transformer ? (new $transformer($blueprint, $field, $mapping))->transform($value) : $value;
+                if ($transformer = Importer::getTransformer($field->type())) {
+                    $value = (new $transformer($blueprint, $field, $mapping))->transform($value);
+                }
 
                 return [$fieldHandle => $value];
             })
             ->filter()
             ->all();
 
-        match ($this->config('destination.type')) {
+        match ($this->import->get('destination.type')) {
             'entries' => $this->findOrCreateEntry($data),
             'terms' => $this->findOrCreateTerm($data),
             'users' => $this->findOrCreateUser($data),
@@ -53,15 +56,15 @@ class ImportItemJob implements ShouldQueue
 
     protected function getBlueprint(): Blueprint
     {
-        if ($this->config('destination.type') === 'entries') {
-            return Collection::find($this->config('destination.collection'))->entryBlueprint();
+        if ($this->import->get('destination.type') === 'entries') {
+            return Collection::find($this->import->get('destination.collection'))->entryBlueprint();
         }
 
-        if ($this->config('destination.type') === 'terms') {
-            return Taxonomy::find($this->config('destination.taxonomy'))->termBlueprint();
+        if ($this->import->get('destination.type') === 'terms') {
+            return Taxonomy::find($this->import->get('destination.taxonomy'))->termBlueprint();
         }
 
-        if ($this->config('destination.type') === 'users') {
+        if ($this->import->get('destination.type') === 'users') {
             return User::blueprint();
         }
     }
@@ -69,12 +72,12 @@ class ImportItemJob implements ShouldQueue
     protected function findOrCreateEntry(array $data): void
     {
         $entry = Entry::query()
-            ->where('collection', $this->config('destination.collection'))
-            ->where($this->config('unique_key'), $data[$this->config('unique_key')])
+            ->where('collection', $this->import->get('destination.collection'))
+            ->where($this->import->get('unique_key'), $data[$this->import->get('unique_key')])
             ->first();
 
         if (! $entry) {
-            $entry = Entry::make()->collection($this->config('destination.collection'));
+            $entry = Entry::make()->collection($this->import->get('destination.collection'));
         }
 
         if (isset($data['slug'])) {
@@ -96,12 +99,12 @@ class ImportItemJob implements ShouldQueue
     protected function findOrCreateTerm(array $data): void
     {
         $term = Term::query()
-            ->where('taxonomy', $this->config('destination.taxonomy'))
-            ->where($this->config('unique_key'), $data[$this->config('unique_key')])
+            ->where('taxonomy', $this->import->get('destination.taxonomy'))
+            ->where($this->import->get('unique_key'), $data[$this->import->get('unique_key')])
             ->first();
 
         if (! $term) {
-            $term = Term::make()->taxonomy($this->config('destination.taxonomy'));
+            $term = Term::make()->taxonomy($this->import->get('destination.taxonomy'));
         }
 
         if (isset($data['slug'])) {
@@ -109,7 +112,7 @@ class ImportItemJob implements ShouldQueue
         }
 
         if (! $term->slug()) {
-            $term->slug(Str::slug($data[$this->config('unique_key')]));
+            $term->slug(Str::slug($data[$this->import->get('unique_key')]));
         }
 
         $term->merge($data);
@@ -120,7 +123,7 @@ class ImportItemJob implements ShouldQueue
     protected function findOrCreateUser(array $data): void
     {
         $user = User::query()
-            ->where($this->config('unique_key'), $data[$this->config('unique_key')])
+            ->where($this->import->get('unique_key'), $data[$this->import->get('unique_key')])
             ->first();
 
         if (! $user) {
@@ -137,14 +140,5 @@ class ImportItemJob implements ShouldQueue
 
         $user->merge($data);
         $user->save();
-    }
-
-    protected function config(?string $key = null, $default = null): mixed
-    {
-        if (is_null($key)) {
-            return collect($this->config);
-        }
-
-        return Arr::get($this->config, $key, $default);
     }
 }

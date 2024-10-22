@@ -44,4 +44,27 @@ class UsersTransformer extends AbstractTransformer
 
         return $this->field->get('max_items') === 1 ? $users->first() : $users->all();
     }
+
+    public function fieldItems(): array
+    {
+        return [
+            'related_field' => [
+                'type' => 'select',
+                'display' => __('Related Field'),
+                'instructions' => __('Which field does the data reference?'),
+                'options' => User::blueprint()
+                    ->fields()
+                    ->all()
+                    ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
+                    ->values()
+                    ->all(),
+            ],
+            'create_when_missing' => [
+                'type' => 'toggle',
+                'display' => __('Create user when missing?'),
+                'instructions' => __("Create the user if it doesn't exist."),
+                'default' => false,
+            ],
+        ];
+    }
 }

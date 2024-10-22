@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
+use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Importer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
 
@@ -40,7 +41,7 @@ CSV
 
         $this->assertNull(Entry::query()->where('imported_id', 'one')->first());
 
-        Importer::import([
+        $import = Import::make()->config([
             'type' => 'csv',
             'path' => storage_path('import.csv'),
             'destination' => ['type' => 'entries', 'collection' => 'team'],
@@ -53,6 +54,8 @@ CSV
                 'imported_id' => ['key' => 'ID'],
             ],
         ]);
+
+        Importer::run($import);
 
         $entry = Entry::query()->where('imported_id', 'one')->first();
 
@@ -111,7 +114,7 @@ XML
 
         $this->assertNull(Entry::query()->where('imported_id', 'one')->first());
 
-        Importer::import([
+        $import = Import::make()->config([
             'type' => 'xml',
             'path' => storage_path('import.xml'),
             'destination' => ['type' => 'entries', 'collection' => 'posts'],
@@ -124,6 +127,8 @@ XML
                 'imported_id' => ['key' => 'wp:post_id'],
             ],
         ]);
+
+        Importer::run($import);
 
         $entry = Entry::query()->where('imported_id', 'one')->first();
 

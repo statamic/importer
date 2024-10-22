@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Transformers;
 
 use Illuminate\Support\Arr;
+use Statamic\Facades\Taxonomy;
 use Statamic\Facades\Term;
 use Statamic\Support\Str;
 
@@ -34,5 +35,33 @@ class TermsTransformer extends AbstractTransformer
         })->filter();
 
         return $this->field->get('max_items') === 1 ? $terms->first() : $terms->all();
+    }
+
+    public function fieldItems(): array
+    {
+        $taxonomies = $this->field->get('taxonomies') ?? Taxonomy::all()->map->handle();
+
+        $fields = collect($taxonomies)
+            ->flatMap(fn (string $collection) => Taxonomy::find($collection)->termBlueprints())
+            ->flatMap(fn ($blueprint) => $blueprint->fields()->all())
+            ->unique(fn ($field) => $field->handle());
+
+        return [
+            'related_field' => [
+                'type' => 'select',
+                'display' => __('Related Field'),
+                'instructions' => __('Which field does the data reference?'),
+                'options' => $fields
+                    ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
+                    ->values()
+                    ->all(),
+            ],
+            'create_when_missing' => [
+                'type' => 'toggle',
+                'display' => __('Create term when missing?'),
+                'instructions' => __("Create the term if it doesn't exist."),
+                'default' => false,
+            ],
+        ];
     }
 }

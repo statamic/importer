@@ -2,6 +2,7 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Support\Arr;
 use Statamic\Support\Str;
@@ -43,5 +44,33 @@ class EntriesTransformer extends AbstractTransformer
         })->filter();
 
         return $this->field->get('max_items') === 1 ? $entries->first() : $entries->all();
+    }
+
+    public function fieldItems(): array
+    {
+        $collections = $this->field->get('collections') ?? Collection::all()->map->handle();
+
+        $fields = collect($collections)
+            ->flatMap(fn (string $collection) => Collection::find($collection)->entryBlueprints())
+            ->flatMap(fn ($blueprint) => $blueprint->fields()->all())
+            ->unique(fn ($field) => $field->handle());
+
+        return [
+            'related_field' => [
+                'type' => 'select',
+                'display' => __('Related Field'),
+                'instructions' => __('Which field does the data reference?'),
+                'options' => $fields
+                    ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
+                    ->values()
+                    ->all(),
+            ],
+            'create_when_missing' => [
+                'type' => 'toggle',
+                'display' => __('Create entry when missing?'),
+                'instructions' => __("Create the entry if it doesn't exist."),
+                'default' => false,
+            ],
+        ];
     }
 }

@@ -57,4 +57,24 @@ class BardTransformer extends AbstractTransformer
     {
         return Str::contains($value, '<!-- wp:');
     }
+
+    public function fieldItems(): array
+    {
+        if ($this->field->get('container')) {
+            return [
+                'assets_base_url' => [
+                    'type' => 'text',
+                    'display' => __('Assets Base URL'),
+                    'instructions' => __('The base URL to prepend to the path.'),
+                ],
+                'assets_download_when_missing' => [
+                    'type' => 'toggle',
+                    'display' => __('Download assets when missing?'),
+                    'instructions' => __("If the asset can't be found in the asset container, should it be downloaded?"),
+                ],
+            ];
+        }
+
+        return [];
+    }
 }

@@ -9,10 +9,17 @@ abstract class TestCase extends AddonTestCase
 {
     protected string $addonServiceProvider = ServiceProvider::class;
 
-    public function setUp(): void
+    protected function getEnvironmentSetUp($app)
     {
-        parent::setUp();
+        parent::getEnvironmentSetUp($app);
 
-        $this->app['files']->deleteDirectory(storage_path('app/public'));
+        $app['files']->deleteDirectory(storage_path('app/public'));
+
+        $app['config']->set('statamic.editions.pro', true);
+
+        $app['config']->set('cache.stores.outpost', [
+            'driver' => 'file',
+            'path' => storage_path('framework/cache/outpost-data'),
+        ]);
     }
 }

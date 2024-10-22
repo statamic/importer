@@ -33,10 +33,14 @@ class ServiceProvider extends AddonServiceProvider
         }
 
         Utility::extend(function () {
-            Utility::register('import')
+            Utility::register('importer')
                 ->action([ImportController::class, 'index'])
                 ->routes(function ($router) {
                     $router->post('/', [ImportController::class, 'store'])->name('store');
+                    $router->get('{import}', [ImportController::class, 'edit'])->name('edit');
+                    $router->patch('{import}', [ImportController::class, 'update'])->name('update');
+                    $router->delete('{import}', [ImportController::class, 'destroy'])->name('destroy');
+
                     $router->post('mappings', MappingsController::class)->name('mappings');
                 });
         });

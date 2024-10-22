@@ -10,13 +10,17 @@ use Statamic\Importer\Contracts\Transformer;
 
 abstract class AbstractTransformer implements Transformer
 {
-    public function __construct(protected Blueprint $blueprint, protected Field $field, protected array $config) {}
+    use HasFields;
+
+    public function __construct(protected ?Blueprint $blueprint = null, protected ?Field $field = null, protected ?array $config = null) {}
 
     abstract public function transform(string $value);
 
-    /**
-     * Get the field mapping configuration.
-     */
+    public function fieldItems(): array
+    {
+        return [];
+    }
+
     protected function config(?string $key = null, $default = null): mixed
     {
         if (is_null($key)) {

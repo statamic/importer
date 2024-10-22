@@ -7,7 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\File;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
-use Statamic\Facades\User;
 
 class MappingsRequest extends FormRequest
 {

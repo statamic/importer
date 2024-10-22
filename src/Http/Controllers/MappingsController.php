@@ -3,13 +3,16 @@
 namespace Statamic\Importer\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
+use Statamic\Facades;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Importer\Http\Requests\MappingsRequest;
+use Statamic\Importer\Importer;
 use Statamic\Importer\Sources\Csv;
 use Statamic\Importer\Sources\Xml;
 
@@ -25,30 +28,44 @@ class MappingsController extends CpController
         };
 
         return [
-            'item_options' => collect($row)->map(fn ($value, $key) => [
-                'value' => $key,
-                'label' => "<{$key}>: {$value}",
-            ])->values(),
             'fields' => $blueprint->fields()->all()
-                ->map(function (Field $field) {
+                ->map(function (Field $field) use ($request, $row) {
+                    $fields = [];
+
+                    if ($transformer = Importer::getTransformer($field->type())) {
+                        $fields = (new $transformer(field: $field))->fieldItems();
+                    }
+
+                    $blueprint = Facades\Blueprint::makeFromFields([
+                        'key' => [
+                            'type' => 'select',
+                            'hide_display' => true,
+                            'options' => collect($row)->map(fn ($value, $key) => [
+                                'key' => $key,
+                                'value' => "<{$key}>: {$value}",
+                            ])->values(),
+                            'clearable' => true,
+                        ],
+                        ...$fields
+                    ]);
+
                     return [
                         'type' => $field->type(),
                         'handle' => $field->handle(),
                         'display' => $field->display(),
                         'config' => $field->config(),
+                        'fields' => $blueprint->fields()->toPublishArray(),
+                        'meta' => $blueprint->fields()->meta(),
+                        'values' => $blueprint->fields()
+                            ->addValues(Arr::get($request->mappings, $field->handle()) ?? [])
+                            ->values()->all(),
                     ];
                 })
-                ->when($request->destination['type'] === 'users', fn ($fields) => $fields->prepend(['handle' => 'email', 'fieldtype' => 'text', 'display' => __('Email')]))
-                ->when($request->destination['type'] !== 'users', fn ($fields) => $fields->prepend(['handle' => 'slug', 'fieldtype' => 'text', 'display' => __('Slug')]))
-                ->when($request->destination['type'] !== 'users', fn ($fields) => $fields->prepend(['handle' => 'title', 'fieldtype' => 'text', 'display' => __('Title')]))
-                // todo: date?
                 ->unique('handle')
                 ->values(),
             'unique_keys' => $blueprint->fields()->all()
                 ->filter(fn ($field) => in_array($field->type(), ['text', 'integer', 'slug']))
-                ->map->handle()
-                ->merge(['title', 'slug'])
-                ->unique()
+                ->map(fn ($field) => ['handle' => $field->handle(), 'display' => $field->display()])
                 ->values()
         ];
     }

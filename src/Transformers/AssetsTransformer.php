@@ -43,4 +43,31 @@ class AssetsTransformer extends AbstractTransformer
 
         return $this->field->get('max_files') === 1 ? $assets->first() : $assets->all();
     }
+
+    public function fieldItems(): array
+    {
+        return [
+            'related_field' => [
+                'type' => 'select',
+                'display' => __('Related Field'),
+                'instructions' => __('Which field does the data reference?'),
+                'options' => [
+                    ['key' => 'path', 'value' => __('Path')],
+                    ['key' => 'url', 'value' => __('URL')],
+                ],
+            ],
+            'base_url' => [
+                'type' => 'text',
+                'display' => __('Base URL'),
+                'instructions' => __('The base URL to prepend to the path.'),
+                'if' => ['related_field' => 'url'],
+            ],
+            'download_when_missing' => [
+                'type' => 'toggle',
+                'display' => __('Download when missing?'),
+                'instructions' => __("If the asset can't be found in the asset container, should it be downloaded?"),
+                'if' => ['related_field' => 'url'],
+            ],
+        ];
+    }
 }

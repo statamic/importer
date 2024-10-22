@@ -1,14 +1,22 @@
 @extends('statamic::layout')
-@section('title', __('Import'))
+@section('title', __('Importer'))
 
 @section('content')
     <div class="flex items-center justify-between">
-        <h1>{{ __('Import') }}</h1>
+        <h1>{{ __('Importer') }}</h1>
     </div>
 
-    <import-wizard
-        mappings-url="{{ $mappingsUrl }}"
-        :collections='@json($collections)'
-        :taxonomies='@json($taxonomies)'
-    />
+    <create-import-form
+        class="mb-10"
+        action="{{ cp_route('utilities.importer.store') }}"
+        :blueprint='@json($blueprint)'
+        :fields='@json($fields)'
+        :initial-meta='@json($meta)'
+        :initial-values='@json($values)'
+    ></create-import-form>
+
+    <div>
+        <h2 class="mb-2">{{ __('Recent Imports') }}</h2>
+        <imports-listing :initial-rows='@json($imports)'></imports-listing>
+    </div>
 @stop
