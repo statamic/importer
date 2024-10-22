@@ -21,12 +21,12 @@ class Xml extends AbstractSource
                 foreach ($item->getDocNamespaces(true) as $namespace => $uri) {
                     // Access namespaced elements using the namespace prefix
                     foreach ($item->children($uri) as $key => $value) {
-                        $array[$namespace . ':' . $key] = (string) $value;
+                        $array[$namespace.':'.$key] = (string) $value;
                     }
 
                     // If you want to access attributes in the namespaced elements
                     foreach ($item->attributes($uri) as $key => $value) {
-                        $array[$namespace . ':' . $key] = (string) $value;
+                        $array[$namespace.':'.$key] = (string) $value;
                     }
                 }
 

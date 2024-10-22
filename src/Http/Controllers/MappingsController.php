@@ -4,12 +4,12 @@ namespace Statamic\Importer\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Statamic\Facades;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
-use Statamic\Facades;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Importer\Http\Requests\MappingsRequest;
 use Statamic\Importer\Importer;
@@ -46,7 +46,7 @@ class MappingsController extends CpController
                             ])->values(),
                             'clearable' => true,
                         ],
-                        ...$fields
+                        ...$fields,
                     ]);
 
                     return [
@@ -66,7 +66,7 @@ class MappingsController extends CpController
             'unique_keys' => $blueprint->fields()->all()
                 ->filter(fn ($field) => in_array($field->type(), ['text', 'integer', 'slug']))
                 ->map(fn ($field) => ['handle' => $field->handle(), 'display' => $field->display()])
-                ->values()
+                ->values(),
         ];
     }
 
@@ -82,25 +82,6 @@ class MappingsController extends CpController
 
         if ($request->destination['type'] === 'users') {
             return User::blueprint();
-        }
-    }
-
-    protected function getRelatedFieldOptions(Field $field): array
-    {
-        if ($field->type() === 'entries') {
-            return [
-                'collections' => Collection::all()->map->handle()->values(),
-            ];
-        }
-
-        if ($field->type() === 'terms') {
-            return [
-                'taxonomies' => Taxonomy::all()->map->handle()->values(),
-            ];
-        }
-
-        if ($field->type() === 'users') {
-            return [];
         }
     }
 }

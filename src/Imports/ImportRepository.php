@@ -3,11 +3,9 @@
 namespace Statamic\Importer\Imports;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Statamic\Facades\Stache;
 use Statamic\Facades\YAML;
 
 class ImportRepository
@@ -47,7 +45,6 @@ class ImportRepository
         }
 
         File::ensureDirectoryExists($this->path());
-
 
         File::put($import->path(), YAML::dump($import->fileData()));
     }

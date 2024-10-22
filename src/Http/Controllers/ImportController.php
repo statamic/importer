@@ -117,7 +117,7 @@ class ImportController extends CpController
             'name' => [
                 'type' => 'text',
                 'display' => __('Name'),
-                'validate' => 'required'
+                'validate' => 'required',
             ],
             'type' => [
                 'type' => 'select',

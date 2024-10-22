@@ -2,11 +2,9 @@
 
 namespace Statamic\Importer\Imports;
 
-use Illuminate\Support\Carbon;
 use Statamic\Importer\Facades\Import as ImportFacade;
 use Statamic\Importer\Importer;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
-use Throwable;
 
 class Import
 {
@@ -63,7 +61,7 @@ class Import
 
     public function path(): string
     {
-        return ImportFacade::path() . "/{$this->id()}.yaml";
+        return ImportFacade::path()."/{$this->id()}.yaml";
     }
 
     public function fresh(): self
