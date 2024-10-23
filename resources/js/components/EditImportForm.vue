@@ -43,7 +43,15 @@ export default {
             errors: {},
             saving: false,
             config: this.initialConfig,
+            quickSaveKeyBinding: null,
         }
+    },
+
+    mounted() {
+        this.quickSaveKeyBinding = this.$keys.bindGlobal(['mod+s'], e => {
+            e.preventDefault();
+            this.save();
+        });
     },
 
     methods: {

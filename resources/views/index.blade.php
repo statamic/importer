@@ -14,8 +14,10 @@
         :initial-values='@json($values)'
     ></create-import-form>
 
-    <div>
-        <h2 class="mb-2">{{ __('Recent Imports') }}</h2>
-        <imports-listing :initial-rows='@json($imports)'></imports-listing>
-    </div>
+    @if($imports->isNotEmpty())
+        <div>
+            <h2 class="mb-2">{{ __('Recent Imports') }}</h2>
+            <imports-listing :initial-rows='@json($imports)'></imports-listing>
+        </div>
+    @endif
 @stop

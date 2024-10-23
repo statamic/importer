@@ -15,6 +15,7 @@ use Statamic\Importer\Http\Requests\MappingsRequest;
 use Statamic\Importer\Importer;
 use Statamic\Importer\Sources\Csv;
 use Statamic\Importer\Sources\Xml;
+use Statamic\Support\Str;
 
 class MappingsController extends CpController
 {
@@ -42,7 +43,7 @@ class MappingsController extends CpController
                             'hide_display' => true,
                             'options' => collect($row)->map(fn ($value, $key) => [
                                 'key' => $key,
-                                'value' => "<{$key}>: {$value}",
+                                'value' => "<{$key}>: " . Str::truncate($value, 200),
                             ])->values(),
                             'clearable' => true,
                         ],

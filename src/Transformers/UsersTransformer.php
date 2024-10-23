@@ -64,6 +64,7 @@ class UsersTransformer extends AbstractTransformer
                 'display' => __('Create user when missing?'),
                 'instructions' => __("Create the user if it doesn't exist."),
                 'default' => false,
+                'unless' => ['related_field' => 'name'],
             ],
         ];
     }
