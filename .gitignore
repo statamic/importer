@@ -5,3 +5,4 @@ mix-manifest.json
 composer.lock
 resources/dist
 .env
+.phpunit.result.cache
