@@ -46,6 +46,8 @@ class BardTransformer extends AbstractTransformer
                     'table',
                     'horizontalrule',
                     'codeblock',
+                    'underline',
+                    'superscript',
                 ],
             ])
         );

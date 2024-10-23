@@ -51,6 +51,7 @@ class AssetsTransformer extends AbstractTransformer
                 'type' => 'select',
                 'display' => __('Related Field'),
                 'instructions' => __('Which field does the data reference?'),
+                'default' => 'url',
                 'options' => [
                     ['key' => 'path', 'value' => __('Path')],
                     ['key' => 'url', 'value' => __('URL')],

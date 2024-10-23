@@ -55,6 +55,7 @@ class MappingsController extends CpController
                         'handle' => $field->handle(),
                         'display' => $field->display(),
                         'config' => $field->config(),
+                        'fieldtype_title' => $field->fieldtype()->title(),
                         'fields' => $blueprint->fields()->toPublishArray(),
                         'meta' => $blueprint->fields()->meta(),
                         'values' => $blueprint->fields()

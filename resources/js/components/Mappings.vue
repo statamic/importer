@@ -15,11 +15,12 @@
                 <tbody>
                     <tr v-for="field in fields">
                         <td class="w-96">
-                            <label class="text-base" :for="`mappings.${field.handle}.key`">
+                            <label class="text-base font-medium" :for="`mappings.${field.handle}.key`">
                                 {{ field.display }}
                             </label>
+                            <span class="text-xs">{{ field.fieldtype_title }}</span>
                         </td>
-                        <td class="flex flex-col">
+                        <td>
                             <publish-container
                                 :name="`mappings-${field.handle}`"
                                 :values="mappings[field.handle]"

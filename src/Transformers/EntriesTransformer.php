@@ -60,8 +60,10 @@ class EntriesTransformer extends AbstractTransformer
                 'type' => 'select',
                 'display' => __('Related Field'),
                 'instructions' => __('Which field does the data reference?'),
+                'default' => 'id',
                 'options' => $fields
                     ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
+                    ->prepend(['key' => 'id', 'value' => __('ID')])
                     ->values()
                     ->all(),
             ],
