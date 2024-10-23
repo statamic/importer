@@ -5,7 +5,6 @@
 
             <publish-container
                 name="base"
-                :blueprint="blueprint"
                 :values="values"
                 :meta="meta"
                 :errors="errors"
@@ -23,7 +22,7 @@
                 </div>
             </publish-container>
 
-            <div class="flex justify-center">
+            <div class="flex justify-center mt-6">
                 <button class="btn-primary" :disabled="saving">{{ __('Save & Configure') }}</button>
             </div>
         </form>
@@ -41,7 +40,6 @@ export default {
 
     props: {
         action: String,
-        blueprint: Object,
         fields: Array,
         initialMeta: Object,
         initialValues: Object,

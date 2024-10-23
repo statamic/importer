@@ -9,7 +9,6 @@
     <create-import-form
         class="mb-10"
         action="{{ cp_route('utilities.importer.store') }}"
-        :blueprint='@json($blueprint)'
         :fields='@json($fields)'
         :initial-meta='@json($meta)'
         :initial-values='@json($values)'

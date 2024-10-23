@@ -3,6 +3,7 @@
 namespace Imports;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
@@ -20,6 +21,7 @@ class StoreImportTest extends TestCase
         parent::setUp();
 
         File::deleteDirectory(storage_path('statamic/importer'));
+        Storage::disk('local')->deleteDirectory('statamic/file-uploads');
     }
 
     #[Test]
@@ -27,20 +29,27 @@ class StoreImportTest extends TestCase
     {
         Collection::make('posts')->save();
 
-        File::put($path = storage_path('import.csv'), '');
+        // The Files fieldtype will upload this before the form gets submitted.
+        Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
                 'name' => 'Posts',
-                'type' => 'csv',
-                'path' => $path,
+                'file' => [
+                    '123456789/import.csv',
+                ],
                 'destination_type' => 'entries',
                 'destination_collection' => ['posts'],
             ])
             ->assertJsonStructure(['redirect']);
 
-        $this->assertNotNull(Import::find('posts'));
+        $import = Import::find('posts');
+
+        $this->assertNotNull($import);
+        $this->assertEquals('Posts', $import->name());
+        $this->assertEquals('csv', $import->get('type'));
+        $this->assertEquals(storage_path('app/statamic/imports/posts.csv'), $import->get('path'));
     }
 
     #[Test]
@@ -48,80 +57,87 @@ class StoreImportTest extends TestCase
     {
         Taxonomy::make('categories')->save();
 
-        File::put($path = storage_path('import.csv'), '');
+        // The Files fieldtype will upload this before the form gets submitted.
+        Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
                 'name' => 'Categories',
-                'type' => 'csv',
-                'path' => $path,
+                'file' => [
+                    '123456789/import.csv',
+                ],
                 'destination_type' => 'terms',
                 'destination_taxonomy' => ['categories'],
             ])
             ->assertJsonStructure(['redirect']);
 
-        $this->assertNotNull(Import::find('categories'));
+        $import = Import::find('categories');
+
+        $this->assertNotNull($import);
+        $this->assertEquals('Categories', $import->name());
+        $this->assertEquals('csv', $import->get('type'));
+        $this->assertEquals(storage_path('app/statamic/imports/categories.csv'), $import->get('path'));
     }
 
     #[Test]
     public function it_stores_a_user_import()
     {
-        File::put($path = storage_path('import.csv'), '');
+        // The Files fieldtype will upload this before the form gets submitted.
+        Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
                 'name' => 'Users',
-                'type' => 'csv',
-                'path' => $path,
+                'file' => [
+                    '123456789/import.csv',
+                ],
                 'destination_type' => 'users',
             ])
             ->assertJsonStructure(['redirect']);
 
-        $this->assertNotNull(Import::find('users'));
+        $import = Import::find('users');
+
+        $this->assertNotNull($import);
+        $this->assertEquals('Users', $import->name());
+        $this->assertEquals('csv', $import->get('type'));
+        $this->assertEquals(storage_path('app/statamic/imports/users.csv'), $import->get('path'));
     }
 
     #[Test]
-    public function validation_error_is_thrown_when_path_is_invalid()
+    public function validation_error_is_thrown_when_file_is_missing()
     {
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
                 'name' => 'Foo',
-                'type' => 'csv',
-                'path' => '/path/to/nowhere.csv',
+                'file' => [
+                    '123456789/import.csv',
+                ],
                 'destination_type' => 'users',
             ])
-            ->assertSessionHasErrors('path');
+            ->assertSessionHasErrors('file.0');
 
         $this->assertNull(Import::find('foo'));
     }
 
     #[Test]
-    public function validation_error_is_thrown_when_type_is_invalid()
+    public function validation_error_is_thrown_when_file_mime_type_is_not_allowed()
     {
-        File::put($path = storage_path('import.csv'), '');
+        // The Files fieldtype will upload this before the form gets submitted.
+        Storage::disk('local')->put('statamic/file-uploads/123456789/import.pdf', '');
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
                 'name' => 'Foo',
-                'type' => null,
-                'path' => $path,
+                'file' => [
+                    '123456789/import.pdf',
+                ],
                 'destination_type' => 'users',
             ])
-            ->assertSessionHasErrors('type');
-
-        $this
-            ->actingAs(User::make()->makeSuper()->save())
-            ->post('/cp/utilities/importer', [
-                'name' => 'Foo',
-                'type' => 'pdf',
-                'path' => $path,
-                'destination_type' => 'users',
-            ])
-            ->assertSessionHasErrors('type');
+            ->assertSessionHasErrors('file.0');
 
         $this->assertNull(Import::find('foo'));
     }
@@ -129,14 +145,16 @@ class StoreImportTest extends TestCase
     #[Test]
     public function validation_error_is_thrown_when_destination_type_is_invalid()
     {
-        File::put($path = storage_path('import.csv'), '');
+        // The Files fieldtype will upload this before the form gets submitted.
+        Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
                 'name' => 'Foo',
-                'type' => 'csv',
-                'path' => $path,
+                'file' => [
+                    '123456789/import.csv',
+                ],
                 'destination_type' => null,
             ])
             ->assertSessionHasErrors('destination_type');
@@ -145,8 +163,9 @@ class StoreImportTest extends TestCase
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
                 'name' => 'Foo',
-                'type' => 'csv',
-                'path' => $path,
+                'file' => [
+                    '123456789/import.csv',
+                ],
                 'destination_type' => 'globals',
             ])
             ->assertSessionHasErrors('destination_type');

@@ -4,12 +4,20 @@ namespace Statamic\Importer\Http\Requests;
 
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 
 class CreateImportRequest extends FormRequest
 {
+    protected array $allowedMimeTypes = [
+        'text/csv',
+        'application/csv',
+        'text/plain',
+        'application/xml',
+        'text/xml',
+    ];
+
     public function authorize(): bool
     {
         return true;
@@ -19,10 +27,16 @@ class CreateImportRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
-            'type' => ['required', 'in:xml,csv'],
-            'path' => ['required', function (string $attribute, mixed $value, Closure $fail) {
-                if (! File::exists($value)) {
-                    $fail("The file can't be found. Please ensure the path is correct.")->translate();
+            'file' => ['required', 'array'],
+            'file.0' => ['required', 'string', function (string $attribute, mixed $value, Closure $fail) {
+                $path = "statamic/file-uploads/{$value}";
+
+                if (! Storage::disk('local')->exists($path)) {
+                    $fail('The uploaded file could not be found.')->translate();
+                }
+
+                if (! in_array(Storage::disk('local')->mimeType($path), $this->allowedMimeTypes)) {
+                    $fail('Only CSV and XML files can be imported at this time.')->translate();
                 }
             }],
             'destination_type' => ['required', 'in:entries,terms,users'],

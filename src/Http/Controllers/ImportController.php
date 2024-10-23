@@ -4,6 +4,8 @@ namespace Statamic\Importer\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Statamic\CP\Breadcrumbs;
 use Statamic\Exceptions\NotFoundHttpException;
 use Statamic\Facades\Blueprint;
@@ -21,10 +23,9 @@ class ImportController extends CpController
         $blueprint = $this->getConfigBlueprint();
 
         return view('importer::index', [
-            'blueprint' => $blueprint->toPublishArray(),
             'fields' => $blueprint->fields()->toPublishArray(),
             'meta' => $blueprint->fields()->meta(),
-            'values' => $blueprint->fields()->values()->all(),
+            'values' => $blueprint->fields()->preProcess()->values()->all(),
             'imports' => Import::all()
                 ->map(function ($import) {
                     $destination = match ($import->get('destination.type')) {
@@ -47,11 +48,24 @@ class ImportController extends CpController
 
     public function store(CreateImportRequest $request)
     {
+        $slug = Str::slug($request->name);
+
+        $type = match (Storage::disk('local')->mimeType("statamic/file-uploads/{$request->file[0]}")) {
+            'text/csv', 'application/csv', 'text/plain' => 'csv',
+            'application/xml', 'text/xml' => 'xml',
+        };
+
+        Storage::disk('local')->move(
+            from: "statamic/file-uploads/{$request->file[0]}",
+            to: $path = "statamic/imports/{$slug}.{$type}"
+        );
+
         $import = Import::make()
+            ->id($slug)
             ->name($request->name)
             ->config([
-                'type' => $request->type,
-                'path' => $request->path,
+                'type' => $type,
+                'path' => Storage::disk('local')->path($path),
                 'destination' => [
                     'type' => $request->destination_type,
                     'collection' => Arr::first($request->destination_collection),
@@ -117,24 +131,19 @@ class ImportController extends CpController
             'name' => [
                 'type' => 'text',
                 'display' => __('Name'),
+                'width' => 50,
                 'validate' => 'required',
             ],
-            'type' => [
-                'type' => 'select',
-                'display' => __('Type'),
-                'width' => 25,
-                'options' => [
-                    ['key' => 'xml', 'value' => __('XML')],
-                    ['key' => 'csv', 'value' => __('CSV')],
+            'file' => [
+                'type' => 'files',
+                'display' => __('File'),
+                'width' => 50,
+                'validate' => 'required',
+                'max_files' => 1,
+                'allowed_extensions' => [
+                    'csv',
+                    'xml',
                 ],
-                'validate' => 'required',
-            ],
-            'path' => [
-                'type' => 'text',
-                'display' => __('Path'),
-                'instructions' => __("The absolute path to the file, whether it's on the local filesystem or a URL."),
-                'width' => 75,
-                'validate' => 'required',
             ],
             'destination_type' => [
                 'type' => 'select',
