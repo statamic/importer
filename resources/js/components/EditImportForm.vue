@@ -66,7 +66,7 @@ export default {
 
             axios.patch(this.action, {
                 mappings: this.config.mappings,
-                unique_key: this.config.unique_key,
+                unique_field: this.config.unique_field,
                 run: shouldRun,
             })
                 .then(response => {

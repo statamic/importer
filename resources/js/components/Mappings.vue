@@ -51,12 +51,12 @@
                 </div>
 
                 <div v-for="field in availableUniqueKeys" class="flex items-center space-x-2 space-y-1 mb-1">
-                    <input type="radio" :id="`unique_key_${field.handle}`" name="unique_key" :value="field.handle" v-model="uniqueKey">
-                    <label :for="`unique_key_${field.handle}`" class="mt-0">{{ field.display }}</label>
+                    <input type="radio" :id="`unique_field_${field.handle}`" name="unique_field" :value="field.handle" v-model="uniqueKey">
+                    <label :for="`unique_field_${field.handle}`" class="mt-0">{{ field.display }}</label>
                 </div>
 
-                <div v-if="errors?.hasOwnProperty('unique_key')">
-                    <small class="help-block text-red-500 mt-2 mb-0" v-for="(error, i) in errors.unique_key" :key="i" v-text="error" />
+                <div v-if="errors?.hasOwnProperty('unique_field')">
+                    <small class="help-block text-red-500 mt-2 mb-0" v-for="(error, i) in errors.unique_field" :key="i" v-text="error" />
                 </div>
             </div>
         </div>
@@ -93,7 +93,7 @@ export default {
             fields: null,
             uniqueKeys: null,
             mappings: {},
-            uniqueKey: this.config.unique_key,
+            uniqueKey: this.config.unique_field,
             loading: true,
         }
     },
@@ -115,7 +115,7 @@ export default {
             axios.post(this.mappingsUrl, this.config)
                 .then((response) => {
                     this.fields = response.data.fields;
-                    this.uniqueKeys = response.data.unique_keys;
+                    this.uniqueKeys = response.data.unique_fields;
 
                     this.mappings = this.fields.reduce((acc, field) => {
                         acc[field.handle] = field.values ?? {};
@@ -141,7 +141,7 @@ export default {
         uniqueKey() {
             this.$emit('updated', {
                 ...this.config,
-                unique_key: this.uniqueKey,
+                unique_field: this.uniqueKey,
             });
         },
     },

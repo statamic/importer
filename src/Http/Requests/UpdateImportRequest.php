@@ -17,7 +17,7 @@ class UpdateImportRequest extends FormRequest
             'run' => ['nullable', 'boolean'],
             'mappings' => ['required', 'array'],
             'mappings.*.key' => ['nullable', 'string'],
-            'unique_key' => ['required', 'string'],
+            'unique_field' => ['required', 'string'],
         ];
     }
 }

@@ -102,7 +102,7 @@ class ImportController extends CpController
 
         $import->config($import->config()->merge([
             'mappings' => $request->mappings,
-            'unique_key' => $request->unique_key ?? 'slug',
+            'unique_field' => $request->unique_field ?? 'slug',
         ]));
 
         $import->save();

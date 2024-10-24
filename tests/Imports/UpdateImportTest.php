@@ -56,13 +56,13 @@ class UpdateImportTest extends TestCase
                     'author' => ['key' => 'Author Email', 'related_field' => 'email'],
                     'foo' => ['key' => null],
                 ],
-                'unique_key' => 'slug',
+                'unique_field' => 'slug',
             ])
             ->assertOk();
     }
 
     #[Test]
-    public function cant_update_import_without_unique_key()
+    public function cant_update_import_without_unique_field()
     {
         $collection = tap(Collection::make('posts'))->save();
 
@@ -96,8 +96,8 @@ class UpdateImportTest extends TestCase
                     'author' => ['key' => 'Author Email', 'related_field' => 'email'],
                     'foo' => ['key' => null],
                 ],
-                'unique_key' => null,
+                'unique_field' => null,
             ])
-            ->assertSessionHasErrors('unique_key');
+            ->assertSessionHasErrors('unique_field');
     }
 }

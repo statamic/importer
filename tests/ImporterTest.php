@@ -45,7 +45,7 @@ CSV
             'type' => 'csv',
             'path' => storage_path('import.csv'),
             'destination' => ['type' => 'entries', 'collection' => 'team'],
-            'unique_key' => 'imported_id',
+            'unique_field' => 'imported_id',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
                 'last_name' => ['key' => 'Last Name'],
@@ -118,7 +118,7 @@ XML
             'type' => 'xml',
             'path' => storage_path('import.xml'),
             'destination' => ['type' => 'entries', 'collection' => 'posts'],
-            'unique_key' => 'imported_id',
+            'unique_field' => 'imported_id',
             'mappings' => [
                 'title' => ['key' => 'title'],
                 'date' => ['key' => 'pubDate'],

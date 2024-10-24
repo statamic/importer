@@ -65,7 +65,7 @@ class MappingsController extends CpController
                 })
                 ->unique('handle')
                 ->values(),
-            'unique_keys' => $blueprint->fields()->all()
+            'unique_fields' => $blueprint->fields()->all()
                 ->filter(fn ($field) => in_array($field->type(), ['text', 'integer', 'slug']))
                 ->map(fn ($field) => ['handle' => $field->handle(), 'display' => $field->display()])
                 ->values(),

@@ -72,7 +72,7 @@ class ImportItemJob implements ShouldQueue
     {
         $entry = Entry::query()
             ->where('collection', $this->import->get('destination.collection'))
-            ->where($this->import->get('unique_key'), $data[$this->import->get('unique_key')])
+            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
             ->first();
 
         if (! $entry) {
@@ -99,7 +99,7 @@ class ImportItemJob implements ShouldQueue
     {
         $term = Term::query()
             ->where('taxonomy', $this->import->get('destination.taxonomy'))
-            ->where($this->import->get('unique_key'), $data[$this->import->get('unique_key')])
+            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
             ->first();
 
         if (! $term) {
@@ -111,7 +111,7 @@ class ImportItemJob implements ShouldQueue
         }
 
         if (! $term->slug()) {
-            $term->slug(Str::slug($data[$this->import->get('unique_key')]));
+            $term->slug(Str::slug($data[$this->import->get('unique_field')]));
         }
 
         $term->merge($data);
@@ -122,7 +122,7 @@ class ImportItemJob implements ShouldQueue
     protected function findOrCreateUser(array $data): void
     {
         $user = User::query()
-            ->where($this->import->get('unique_key'), $data[$this->import->get('unique_key')])
+            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
             ->first();
 
         if (! $user) {

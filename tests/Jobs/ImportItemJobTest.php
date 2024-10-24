@@ -68,7 +68,7 @@ class ImportItemJobTest extends TestCase
 
         $import = Import::make()->config([
             'destination' => ['type' => 'entries', 'collection' => 'team'],
-            'unique_key' => 'email',
+            'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
                 'last_name' => ['key' => 'Last Name'],
@@ -101,7 +101,7 @@ class ImportItemJobTest extends TestCase
 
         $import = Import::make()->config([
             'destination' => ['type' => 'entries', 'collection' => 'team'],
-            'unique_key' => 'email',
+            'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
                 'last_name' => ['key' => 'Last Name'],
@@ -133,7 +133,7 @@ class ImportItemJobTest extends TestCase
 
         $import = Import::make()->config([
             'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
-            'unique_key' => 'title',
+            'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
             ],
@@ -158,7 +158,7 @@ class ImportItemJobTest extends TestCase
 
         $import = Import::make()->config([
             'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
-            'unique_key' => 'title',
+            'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
             ],
@@ -182,7 +182,7 @@ class ImportItemJobTest extends TestCase
 
         $import = Import::make()->config([
             'destination' => ['type' => 'users'],
-            'unique_key' => 'email',
+            'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
                 'last_name' => ['key' => 'Last Name'],
@@ -212,7 +212,7 @@ class ImportItemJobTest extends TestCase
 
         $import = Import::make()->config([
             'destination' => ['type' => 'users'],
-            'unique_key' => 'email',
+            'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
                 'last_name' => ['key' => 'Last Name'],
