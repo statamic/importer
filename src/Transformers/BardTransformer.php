@@ -2,6 +2,7 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Illuminate\Support\Facades\Http;
 use Statamic\Facades\AssetContainer;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
 use Statamic\Importer\WordPress\Gutenberg;
@@ -22,7 +23,44 @@ class BardTransformer extends AbstractTransformer
             );
         }
 
-        return (new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'];
+        $value = (new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'];
+
+        return collect($value)
+            ->map(function (array $node): ?array {
+                if ($this->field->get('container') && $node['type'] === 'image') {
+                    $baseUrl = $this->config('assets_base_url');
+                    $downloadWhenMissing = $this->config('assets_download_when_missing', false);
+                    $assetContainer = AssetContainer::find($this->field->get('container'));
+
+                    $path = Str::of($node['attrs']['src'])
+                        ->after(Str::removeRight($baseUrl, '/'))
+                        ->trim('/')
+                        ->__toString();
+
+                    $asset = $assetContainer->asset($path);
+
+                    if (! $asset && $downloadWhenMissing) {
+                        $request = Http::get(Str::removeRight($baseUrl, '/').Str::ensureLeft($path, '/'));
+
+                        if (! $request->ok()) {
+                            return null;
+                        }
+
+                        $assetContainer->disk()->put($path, $request->body());
+                        $asset = $assetContainer->makeAsset($path);
+                    }
+
+                    if (! $asset) {
+                        return null;
+                    }
+
+                    $node['attrs']['src'] = $asset->id();
+                }
+
+                return $node;
+            })
+            ->filter()
+            ->all();
     }
 
     private function enableBardButtons(): void

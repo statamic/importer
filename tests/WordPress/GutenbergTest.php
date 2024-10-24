@@ -31,7 +31,7 @@ class GutenbergTest extends TestCase
             'sections' => [
                 'main' => [
                     'fields' => [
-                        ['handle' => 'content', 'field' => ['type' => 'bard']],
+                        ['handle' => 'content', 'field' => ['type' => 'bard', 'container' => 'assets']],
                     ],
                 ],
             ],
@@ -217,6 +217,30 @@ HTML
                 ],
             ],
         ], $output);
+    }
+
+    #[Test]
+    public function it_doesnt_transforms_image_blocks_when_container_is_missing_from_bard_config()
+    {
+        Http::preventStrayRequests();
+
+        AssetContainer::make('assets')->disk('public')->save();
+        Storage::disk('public')->put('2024/10/image.png', 'original');
+
+        $this->blueprint->ensureFieldHasConfig('content', ['type' => 'bard', 'container' => null])->save();
+
+        $output = Gutenberg::toBard(
+            config: [],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('content'),
+            value: <<<'HTML'
+<!-- wp:image {"id":41,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/10/image.png" alt="" class="wp-image-41"/></figure>
+<!-- /wp:image -->
+HTML
+        );
+
+        $this->assertEquals([], $output);
     }
 
     #[Test]

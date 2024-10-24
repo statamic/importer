@@ -30,6 +30,12 @@ class MappingsController extends CpController
 
         return [
             'fields' => $blueprint->fields()->all()
+                ->reject(function (Field $field) {
+                    $transformer = Importer::getTransformer($field->type());
+
+                    return in_array($field->type(), ['section', 'grid', 'replicator', 'group'])
+                        && ! $transformer;
+                })
                 ->map(function (Field $field) use ($request, $row) {
                     $fields = [];
 

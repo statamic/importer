@@ -2,7 +2,9 @@
 
 namespace Statamic\Importer\Tests\Transformers;
 
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Collection;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\BardTransformer;
@@ -23,7 +25,7 @@ class BardTransformerTest extends TestCase
         $this->collection = tap(Collection::make('pages'))->save();
 
         $this->blueprint = $this->collection->entryBlueprint();
-        $this->blueprint->ensureField('content', ['type' => 'bard'])->save();
+        $this->blueprint->ensureField('content', ['type' => 'bard', 'container' => 'assets'])->save();
 
         $this->field = $this->blueprint->field('content');
     }
@@ -67,5 +69,39 @@ HTML);
             ['type' => 'text', 'text' => 'Saepe animi deserunt', 'marks' => [['type' => 'bold']]],
             ['type' => 'text', 'text' => ' Maxime iam et inventore. ipsam in dignissimos qui occaecati.'],
         ]], $output);
+    }
+
+    #[Test]
+    public function it_handles_images()
+    {
+        AssetContainer::make('assets')->disk('public')->save();
+        Storage::disk('public')->put('2024/10/image.png', 'original');
+
+        $transformer = new BardTransformer($this->blueprint, $this->field, [
+            'assets_base_url' => 'https://example.com/wp-content/uploads',
+        ]);
+
+        $output = $transformer->transform(<<<'HTML'
+<p>Nam voluptatem rem molestiae cumque doloremque. <strong>Saepe animi deserunt</strong> Maxime iam et inventore. ipsam in dignissimos qui occaecati.</p>
+<img src="https://example.com/wp-content/uploads/2024/10/image.png" />
+HTML);
+
+        $this->assertEquals([
+            [
+                'type' => 'paragraph',
+                'attrs' => ['textAlign' => 'left'],
+                'content' => [
+                    ['type' => 'text', 'text' => 'Nam voluptatem rem molestiae cumque doloremque. '],
+                    ['type' => 'text', 'text' => 'Saepe animi deserunt', 'marks' => [['type' => 'bold']]],
+                    ['type' => 'text', 'text' => ' Maxime iam et inventore. ipsam in dignissimos qui occaecati.'],
+                ],
+            ],
+            [
+                'type' => 'image',
+                'attrs' => [
+                    'src' => 'assets::2024/10/image.png',
+                ],
+            ],
+        ], $output);
     }
 }

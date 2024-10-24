@@ -63,10 +63,8 @@ class Gutenberg
                     ];
                 }
 
-                if ($block['blockName'] === 'core/image') {
-                    $assetContainer = $field->get('container')
-                        ? AssetContainer::find($field->get('container'))
-                        : AssetContainer::all()->first();
+                if ($field->get('container') && $block['blockName'] === 'core/image') {
+                    $assetContainer = AssetContainer::find($field->get('container'));
 
                     $crawler = new Crawler($block['innerHTML']);
                     $url = $crawler->filter('img')->first()->attr('src');
@@ -97,11 +95,15 @@ class Gutenberg
                 }
 
                 if ($block['blockName'] === 'core/gallery') {
+                    $assetContainer = $field->get('container')
+                        ? AssetContainer::find($field->get('container'))
+                        : AssetContainer::all()->first();
+
                     static::ensureBardSet($blueprint, $field, 'gallery', [
                         'display' => __('Gallery'),
                         'icon' => 'media-image-picture-gallery',
                         'fields' => [
-                            ['handle' => 'images', 'field' => ['type' => 'assets', 'display' => __('Images')]],
+                            ['handle' => 'images', 'field' => ['type' => 'assets', 'display' => __('Images'), 'container' => $assetContainer->handle()]],
                         ],
                     ]);
 
@@ -113,11 +115,7 @@ class Gutenberg
                                 'type' => 'gallery',
                                 'images' => collect($block['innerBlocks'])
                                     ->filter(fn ($block) => $block['blockName'] === 'core/image')
-                                    ->map(function (array $block) use ($config, $field): string {
-                                        $assetContainer = $field->get('container')
-                                            ? AssetContainer::find($field->get('container'))
-                                            : AssetContainer::all()->first();
-
+                                    ->map(function (array $block) use ($config, $field, $assetContainer): string {
                                         $crawler = new Crawler($block['innerHTML']);
                                         $url = $crawler->filter('img')->first()->attr('src');
 
