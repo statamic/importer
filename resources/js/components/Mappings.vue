@@ -7,7 +7,7 @@
         <div v-else class="flex flex-col gap-6">
             <div class="content max-w-lg">
                 <h2>{{ __('Configuration') }}</h2>
-                <p>{{ __('You can add or modify your Blueprint fields to customize what data is imported and what fieldtype it will be stored in. You can save, refresh, and com back to this import config later until it\'s ready to run.') }}</p>
+                <p>{{ __('You can add or modify your Blueprint fields to customize what data is imported and what fieldtype it will be stored in. You can save, refresh, and come back to this import config later until it\'s ready to run.') }}</p>
             </div>
             <div>
                 <label class="font-semibold text-sm mb-1">{{ __('Field Mappings') }}</label>
@@ -56,6 +56,10 @@
                     </tr>
                 </tbody>
             </table>
+
+            <div v-if="errors?.hasOwnProperty('mappings')">
+                <small class="help-block text-red-500 mt-2 mb-0" v-for="(error, i) in errors.mappings" :key="i" v-text="error" />
+            </div>
 
             <div>
                 <label class="font-semibold text-sm mb-1">{{ __('Unique Field') }}</label>
