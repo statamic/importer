@@ -5,20 +5,33 @@
         </div>
 
         <div v-else class="flex flex-col gap-6">
+            <div class="content max-w-lg">
+                <h2>{{ __('Configuration') }}</h2>
+                <p>{{ __('You can add or modify your Blueprint fields to customize what data is imported and what fieldtype it will be stored in. You can save, refresh, and com back to this import config later until it\'s ready to run.') }}</p>
+            </div>
+            <div>
+                <label class="font-semibold text-sm mb-1">{{ __('Field Mappings') }}</label>
+                <div class="help-block">
+                    <p>{{ __('Map the fields from your import to the fields in your blueprint.') }}</p>
+                </div>
+            </div>
             <table class="grid-table table-auto field-mappings-table">
                 <thead>
                     <tr>
-                        <th style="text-align: left">{{ __('Field') }}</th>
-                        <th style="text-align: left">{{ __('Element') }}</th>
+                        <th style="text-align: left">{{ __('Blueprint Field') }}</th>
+                        <th style="text-align: left">{{ __('Data From Import') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="field in fields">
                         <td class="w-96">
-                            <label class="text-base font-medium" :for="`mappings.${field.handle}.key`">
+                            <label class="text-sm font-medium" :for="`mappings.${field.handle}.key`">
                                 {{ field.display }}
                             </label>
-                            <span class="text-xs">{{ field.fieldtype_title }}</span>
+                            <span class="badge rounded-sm text-gray-700 dark:text-dark-100 inline-flex items-center p-0 border border-gray-300 dark:border-dark-300">
+                                <span class="px-1">{{ __('Type') }}</span>
+                                <span class="bg-white rounded-r-sm dark:bg-dark-300 px-1">{{ field.fieldtype_title }}</span>
+                            </span>
                         </td>
                         <td>
                             <publish-container
@@ -47,7 +60,7 @@
             <div>
                 <label class="font-semibold text-sm mb-1">{{ __('Unique Field') }}</label>
                 <div class="help-block mb-2">
-                    <p>{{ __('Please select a "unique field". This field will be used to determine if an item already exists.') }}</p>
+                    <p>{{ __('Select a "unique field" to determine if an item already exists.') }}</p>
                 </div>
 
                 <div v-for="field in availableUniqueKeys" class="flex items-center space-x-2 space-y-1 mb-1">

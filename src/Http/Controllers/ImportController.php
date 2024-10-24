@@ -131,13 +131,13 @@ class ImportController extends CpController
             'name' => [
                 'type' => 'text',
                 'display' => __('Name'),
-                'width' => 50,
+                'instructions' => __('Name this import so you can identify it later.'),
                 'validate' => 'required',
             ],
             'file' => [
                 'type' => 'files',
                 'display' => __('File'),
-                'width' => 50,
+                'instructions' => __('Upload a CSV or XML file to import.'),
                 'validate' => 'required',
                 'max_files' => 1,
                 'allowed_extensions' => [
@@ -146,15 +146,15 @@ class ImportController extends CpController
                 ],
             ],
             'destination_type' => [
-                'type' => 'select',
-                'display' => __('Destination'),
-                'instructions' => __('What are you importing?'),
+                'type' => 'button_group',
+                'display' => __('Data Type'),
+                'instructions' => __('Choose what type of data are you importing'),
+                'width' => 50,
                 'options' => [
                     ['key' => 'entries', 'value' => __('Entries')],
                     ['key' => 'terms', 'value' => __('Terms')],
                     ['key' => 'users', 'value' => __('Users')],
                 ],
-                'width' => 50,
                 'validate' => 'required',
             ],
             'destination_collection' => [
