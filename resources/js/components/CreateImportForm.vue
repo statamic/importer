@@ -1,7 +1,7 @@
 <template>
-    <div class="mt-3 card p-0 overflow-hidden">
-        <form class="p-4" @submit.prevent="save">
-            <h2>{{ __('New Import') }}</h2>
+    <div class="card p-6">
+        <form @submit.prevent="save">
+            <h2>{{ __('Create a New Import') }}</h2>
 
             <publish-container
                 name="base"
@@ -22,8 +22,8 @@
                 </div>
             </publish-container>
 
-            <div class="flex justify-center mt-6">
-                <button class="btn-primary" :disabled="saving">{{ __('Save & Configure') }}</button>
+            <div class="mt-6">
+                <button class="btn-primary" :disabled="saving">{{ __('Save & Continue') }}</button>
             </div>
         </form>
     </div>
