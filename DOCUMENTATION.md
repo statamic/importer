@@ -180,15 +180,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gutenberg::hook('core/paragraph', function ($payload, $next) {
-            dd(
-                $payload,
-            );
+            return [
+                'type' => 'paragraph',
+                'content' => [
+                    ['type' => 'text', 'text' => 'Hello, world!'],
+                ],
+            ];
         });
     }
 }
 ```
 
-You should specify the name of the block you wish to handle (including the namespace, like `core/`) and provide a closure that will be called when that block is encountered.
+You should specify the name of the block you want to handle (including the namespace, like `core/`) and then provide a closure which returns a Bard/[TipTap](https://tiptap.dev/product/editor)-compatible array.
 
 Under the hood, we're using the official [block serialization parser](https://github.com/WordPress/gutenberg/tree/trunk/packages/block-serialization-default-parser) included in WordPress to handle the parsing of Gutenberg's HTML output. This is what makes up the `$payload['blocks']` array.
 
