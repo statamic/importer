@@ -1,5 +1,5 @@
 # Importer
-> Allows you to easily import content from CSV and XML files into Statamic. Supports importing entries, taxonomy terms, and users.
+> Allows you to easily import content and users into Statamic. Supports CSV and XML files.
 
 ## Features
 

@@ -30,7 +30,7 @@
     "extra": {
         "statamic": {
             "name": "Importer",
-            "description": "Importer addon"
+            "description": "Allows you to easily import content and users into Statamic. Supports CSV and XML files."
         },
         "laravel": {
             "providers": [
