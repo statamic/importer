@@ -49,7 +49,7 @@ class MappingsController extends CpController
                             'hide_display' => true,
                             'options' => collect($row)->map(fn ($value, $key) => [
                                 'key' => $key,
-                                'value' => "<{$key}>: " . Str::truncate($value, 200),
+                                'value' => "<{$key}>: ".Str::truncate($value, 200),
                             ])->values(),
                             'clearable' => true,
                         ],
