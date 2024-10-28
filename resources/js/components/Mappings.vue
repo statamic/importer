@@ -24,7 +24,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="field in fields">
-                        <td class="w-96">
+                        <td class="w-1/3">
                             <label class="text-sm font-medium" :for="`mappings.${field.handle}.key`">
                                 {{ field.display }}
                             </label>
@@ -43,7 +43,7 @@
                                 @updated="mappings[field.handle] = $event"
                             >
                                 <div slot-scope="{ setFieldValue, setFieldMeta }">
-                                    <div class="-mx-6">
+                                    <div class="-mx-4 md:-ml-6">
                                         <publish-fields
                                             :fields="field.fields"
                                             @updated="setFieldValue"
