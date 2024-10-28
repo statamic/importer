@@ -174,6 +174,31 @@ class Gutenberg
 
                     $crawler = new Crawler($block['innerHTML']);
 
+                    // When there's no <video> element, let's embed it using the HTML set.
+                    if ($crawler->filter('video')->count() === 0) {
+                        static::ensureBardSet($blueprint, $field, 'html', [
+                            'display' => __('HTML'),
+                            'icon' => 'programming-script-code-brackets',
+                            'fields' => [
+                                ['handle' => 'html', 'field' => ['type' => 'code', 'display' => __('HTML')]],
+                            ],
+                        ]);
+
+                        return [
+                            'type' => 'set',
+                            'attrs' => [
+                                'id' => Str::random(8),
+                                'values' => [
+                                    'type' => 'html',
+                                    'html' => [
+                                        'code' => $block['innerHTML'],
+                                        'mode' => 'htmlmixed',
+                                    ],
+                                ],
+                            ],
+                        ];
+                    }
+
                     return [
                         'type' => 'set',
                         'attrs' => [

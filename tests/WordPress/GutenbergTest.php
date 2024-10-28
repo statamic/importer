@@ -503,6 +503,48 @@ HTML
     }
 
     #[Test]
+    public function it_transforms_video_block_into_html_embed_when_no_video_element_is_present()
+    {
+        Str::createRandomStringsUsing(fn () => 'fakeSetId');
+
+        $output = Gutenberg::toBard(
+            config: [],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('content'),
+            value: <<<'HTML'
+<!-- wp:video {"guid":"9OB1qME8","id":1420,"src":"https://videos.files.wordpress.com/12345abc/2_mp4_hd.mp4","videoPressClassNames":"wp-block-embed is-type-video is-provider-videopress wp-embed-aspect-9-16 wp-has-aspect-ratio"} -->
+<figure class="wp-block-video wp-block-embed is-type-video is-provider-videopress wp-embed-aspect-9-16 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+https://videopress.com/v/12345abc?preloadContent=metadata
+</div></figure>
+<!-- /wp:video -->
+HTML
+        );
+
+        $blueprint = Blueprint::find('collections.posts.post');
+        $this->assertSetExists('video', $blueprint->field('content'));
+
+        $this->assertEquals([
+            [
+                'type' => 'set',
+                'attrs' => [
+                    'id' => 'fakeSetId',
+                    'values' => [
+                        'type' => 'html',
+                        'html' => [
+                            'code' => '
+<figure class="wp-block-video wp-block-embed is-type-video is-provider-videopress wp-embed-aspect-9-16 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+https://videopress.com/v/12345abc?preloadContent=metadata
+</div></figure>
+',
+                            'mode' => 'htmlmixed',
+                        ],
+                    ],
+                ],
+            ],
+        ], $output);
+    }
+
+    #[Test]
     public function it_transforms_embed_block_with_video_from_youtube()
     {
         Str::createRandomStringsUsing(fn () => 'fakeSetId');
