@@ -117,7 +117,7 @@ class Gutenberg
                                 'type' => 'gallery',
                                 'images' => collect($block['innerBlocks'])
                                     ->filter(fn ($block) => $block['blockName'] === 'core/image')
-                                    ->map(function (array $block) use ($config, $field, $assetContainer): string {
+                                    ->map(function (array $block) use ($config, $field): string {
                                         $crawler = new Crawler($block['innerHTML']);
                                         $url = $crawler->filter('img')->first()->attr('src');
 

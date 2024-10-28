@@ -30,6 +30,11 @@ class Xml extends AbstractSource
                     }
                 }
 
+                // WordPress: Filter out any `attachment` post types.
+                if (isset($array['wp:post_type']) && $array['wp:post_type'] === 'attachment') {
+                    continue;
+                }
+
                 yield $array;
             }
         });

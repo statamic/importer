@@ -2,7 +2,6 @@
 
 namespace Statamic\Importer\Transformers;
 
-use Illuminate\Support\Facades\Http;
 use Statamic\Facades\AssetContainer;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
