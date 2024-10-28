@@ -9,7 +9,7 @@
 * Special handling of Gutenberg content (WordPress)
 * Hooks for customizing the import process
 
-## Installation 
+## Installation
 
 You can install the Importer addon via Composer:
 
@@ -19,6 +19,8 @@ composer require statamic/importer
 
 You can find the Importer addon in the Control Panel under `Utilities > Importer`.
 
+<!-- statamic:hide -->
 ## Documentation
 
 Read the docs on the [Statamic Marketplace](https://statamic.com/addons/statamic/importer/docs) or contribute to it [here on GitHub](DOCUMENTATION.md).
+<!-- /statamic:hide -->
