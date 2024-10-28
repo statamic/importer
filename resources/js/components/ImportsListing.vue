@@ -19,9 +19,9 @@
                             >
                                 <resource-deleter
                                     :ref="`deleter-${row.id}`"
+                                    :resource="row"
                                     :resource-title="row.name"
-                                    :route="row.delete_url"
-                                    @deleted="removeRow(index)"
+                                    @deleted="removeRow(row)"
                                 ></resource-deleter>
                             </dropdown-item>
                         </dropdown-list>
