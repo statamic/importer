@@ -2,14 +2,12 @@
 
 namespace Statamic\Importer\WordPress;
 
-use Illuminate\Support\Facades\Http;
-use Statamic\Contracts\Assets\Asset as Asset;
-use Statamic\Contracts\Assets\AssetContainer as AssetContainerContract;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Blueprint as BlueprintFacade;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
+use Statamic\Importer\Transformers\AssetsTransformer;
 use Statamic\Support\Str;
 use Statamic\Support\Traits\Hookable;
 use Symfony\Component\DomCrawler\Crawler;
@@ -69,12 +67,16 @@ class Gutenberg
                     $crawler = new Crawler($block['innerHTML']);
                     $url = $crawler->filter('img')->first()->attr('src');
 
-                    $asset = static::findOrDownloadAsset(
-                        assetContainer: $assetContainer,
-                        url: $url,
-                        baseUrl: $config['assets_base_url'] ?? null,
-                        downloadWhenMissing: $config['assets_download_when_missing'] ?? false
+                    $transformer = new AssetsTransformer(
+                        field: new Field('image', ['container' => $field->get('container'), 'max_files' => 1]),
+                        config: [
+                            'related_field' => 'url',
+                            'base_url' => $config['assets_base_url'] ?? null,
+                            'download_when_missing' => $config['assets_download_when_missing'] ?? false,
+                        ]
                     );
+
+                    $asset = $assetContainer->asset(path: $transformer->transform($url));
 
                     if (! $asset) {
                         return null;
@@ -119,14 +121,16 @@ class Gutenberg
                                         $crawler = new Crawler($block['innerHTML']);
                                         $url = $crawler->filter('img')->first()->attr('src');
 
-                                        $asset = static::findOrDownloadAsset(
-                                            assetContainer: $assetContainer,
-                                            url: $url,
-                                            baseUrl: $config['assets_base_url'] ?? null,
-                                            downloadWhenMissing: $config['assets_download_when_missing'] ?? false
+                                        $transformer = new AssetsTransformer(
+                                            field: new Field('image', ['container' => $field->get('container'), 'max_files' => 1]),
+                                            config: [
+                                                'related_field' => 'url',
+                                                'base_url' => $config['assets_base_url'] ?? null,
+                                                'download_when_missing' => $config['assets_download_when_missing'] ?? false,
+                                            ]
                                         );
 
-                                        return $asset?->path();
+                                        return $transformer->transform($url);
                                     })
                                     ->filter()
                                     ->all(),
@@ -361,29 +365,6 @@ class Gutenberg
     protected static function renderHtmlToProsemirror(Field $field, string $html)
     {
         return (new BardAugmentor($field->fieldtype()))->renderHtmlToProsemirror($html)['content'][0];
-    }
-
-    protected static function findOrDownloadAsset(AssetContainerContract $assetContainer, string $url, string $baseUrl, bool $downloadWhenMissing): ?Asset
-    {
-        $path = Str::of($url)
-            ->after(Str::removeRight($baseUrl, '/'))
-            ->trim('/')
-            ->__toString();
-
-        $asset = $assetContainer->asset($path);
-
-        if (! $asset && $downloadWhenMissing) {
-            $request = Http::get(Str::removeRight($baseUrl, '/').Str::ensureLeft($path, '/'));
-
-            if (! $request->ok()) {
-                return null;
-            }
-
-            $assetContainer->disk()->put($path, $request->body());
-            $asset = $assetContainer->makeAsset($path);
-        }
-
-        return $asset;
     }
 
     protected static function ensureBardSet(Blueprint $blueprint, Field $field, string $handle, array $config): void
