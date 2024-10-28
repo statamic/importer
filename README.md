@@ -17,7 +17,7 @@ You can install the Importer addon via Composer:
 composer require statamic/importer
 ```
 
-You can find the Importer addon in the Control Panel under `Utilities > Import`.
+You can find the Importer addon in the Control Panel under `Utilities > Importer`.
 
 ## Documentation
 

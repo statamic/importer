@@ -6,7 +6,7 @@
    composer require statamic/importer
    ```
 
-2. You can find the Importer addon in the Control Panel under `Utilities > Import`.
+2. You can find the Importer addon in the Control Panel under `Utilities > Importer`.
 
 
 ## Usage
