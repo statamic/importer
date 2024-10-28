@@ -1,10 +1,12 @@
 # Changelog
 
-## v1.0.1
+## 1.0.1 (2024-10-28)
 
 ### What's fixed
 * Fixed release workflow by @duncanmcclean
 
-## v1.0.0
+
+
+## 1.0.0 (2024-10-28)
 
 Initial release! 🚀
