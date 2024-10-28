@@ -19,7 +19,7 @@ class ServiceProvider extends AddonServiceProvider
     ];
 
     protected $vite = [
-        'publicDirectory' => 'resources/dist',
+        'publicDirectory' => 'dist',
         'hotFile' => 'vendor/importer/hot',
         'input' => [
             'resources/js/cp.js',

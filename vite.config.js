@@ -5,8 +5,8 @@ import vue2 from '@vitejs/plugin-vue2'
 export default defineConfig({
     plugins: [
         laravel({
-            hotFile: 'resources/dist/hot',
-            publicDirectory: 'resources/dist',
+            hotFile: 'dist/hot',
+            publicDirectory: 'dist',
             input: ['resources/js/cp.js'],
         }),
         vue2(),

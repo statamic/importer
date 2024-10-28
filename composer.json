@@ -39,7 +39,7 @@
         },
         "download-dist": {
             "url": "https://github.com/statamic/importer/releases/download/{$version}/dist.tar.gz",
-            "path": "resources/dist"
+            "path": "dist"
         }
     },
     "minimum-stability": "dev",
