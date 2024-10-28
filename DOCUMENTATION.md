@@ -39,7 +39,7 @@ If you're importing a lot of content, you may want to consider running a queue w
 
 Assuming you have Redis installed, you can update the `QUEUE_CONNECTION` in your `.env` file to `redis` and then run:
 
-```*bash*
+```bash
 php artisan queue:work
 ```
 
@@ -199,6 +199,6 @@ Under the hood, we're using the official [block serialization parser](https://gi
 
 Once you're done with the importer, you can safely uninstall it by running:
 
-```*bash*
+```bash
 composer remove statamic/importer
 ```
