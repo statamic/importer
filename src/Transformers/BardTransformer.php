@@ -28,7 +28,7 @@ class BardTransformer extends AbstractTransformer
 
         return collect($value)
             ->map(function (array $node): ?array {
-                if ($this->field->get('container') && $node['type'] === 'image') {
+                if ($node['type'] === 'image' && $this->field->get('container') && isset($this->config['assets_base_url'])) {
                     $assetContainer = AssetContainer::find($this->field->get('container'));
 
                     $transformer = new AssetsTransformer(

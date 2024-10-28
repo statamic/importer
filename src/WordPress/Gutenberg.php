@@ -61,7 +61,7 @@ class Gutenberg
                     ];
                 }
 
-                if ($field->get('container') && $block['blockName'] === 'core/image') {
+                if ($block['blockName'] === 'core/image' && $field->get('container') && isset($config['assets_base_url'])) {
                     $assetContainer = AssetContainer::find($field->get('container'));
 
                     $crawler = new Crawler($block['innerHTML']);
@@ -96,7 +96,7 @@ class Gutenberg
                     ];
                 }
 
-                if ($block['blockName'] === 'core/gallery') {
+                if ($block['blockName'] === 'core/gallery' && isset($config['assets_base_url'])) {
                     $assetContainer = $field->get('container')
                         ? AssetContainer::find($field->get('container'))
                         : AssetContainer::all()->first();
