@@ -2,7 +2,7 @@
 
 1. You can install the Importer addon via Composer:
 
-   ``` *bash*
+   ```bash
    composer require statamic/importer
    ```
 
