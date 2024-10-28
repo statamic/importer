@@ -4,6 +4,7 @@ namespace Statamic\Importer\Transformers;
 
 use Illuminate\Support\Facades\Http;
 use Statamic\Facades\AssetContainer;
+use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
 use Statamic\Importer\WordPress\Gutenberg;
 use Statamic\Support\Str;
@@ -27,28 +28,19 @@ class BardTransformer extends AbstractTransformer
 
         return collect($value)
             ->map(function (array $node): ?array {
-                if ($this->field->get('container') && $node['type'] === 'image') {
-                    $baseUrl = $this->config('assets_base_url');
-                    $downloadWhenMissing = $this->config('assets_download_when_missing', false);
+                if ($node['type'] === 'image' && $this->field->get('container') && isset($this->config['assets_base_url'])) {
                     $assetContainer = AssetContainer::find($this->field->get('container'));
 
-                    $path = Str::of($node['attrs']['src'])
-                        ->after(Str::removeRight($baseUrl, '/'))
-                        ->trim('/')
-                        ->__toString();
+                    $transformer = new AssetsTransformer(
+                        field: new Field('image', ['container' => $assetContainer->handle(), 'max_files' => 1]),
+                        config: [
+                            'related_field' => 'url',
+                            'base_url' => $this->config['assets_base_url'] ?? null,
+                            'download_when_missing' => $this->config['assets_download_when_missing'] ?? false,
+                        ]
+                    );
 
-                    $asset = $assetContainer->asset($path);
-
-                    if (! $asset && $downloadWhenMissing) {
-                        $request = Http::get(Str::removeRight($baseUrl, '/').Str::ensureLeft($path, '/'));
-
-                        if (! $request->ok()) {
-                            return null;
-                        }
-
-                        $assetContainer->disk()->put($path, $request->body());
-                        $asset = $assetContainer->makeAsset($path);
-                    }
+                    $asset = $assetContainer->asset(path: $transformer->transform($node['attrs']['src']));
 
                     if (! $asset) {
                         return null;

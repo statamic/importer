@@ -220,6 +220,28 @@ HTML
     }
 
     #[Test]
+    public function it_doesnt_transform_image_blocks_without_base_url()
+    {
+        Http::preventStrayRequests();
+
+        AssetContainer::make('assets')->disk('public')->save();
+        Storage::disk('public')->put('2024/10/image.png', 'original');
+
+        $output = Gutenberg::toBard(
+            config: [],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('content'),
+            value: <<<'HTML'
+<!-- wp:image {"id":41,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/10/image.png" alt="" class="wp-image-41"/></figure>
+<!-- /wp:image -->
+HTML
+        );
+
+        $this->assertEquals([], $output);
+    }
+
+    #[Test]
     public function it_doesnt_transforms_image_blocks_when_container_is_missing_from_bard_config()
     {
         Http::preventStrayRequests();
@@ -365,6 +387,44 @@ HTML
                 ],
             ],
         ], $output);
+    }
+
+    #[Test]
+    public function it_doesnt_transform_gallery_blocks_without_base_url()
+    {
+        Http::preventStrayRequests();
+        Str::createRandomStringsUsing(fn () => 'fakeSetId');
+
+        AssetContainer::make('assets')->disk('public')->save();
+        Storage::disk('public')->put('2024/10/image.png', 'original');
+        Storage::disk('public')->put('2024/09/foo.jpeg', 'original');
+        Storage::disk('public')->put('2024/09/bar.gif', 'original');
+
+        $output = Gutenberg::toBard(
+            config: [],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('content'),
+            value: <<<'HTML'
+<!-- wp:gallery {"linkTo":"none"} -->
+<figure class="wp-block-gallery has-nested-images columns-default is-cropped"><!-- wp:image {"id":47,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/10/image.png" alt="" class="wp-image-47"/><figcaption class="wp-element-caption">This is a caption for image number one.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":43,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/09/foo.jpeg" alt="" class="wp-image-43"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":35,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/09/bar.gif" alt="" class="wp-image-35"/></figure>
+<!-- /wp:image -->
+<!-- /wp:gallery -->
+HTML
+        );
+
+        $blueprint = Blueprint::find('collections.posts.post');
+        $this->assertSetNotExists('gallery', $blueprint->field('content'));
+
+        $this->assertEquals([], $output);
     }
 
     #[Test]
@@ -719,6 +779,6 @@ HTML
             fn (array $section) => collect($section['sets'] ?? [])->contains(fn (array $setConfig, string $setHandle) => $setHandle === $handle)
         );
 
-        self::assertThat(! $setExists, self::isFalse());
+        self::assertThat(! $setExists, self::isTrue());
     }
 }

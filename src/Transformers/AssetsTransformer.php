@@ -35,7 +35,7 @@ class AssetsTransformer extends AbstractTransformer
                 }
 
                 $assetContainer->disk()->put($path, $request->body());
-                $asset = $assetContainer->makeAsset($path);
+                $asset = tap($assetContainer->makeAsset($path))->save();
             }
 
             return $asset?->path();
