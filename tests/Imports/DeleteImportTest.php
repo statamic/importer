@@ -1,6 +1,6 @@
 <?php
 
-namespace Imports;
+namespace Statamic\Importer\Tests\Imports;
 
 use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
