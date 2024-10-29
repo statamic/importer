@@ -43,6 +43,7 @@ class ImportItemJobTest extends TestCase
                 'main' => [
                     'fields' => [
                         ['handle' => 'title', 'field' => ['type' => 'text']],
+                        ['handle' => 'foo', 'field' => ['type' => 'text']],
                     ],
                 ],
             ],
@@ -75,6 +76,10 @@ class ImportItemJobTest extends TestCase
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
             ],
+            'strategy' => [
+                'create' => true,
+                'update' => false,
+            ],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -94,6 +99,38 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
+    public function it_doesnt_import_a_new_entry_when_creation_is_disabled()
+    {
+        $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => false,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
+
+        $entry = Entry::query()->where('email', 'john.doe@example.com')->first();
+
+        $this->assertNull($entry);
+    }
+
+    #[Test]
     public function it_updates_an_existing_entry()
     {
         $entry = Entry::make()->collection('team')->data(['email' => 'john.doe@example.com', 'role' => 'CTO']);
@@ -107,6 +144,10 @@ class ImportItemJobTest extends TestCase
                 'last_name' => ['key' => 'Last Name'],
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => true,
             ],
         ]);
 
@@ -127,6 +168,43 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
+    public function it_doesnt_update_an_existing_entry_when_updating_is_disabled()
+    {
+        $entry = Entry::make()->collection('team')->data(['email' => 'john.doe@example.com', 'role' => 'CTO']);
+        $entry->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => false,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
+
+        $entry->fresh();
+
+        $this->assertNotNull($entry);
+        $this->assertNull($entry->get('first_name'));
+        $this->assertNull($entry->get('last_name'));
+        $this->assertEquals('john.doe@example.com', $entry->get('email'));
+        $this->assertEquals('CTO', $entry->get('role'));
+    }
+
+    #[Test]
     public function it_imports_a_new_term()
     {
         $this->assertNull(Term::query()->where('title', 'Statamic')->first());
@@ -136,6 +214,10 @@ class ImportItemJobTest extends TestCase
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+            ],
+            'strategy' => [
+                'create' => true,
+                'update' => false,
             ],
         ]);
 
@@ -151,10 +233,9 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
-    public function it_updates_an_existing_term()
+    public function it_doesnt_import_a_new_term_when_creation_is_disabled()
     {
-        $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic');
-        $term->save();
+        $this->assertNull(Term::query()->where('title', 'Statamic')->first());
 
         $import = Import::make()->config([
             'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
@@ -162,10 +243,41 @@ class ImportItemJobTest extends TestCase
             'mappings' => [
                 'title' => ['key' => 'Title'],
             ],
+            'strategy' => [
+                'create' => false,
+                'update' => false,
+            ],
         ]);
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+        ]);
+
+        $this->assertNull(Term::query()->where('title', 'Statamic')->first());
+    }
+
+    #[Test]
+    public function it_updates_an_existing_term()
+    {
+        $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic')->set('foo', 'bar');
+        $term->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'foo' => ['key' => 'Foo'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => true,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Foo' => 'Baz',
         ]);
 
         $term->fresh();
@@ -173,6 +285,39 @@ class ImportItemJobTest extends TestCase
         $this->assertNotNull($term);
         $this->assertEquals('statamic', $term->slug());
         $this->assertEquals('Statamic', $term->get('title'));
+        $this->assertEquals('Baz', $term->get('foo'));
+    }
+
+    #[Test]
+    public function it_doesnt_update_an_existing_term_when_updating_is_disabled()
+    {
+        $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic')->set('foo', 'bar');
+        $term->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'foo' => ['key' => 'Foo'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => false,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Foo' => 'Baz',
+        ]);
+
+        $term->fresh();
+
+        $this->assertNotNull($term);
+        $this->assertEquals('statamic', $term->slug());
+        $this->assertEquals('Statamic', $term->get('title'));
+        $this->assertEquals('bar', $term->get('foo'));
     }
 
     #[Test]
@@ -187,6 +332,10 @@ class ImportItemJobTest extends TestCase
                 'first_name' => ['key' => 'First Name'],
                 'last_name' => ['key' => 'Last Name'],
                 'email' => ['key' => 'Email'],
+            ],
+            'strategy' => [
+                'create' => true,
+                'update' => false,
             ],
         ]);
 
@@ -205,6 +354,34 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
+    public function it_doesnt_import_a_new_user_when_creation_is_disabled()
+    {
+        $this->assertNull(User::findByEmail('john.doe@example.com'));
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'users'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => false,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+        ]);
+
+        $this->assertNull(User::findByEmail('john.doe@example.com'));
+    }
+
+    #[Test]
     public function it_updates_an_existing_user()
     {
         $user = User::make()->email('john.doe@example.com');
@@ -217,6 +394,10 @@ class ImportItemJobTest extends TestCase
                 'first_name' => ['key' => 'First Name'],
                 'last_name' => ['key' => 'Last Name'],
                 'email' => ['key' => 'Email'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => true,
             ],
         ]);
 
@@ -231,6 +412,40 @@ class ImportItemJobTest extends TestCase
         $this->assertNotNull($user);
         $this->assertEquals('John', $user->get('first_name'));
         $this->assertEquals('Doe', $user->get('last_name'));
+        $this->assertEquals('john.doe@example.com', $user->email());
+    }
+
+    #[Test]
+    public function it_doesnt_update_an_existing_user_when_updating_is_disabled()
+    {
+        $user = User::make()->email('john.doe@example.com');
+        $user->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'users'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => false,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+        ]);
+
+        $user->fresh();
+
+        $this->assertNotNull($user);
+        $this->assertNull($user->get('first_name'));
+        $this->assertNull($user->get('last_name'));
         $this->assertEquals('john.doe@example.com', $user->email());
     }
 }
