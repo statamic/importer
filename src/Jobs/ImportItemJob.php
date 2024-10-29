@@ -76,7 +76,15 @@ class ImportItemJob implements ShouldQueue
             ->first();
 
         if (! $entry) {
+            if (! $this->import->get('strategy.create', true)) {
+                return;
+            }
+
             $entry = Entry::make()->collection($this->import->get('destination.collection'));
+        }
+
+        if ($entry->id() && ! $this->import->get('strategy.update', true)) {
+            return;
         }
 
         if (isset($data['slug'])) {
@@ -103,7 +111,15 @@ class ImportItemJob implements ShouldQueue
             ->first();
 
         if (! $term) {
+            if (! $this->import->get('strategy.create', true)) {
+                return;
+            }
+
             $term = Term::make()->taxonomy($this->import->get('destination.taxonomy'));
+        }
+
+        if (Term::find($term->id()) && ! $this->import->get('strategy.update', true)) {
+            return;
         }
 
         if (isset($data['slug'])) {
@@ -126,7 +142,15 @@ class ImportItemJob implements ShouldQueue
             ->first();
 
         if (! $user) {
+            if (! $this->import->get('strategy.create', true)) {
+                return;
+            }
+
             $user = User::make();
+        }
+
+        if ($user->id() && ! $this->import->get('strategy.update', true)) {
+            return;
         }
 
         if (isset($data['email'])) {

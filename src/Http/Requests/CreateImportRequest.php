@@ -52,6 +52,8 @@ class CreateImportRequest extends FormRequest
                     $fail('Taxonomy could not be found.')->translate();
                 }
             }],
+            'strategy' => ['required', 'array', 'min:1'],
+            'strategy.*' => ['required', 'in:create,update'],
         ];
     }
 }
