@@ -57,6 +57,9 @@ When you're configuring mappings for an Assets field, or a Bard field, a few add
     * By default, when the importer comes across an asset it can't find in Statamic, it will skip it.
     * However, if you wish, the importer can download any missing assets for you into the configured asset container.
 
+When importing a Bard field, assets will only be imported when the "Container" config option has been set in the blueprint.
+
+
 ### Relationships
 When you're configuring mappings for an Entries, Terms or Users field, there's a few additional config options:
 
