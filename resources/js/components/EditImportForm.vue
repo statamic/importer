@@ -7,8 +7,14 @@
 
             <div class="flex items-center space-x-4">
                 <button class="btn" :disabled="saving" @click="save()">{{ __('Save') }}</button>
-                <button class="btn-primary" :disabled="saving" @click="save(true)">{{ __('Save & Run') }}</button>
+                <button class="btn-primary" :disabled="saving || batchesTableMissing" @click="save(true)">{{ __('Save & Run') }}</button>
             </div>
+        </div>
+
+        <div v-if="batchesTableMissing" class="text-xs border border-yellow-dark rounded p-4 bg-yellow dark:bg-dark-blue-100 dark:border-none">
+            <div class="font-bold mb-2">{{ __('Please run your migrations.') }}</div>
+            <!-- todo: make a messages.php lang file and include this in it -->
+            <p>The importer uses Laravel's job batching feature to keep track of the import progress, however, it requires a <code>job_batches</code> table in your database. Before you can run the importer, you will need to run <code>php artisan migrate</code>.</p>
         </div>
 
         <div class="mt-3 card overflow-hidden">
@@ -35,6 +41,7 @@ export default {
         title: String,
         initialConfig: Object,
         mappingsUrl: String,
+        batchesTableMissing: Boolean,
     },
 
     data() {

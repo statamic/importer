@@ -4,6 +4,8 @@ namespace Statamic\Importer\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Statamic\CP\Breadcrumbs;
@@ -92,11 +94,14 @@ class ImportController extends CpController
 
         throw_unless($import, new NotFoundHttpException);
 
+        $batchesTableMissing = ! Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'));
+
         return view('importer::edit', [
             'import' => $import,
             'breadcrumbs' => Breadcrumbs::make([
                 ['text' => __('Imports'), 'url' => cp_route('utilities.importer')],
             ]),
+            'batchesTableMissing' => $batchesTableMissing,
         ]);
     }
 
