@@ -108,7 +108,7 @@ class StoreImportTest extends TestCase
         $this->assertEquals('Users', $import->name());
         $this->assertEquals('csv', $import->get('type'));
         $this->assertEquals(storage_path('app/statamic/imports/users.csv'), $import->get('path'));
-        $this->assertEquals(['create' => true, 'update' => true, 'delete' => false], $import->get('strategy'));
+        $this->assertEquals(['create' => true, 'update' => true], $import->get('strategy'));
     }
 
     #[Test]
