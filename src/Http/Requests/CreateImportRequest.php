@@ -5,7 +5,9 @@ namespace Statamic\Importer\Http\Requests;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Site;
 use Statamic\Facades\Taxonomy;
 
 class CreateImportRequest extends FormRequest
@@ -52,6 +54,7 @@ class CreateImportRequest extends FormRequest
                     $fail('Taxonomy could not be found.')->translate();
                 }
             }],
+            'destination_site' => [Rule::requiredIf(fn () => Site::hasMultiple() && $this->destination_type === 'entries')],
             'strategy' => ['required', 'array', 'min:1'],
             'strategy.*' => ['required', 'in:create,update'],
         ];

@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
+use Statamic\Facades\Site;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\Term;
 use Statamic\Facades\User;
@@ -72,6 +73,7 @@ class ImportItemJob implements ShouldQueue
     {
         $entry = Entry::query()
             ->where('collection', $this->import->get('destination.collection'))
+            ->where('site', $this->import->get('destination.site') ?? Site::selected()->handle())
             ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
             ->first();
 
@@ -80,7 +82,9 @@ class ImportItemJob implements ShouldQueue
                 return;
             }
 
-            $entry = Entry::make()->collection($this->import->get('destination.collection'));
+            $entry = Entry::make()
+                ->collection($this->import->get('destination.collection'))
+                ->locale($this->import->get('destination.site') ?? Site::selected()->handle());
         }
 
         if ($entry->id() && ! $this->import->get('strategy.update', true)) {

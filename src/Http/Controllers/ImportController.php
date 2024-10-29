@@ -10,6 +10,7 @@ use Statamic\CP\Breadcrumbs;
 use Statamic\Exceptions\NotFoundHttpException;
 use Statamic\Facades\Blueprint;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Site;
 use Statamic\Facades\Taxonomy;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Importer\Facades\Import;
@@ -70,11 +71,12 @@ class ImportController extends CpController
                     'create' => in_array('create', $request->strategy),
                     'update' => in_array('update', $request->strategy),
                 ],
-                'destination' => [
+                'destination' => collect([
                     'type' => $request->destination_type,
                     'collection' => Arr::first($request->destination_collection),
                     'taxonomy' => Arr::first($request->destination_taxonomy),
-                ],
+                    'site' => $request->destination_site,
+                ])->filter()->all(),
             ]);
 
         $import->save();
@@ -131,7 +133,7 @@ class ImportController extends CpController
 
     private function getConfigBlueprint(): \Statamic\Fields\Blueprint
     {
-        return Blueprint::makeFromFields([
+        $blueprint = Blueprint::makeFromFields([
             'name' => [
                 'type' => 'text',
                 'display' => __('Name'),
@@ -181,6 +183,16 @@ class ImportController extends CpController
                 'if' => ['destination_type' => 'terms'],
                 'validate' => 'required',
             ],
+            'destination_site' => [
+                'type' => 'sites',
+                'display' => __('Site'),
+                'instructions' => __('Which site should the entries be imported into?'),
+                'width' => 50,
+                'max_items' => 1,
+                'mode' => 'select',
+                'if' => ['destination_type' => 'entries'],
+                'validate' => 'required',
+            ],
             'strategy' => [
                 'type' => 'checkboxes',
                 'display' => __('Import Strategy'),
@@ -192,5 +204,11 @@ class ImportController extends CpController
                 'default' => ['create', 'update'],
             ],
         ]);
+
+        if (! Site::hasMultiple()) {
+            $blueprint->removeField('destination_site');
+        }
+
+        return $blueprint;
     }
 }

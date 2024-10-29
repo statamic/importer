@@ -2,6 +2,8 @@
 
 namespace Statamic\Importer\Tests;
 
+use Statamic\Facades\Config;
+use Statamic\Facades\Site;
 use Statamic\Importer\ServiceProvider;
 use Statamic\Testing\AddonTestCase;
 
@@ -21,5 +23,12 @@ abstract class TestCase extends AddonTestCase
             'driver' => 'file',
             'path' => storage_path('framework/cache/outpost-data'),
         ]);
+    }
+
+    protected function setSites($sites)
+    {
+        Site::setSites($sites);
+
+        Config::set('statamic.system.multisite', Site::hasMultiple());
     }
 }
