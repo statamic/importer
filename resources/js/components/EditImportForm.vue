@@ -13,8 +13,7 @@
 
         <div v-if="batchesTableMissing" class="text-xs border border-yellow-dark rounded p-4 bg-yellow dark:bg-dark-blue-100 dark:border-none">
             <div class="font-bold mb-2">{{ __('Please run your migrations.') }}</div>
-            <!-- todo: make a messages.php lang file and include this in it -->
-            <p>The importer uses Laravel's job batching feature to keep track of the import progress, however, it requires a <code>job_batches</code> table in your database. Before you can run the importer, you will need to run <code>php artisan migrate</code>.</p>
+            <p v-html="__('importer::messages.migrations_needed')"></p>
         </div>
 
         <div class="mt-3 card overflow-hidden">
