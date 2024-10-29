@@ -99,6 +99,50 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
+    public function it_imports_a_new_entry_in_a_multisite()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        Collection::find('team')->sites(['en', 'fr']);
+
+        $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
+            ],
+            'strategy' => [
+                'create' => true,
+                'update' => false,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
+
+        $entry = Entry::query()->where('email', 'john.doe@example.com')->first();
+
+        $this->assertNotNull($entry);
+        $this->assertEquals('John', $entry->get('first_name'));
+        $this->assertEquals('Doe', $entry->get('last_name'));
+        $this->assertEquals('john.doe@example.com', $entry->get('email'));
+        $this->assertEquals('CEO', $entry->get('role'));
+        $this->assertEquals('fr', $entry->site());
+    }
+
+    #[Test]
     public function it_doesnt_import_a_new_entry_when_creation_is_disabled()
     {
         $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
@@ -165,6 +209,107 @@ class ImportItemJobTest extends TestCase
         $this->assertEquals('Doe', $entry->get('last_name'));
         $this->assertEquals('john.doe@example.com', $entry->get('email'));
         $this->assertEquals('CEO', $entry->get('role'));
+    }
+
+    #[Test]
+    public function it_updates_an_existing_entry_when_entry_is_in_the_same_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        Collection::find('team')->sites(['en', 'fr']);
+
+        $entry = Entry::make()->collection('team')->locale('fr')->data(['email' => 'john.doe@example.com', 'role' => 'CTO']);
+        $entry->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
+            ],
+            'strategy' => [
+                'create' => false,
+                'update' => true,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
+
+        $entry->fresh();
+
+        $this->assertNotNull($entry);
+        $this->assertEquals('John', $entry->get('first_name'));
+        $this->assertEquals('Doe', $entry->get('last_name'));
+        $this->assertEquals('john.doe@example.com', $entry->get('email'));
+        $this->assertEquals('CEO', $entry->get('role'));
+        $this->assertEquals('fr', $entry->site());
+    }
+
+    #[Test]
+    public function it_doesnt_update_an_existing_entry_when_entry_is_in_a_different_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        Collection::find('team')->sites(['en', 'fr']);
+
+        $entry = Entry::make()->collection('team')->locale('en')->data(['email' => 'john.doe@example.com', 'role' => 'CTO']);
+        $entry->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
+            ],
+            'strategy' => [
+                'create' => true,
+                'update' => true,
+            ],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
+
+        $entry->fresh();
+
+        // The existing entry will remain unchanged.
+        $this->assertNotNull($entry);
+        $this->assertNull($entry->get('first_name'));
+        $this->assertNull($entry->get('last_name'));
+        $this->assertEquals('john.doe@example.com', $entry->get('email'));
+        $this->assertEquals('CTO', $entry->get('role'));
+        $this->assertEquals('en', $entry->site());
+
+        // And a new entry will be created in the destination site.
+        $newEntry = Entry::query()->where('site', 'fr')->where('email', 'john.doe@example.com')->first();
+
+        $this->assertNotNull($newEntry);
+        $this->assertEquals('John', $newEntry->get('first_name'));
+        $this->assertEquals('Doe', $newEntry->get('last_name'));
+        $this->assertEquals('john.doe@example.com', $newEntry->get('email'));
+        $this->assertEquals('CEO', $newEntry->get('role'));
+        $this->assertEquals('fr', $newEntry->site());
     }
 
     #[Test]
