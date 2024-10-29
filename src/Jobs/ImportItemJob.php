@@ -21,7 +21,7 @@ use Statamic\Importer\Imports\Import;
 
 class ImportItemJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, Batchable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable;
 
     public function __construct(public Import $import, public array $item) {}
 

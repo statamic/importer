@@ -18,7 +18,7 @@ class Importer
     public static function run(Import $import): void
     {
         if (! Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
-            throw new JobBatchesTableMissingException();
+            throw new JobBatchesTableMissingException;
         }
 
         $items = match ($import->get('type')) {
