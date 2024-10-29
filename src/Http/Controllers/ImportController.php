@@ -66,6 +66,10 @@ class ImportController extends CpController
             ->config([
                 'type' => $type,
                 'path' => Storage::disk('local')->path($path),
+                'strategy' => [
+                    'create' => in_array('create', $request->strategy),
+                    'update' => in_array('update', $request->strategy),
+                ],
                 'destination' => [
                     'type' => $request->destination_type,
                     'collection' => Arr::first($request->destination_collection),
@@ -176,6 +180,16 @@ class ImportController extends CpController
                 'mode' => 'select',
                 'if' => ['destination_type' => 'terms'],
                 'validate' => 'required',
+            ],
+            'strategy' => [
+                'type' => 'checkboxes',
+                'display' => __('Import Strategy'),
+                'instructions' => __('Choose what should happen when importing.'),
+                'options' => [
+                    ['key' => 'create', 'value' => __('Create new items')],
+                    ['key' => 'update', 'value' => __('Update existing items')],
+                ],
+                'default' => ['create', 'update'],
             ],
         ]);
     }

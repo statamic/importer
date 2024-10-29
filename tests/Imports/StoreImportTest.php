@@ -41,6 +41,7 @@ class StoreImportTest extends TestCase
                 ],
                 'destination_type' => 'entries',
                 'destination_collection' => ['posts'],
+                'strategy' => ['create', 'update'],
             ])
             ->assertJsonStructure(['redirect']);
 
@@ -50,6 +51,7 @@ class StoreImportTest extends TestCase
         $this->assertEquals('Posts', $import->name());
         $this->assertEquals('csv', $import->get('type'));
         $this->assertEquals(storage_path('app/statamic/imports/posts.csv'), $import->get('path'));
+        $this->assertEquals(['create' => true, 'update' => true], $import->get('strategy'));
     }
 
     #[Test]
@@ -69,6 +71,7 @@ class StoreImportTest extends TestCase
                 ],
                 'destination_type' => 'terms',
                 'destination_taxonomy' => ['categories'],
+                'strategy' => ['create', 'update'],
             ])
             ->assertJsonStructure(['redirect']);
 
@@ -78,6 +81,7 @@ class StoreImportTest extends TestCase
         $this->assertEquals('Categories', $import->name());
         $this->assertEquals('csv', $import->get('type'));
         $this->assertEquals(storage_path('app/statamic/imports/categories.csv'), $import->get('path'));
+        $this->assertEquals(['create' => true, 'update' => true], $import->get('strategy'));
     }
 
     #[Test]
@@ -94,6 +98,7 @@ class StoreImportTest extends TestCase
                     '123456789/import.csv',
                 ],
                 'destination_type' => 'users',
+                'strategy' => ['create', 'update'],
             ])
             ->assertJsonStructure(['redirect']);
 
@@ -103,6 +108,7 @@ class StoreImportTest extends TestCase
         $this->assertEquals('Users', $import->name());
         $this->assertEquals('csv', $import->get('type'));
         $this->assertEquals(storage_path('app/statamic/imports/users.csv'), $import->get('path'));
+        $this->assertEquals(['create' => true, 'update' => true, 'delete' => false], $import->get('strategy'));
     }
 
     #[Test]
@@ -169,6 +175,27 @@ class StoreImportTest extends TestCase
                 'destination_type' => 'globals',
             ])
             ->assertSessionHasErrors('destination_type');
+
+        $this->assertNull(Import::find('foo'));
+    }
+
+    #[Test]
+    public function validation_error_is_thrown_without_import_strategy()
+    {
+        // The Files fieldtype will upload this before the form gets submitted.
+        Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
+
+        $this
+            ->actingAs(User::make()->makeSuper()->save())
+            ->post('/cp/utilities/importer', [
+                'name' => 'Foo',
+                'file' => [
+                    '123456789/import.csv',
+                ],
+                'destination_type' => 'users',
+                'strategy' => [],
+            ])
+            ->assertSessionHasErrors('strategy');
 
         $this->assertNull(Import::find('foo'));
     }
