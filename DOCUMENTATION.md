@@ -191,9 +191,9 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
-You should specify the name of the block you want to handle (including the namespace, like `core/`) and then provide a closure which returns a Bard/[TipTap](https://tiptap.dev/product/editor)-compatible array.
+You should specify the name of the block you want to handle (including the namespace, like `core/`) and provide a closure returning a Bard array. If you're unsure on what to return, try doing it manually in Bard and look at the array it saves.
 
-Under the hood, we're using the official [block serialization parser](https://github.com/WordPress/gutenberg/tree/trunk/packages/block-serialization-default-parser) included in WordPress to handle the parsing of Gutenberg's HTML output. This is what makes up the `$payload['blocks']` array.
+The `$payload` that gets passed to the closure is an array containing the block's data, the blueprint, field and the field's mapping config.
 
 ## Uninstalling
 
