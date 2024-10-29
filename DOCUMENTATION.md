@@ -71,9 +71,9 @@ When you're configuring mappings for an Entries, Terms or Users field, there's a
 Although the importer is generic and works for importing content from any system, we've built-in some special handling for WordPress imports to make the transition that little bit easier.
 
 ### Exporting
-While you can use the "Export" feature built-in to WordPress, it doesn't necessarily contain all the fields you might want to import into WordPress, at least not in a clean manner.
+While you *can* use WordPress' built-in export tool, it doesn't contain all the fields you might want to import, like ACF fields, at least not in a clean manner.
 
-We recommend using a plugin like [WP All Export](https://wordpress.org/plugins/wp-all-export/) to export your content. It allows you to choose which fields you wish to export, and it'll give you a CSV. This is particularly useful if you're exporting ACF fields.
+Instead, we recommend using a plugin like [WP All Export](https://wordpress.org/plugins/wp-all-export/) to export your content. It allows you to customize the columns included in the export (like ACF fields, featured images, etc.) and it'll give you a CSV.
 
 ### Gutenberg
 Statamic's [Bard fieldtype](https://statamic.dev/fieldtypes/bard#overview) is the closest equivalent to WordPress' Gutenberg editor.
