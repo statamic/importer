@@ -186,11 +186,11 @@ class ImportController extends CpController
             'destination_site' => [
                 'type' => 'sites',
                 'display' => __('Site'),
-                'instructions' => __('Select the site to import into.'),
+                'instructions' => __('Which site should the entries be imported into?'),
                 'width' => 50,
                 'max_items' => 1,
                 'mode' => 'select',
-                'unless' => ['destination_type' => 'users'],
+                'if' => ['destination_type' => 'entries'],
                 'validate' => 'required',
             ],
             'strategy' => [

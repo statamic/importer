@@ -54,10 +54,7 @@ class CreateImportRequest extends FormRequest
                     $fail('Taxonomy could not be found.')->translate();
                 }
             }],
-            'destination_site' => [
-                Rule::requiredIf(fn () => Site::hasMultiple() && in_array($this->destination_type, ['entries', 'terms'])),
-                'string',
-            ],
+            'destination_site' => [Rule::requiredIf(fn () => Site::hasMultiple() && $this->destination_type === 'entries')],
             'strategy' => ['required', 'array', 'min:1'],
             'strategy.*' => ['required', 'in:create,update'],
         ];
