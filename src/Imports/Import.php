@@ -59,8 +59,12 @@ class Import
         return $this->fluentlyGetOrSet('batchId')->args(func_get_args());
     }
 
-    public function batch(): PendingBatch
+    public function batch(): ?PendingBatch
     {
+        if (! $this->batchId()) {
+            return null;
+        }
+
         return Bus::batch($this->batchId());
     }
 
