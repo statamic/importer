@@ -93,6 +93,36 @@ class StoreImportTest extends TestCase
     }
 
     #[Test]
+    public function it_cant_store_a_collection_import_when_the_collection_is_not_available_on_the_chosen_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        Collection::make('posts')->sites(['en'])->save();
+
+        // The Files fieldtype will upload this before the form gets submitted.
+        Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
+
+        $this
+            ->actingAs(User::make()->makeSuper()->save())
+            ->post('/cp/utilities/importer', [
+                'name' => 'Posts',
+                'file' => [
+                    '123456789/import.csv',
+                ],
+                'destination_type' => 'entries',
+                'destination_collection' => ['posts'],
+                'destination_site' => 'fr',
+                'strategy' => ['create', 'update'],
+            ])
+            ->assertSessionHasErrors('destination_site');
+
+        $this->assertNull(Import::find('posts'));
+    }
+
+    #[Test]
     public function it_cant_store_a_collection_import_without_a_site_when_multisite_is_enabled()
     {
         $this->setSites([
