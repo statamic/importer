@@ -2,7 +2,10 @@
 
 namespace Statamic\Importer\Tests;
 
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
@@ -12,7 +15,7 @@ use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
 
 class ImporterTest extends TestCase
 {
-    use PreventsSavingStacheItemsToDisk;
+    use PreventsSavingStacheItemsToDisk, DatabaseMigrations;
 
     #[Test]
     public function it_can_import_from_csv_files()

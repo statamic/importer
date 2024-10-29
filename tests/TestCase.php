@@ -2,6 +2,8 @@
 
 namespace Statamic\Importer\Tests;
 
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\Artisan;
 use Statamic\Facades\Config;
 use Statamic\Facades\Site;
 use Statamic\Importer\ServiceProvider;
@@ -10,6 +12,17 @@ use Statamic\Testing\AddonTestCase;
 abstract class TestCase extends AddonTestCase
 {
     protected string $addonServiceProvider = ServiceProvider::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $uses = array_flip(class_uses_recursive(static::class));
+
+        if (isset($uses[DatabaseMigrations::class])) {
+            Artisan::call('make:queue-batches-table');
+        }
+    }
 
     protected function getEnvironmentSetUp($app)
     {
@@ -23,9 +36,11 @@ abstract class TestCase extends AddonTestCase
             'driver' => 'file',
             'path' => storage_path('framework/cache/outpost-data'),
         ]);
+
+        $app['config']->set('queue.batching.database', 'testing');
     }
 
-    protected function setSites($sites)
+    protected function setSites($sites): void
     {
         Site::setSites($sites);
 
