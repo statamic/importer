@@ -25,7 +25,7 @@ Before importing, you will need to do some preparation:
 
 ### Importing
 1. Navigate to the Importer utility in the Control Panel.
-2. Give your import a name, and upload the file you wish to import. You'll also be asked which type of content you're importing (entries, taxonomy terms, or users).
+2. Give your import a name, and upload the file you wish to import. You'll also be asked which type of content you're importing (entries, taxonomy terms, or users) and if you want to create new items or update existing items.
 3. You can then map fields from your blueprint to fields/columns in your file.
     * Depending on the fieldtype, some fields may have additional options, like "Related Key" or "Create when missing". You can read more about these below.
     * Mapping is disabled for some fieldtypes, like the [Replicator fieldtype](https://statamic.dev/fieldtypes/replicator#content). If you wish to import these fields, you will need to build a [custom transformer](#transformers).
