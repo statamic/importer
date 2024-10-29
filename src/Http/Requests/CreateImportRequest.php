@@ -54,7 +54,14 @@ class CreateImportRequest extends FormRequest
                     $fail('Taxonomy could not be found.')->translate();
                 }
             }],
-            'destination_site' => [Rule::requiredIf(fn () => Site::hasMultiple() && $this->destination_type === 'entries')],
+            'destination_site' => [
+                Rule::requiredIf(fn () => Site::hasMultiple() && $this->destination_type === 'entries'),
+                function (string $attribute, mixed $value, Closure $fail) {
+                    if ($value && $this->destination_collection && ! Collection::find($this->destination_collection[0])->sites()->contains($value)) {
+                        $fail("The chosen collection is not available on this site.")->translate();
+                    }
+                },
+            ],
             'strategy' => ['required', 'array', 'min:1'],
             'strategy.*' => ['required', 'in:create,update'],
         ];
