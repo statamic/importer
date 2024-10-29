@@ -71,12 +71,12 @@ class ImportController extends CpController
                     'create' => in_array('create', $request->strategy),
                     'update' => in_array('update', $request->strategy),
                 ],
-                'destination' => [
+                'destination' => collect([
                     'type' => $request->destination_type,
                     'collection' => Arr::first($request->destination_collection),
                     'taxonomy' => Arr::first($request->destination_taxonomy),
                     'site' => $request->destination_site,
-                ],
+                ])->filter()->all(),
             ]);
 
         $import->save();
