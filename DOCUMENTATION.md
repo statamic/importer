@@ -5,8 +5,14 @@
    ```bash
    composer require statamic/importer
    ```
+   
+2. Next, if you haven't already, run any pending database migrations (The importer uses "job batching" behind the scenes, which requires a database. By default, Statamic will use SQLite so you don't need to configure anything):
 
-2. You can find the Importer addon in the Control Panel under `Utilities > Importer`.
+   ```bash
+   php artisan migrate
+   ```
+
+3. You can find the Importer addon in the Control Panel under `Utilities > Importer`.
 
 
 ## Usage

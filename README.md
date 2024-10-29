@@ -17,6 +17,12 @@ You can install the Importer addon via Composer:
 composer require statamic/importer
 ```
 
+Next, if you haven't already, run any pending database migrations (The importer uses "job batching" behind the scenes, which requires a database. By default, Statamic will use SQLite so you don't need to configure anything):
+
+```bash
+php artisan migrate
+```
+
 You can find the Importer addon in the Control Panel under `Utilities > Importer`.
 
 <!-- statamic:hide -->
