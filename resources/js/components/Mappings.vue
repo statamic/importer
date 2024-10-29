@@ -7,12 +7,12 @@
         <div v-else class="flex flex-col gap-6">
             <div class="content max-w-lg">
                 <h2>{{ __('Configuration') }}</h2>
-                <p>{{ __('You can add or modify your Blueprint fields to customize what data is imported and what fieldtype it will be stored in. You can save, refresh, and come back to this import config later until it\'s ready to run.') }}</p>
+                <p>{{ __('importer::messages.configuration_instructions') }}</p>
             </div>
             <div>
                 <label class="font-semibold text-sm mb-1">{{ __('Field Mappings') }}</label>
                 <div class="help-block">
-                    <p>{{ __('Map the fields from your import to the fields in your blueprint.') }}</p>
+                    <p>{{ __('importer::messages.mapping_instructions') }}</p>
                 </div>
             </div>
             <table class="grid-table table-auto field-mappings-table">
@@ -64,7 +64,7 @@
             <div>
                 <label class="font-semibold text-sm mb-1">{{ __('Unique Field') }}</label>
                 <div class="help-block mb-2">
-                    <p>{{ __('Select a "unique field" to determine if an item already exists.') }}</p>
+                    <p>{{ __('importer::messages.unique_field_instructions') }}</p>
                 </div>
 
                 <div v-for="field in availableUniqueKeys" class="flex items-center space-x-2 space-y-1 mb-1">
