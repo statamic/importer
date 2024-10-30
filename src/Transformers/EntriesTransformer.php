@@ -35,6 +35,16 @@ class EntriesTransformer extends AbstractTransformer
                     $entry->set($this->config('related_field'), $value);
                 }
 
+                if ($structure = $entry->collection()->structure()) {
+                    $entry->afterSave(function ($entry) use ($structure) {
+                        $tree = $structure->in($entry->site()->handle());
+
+                        if (!$tree->find($entry->id())) {
+                            $tree->append($entry)->save();
+                        }
+                    });
+                }
+
                 $entry->save();
 
                 return $entry->id();

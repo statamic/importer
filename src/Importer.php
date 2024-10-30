@@ -4,10 +4,12 @@ namespace Statamic\Importer;
 
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Statamic\Importer\Exceptions\JobBatchesTableMissingException;
 use Statamic\Importer\Imports\Import;
 use Statamic\Importer\Jobs\ImportItemJob;
+use Statamic\Importer\Jobs\UpdateCollectionTreeJob;
 use Statamic\Importer\Sources\Csv;
 use Statamic\Importer\Sources\Xml;
 
@@ -17,6 +19,8 @@ class Importer
 
     public static function run(Import $import): void
     {
+        Cache::forget("importer.{$import->id}.parents");
+
         if (! Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
             throw new JobBatchesTableMissingException;
         }
@@ -28,6 +32,11 @@ class Importer
 
         Bus::batch($items->map(fn (array $item) => new ImportItemJob($import, $item)))
             ->before(fn (Batch $batch) => $import->batchId($batch->id)->save())
+            ->finally(function (Batch $batch) use ($import) {
+                if ($import->get('destination.type') === 'entries') {
+                    UpdateCollectionTreeJob::dispatch($import);
+                }
+            })
             ->dispatch();
     }
 
