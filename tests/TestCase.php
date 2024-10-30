@@ -15,40 +15,6 @@ abstract class TestCase extends AddonTestCase
 {
     protected string $addonServiceProvider = ServiceProvider::class;
 
-    //    protected function setUp(): void
-    //    {
-    //        parent::setUp();
-    //
-    //        $uses = array_flip(class_uses_recursive(static::class));
-    //
-    //        if (isset($uses[DatabaseMigrations::class])) {
-    //            Artisan::call('make:queue-batches-table');
-    //        }
-    //    }
-
-    //    public function runDatabaseMigrations()
-    //    {
-    //        Artisan::call('make:queue-batches-table');
-    //
-    //        parent::runDatabaseMigrations();
-    //    }
-
-    /**
-     * Define database migrations.
-     *
-     * @return void
-     */
-    protected function defineDatabaseMigrations()
-    {
-        artisan($this, 'make:queue-batches-table');
-
-        artisan($this, 'migrate', ['--database' => 'testing']);
-
-        $this->beforeApplicationDestroyed(
-            fn () => artisan($this, 'migrate:rollback', ['--database' => 'testing'])
-        );
-    }
-
     protected function getEnvironmentSetUp($app)
     {
         parent::getEnvironmentSetUp($app);
@@ -70,5 +36,21 @@ abstract class TestCase extends AddonTestCase
         Site::setSites($sites);
 
         Config::set('statamic.system.multisite', Site::hasMultiple());
+    }
+
+    /**
+     * Define database migrations.
+     *
+     * @return void
+     */
+    protected function defineDatabaseMigrations()
+    {
+        artisan($this, 'make:queue-batches-table');
+
+        artisan($this, 'migrate', ['--database' => 'testing']);
+
+        $this->beforeApplicationDestroyed(
+            fn () => artisan($this, 'migrate:rollback', ['--database' => 'testing'])
+        );
     }
 }
