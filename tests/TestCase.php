@@ -8,6 +8,7 @@ use Statamic\Facades\Config;
 use Statamic\Facades\Site;
 use Statamic\Importer\ServiceProvider;
 use Statamic\Testing\AddonTestCase;
+use function Orchestra\Testbench\artisan;
 
 abstract class TestCase extends AddonTestCase
 {
@@ -24,11 +25,27 @@ abstract class TestCase extends AddonTestCase
 //        }
 //    }
 
-    public function runDatabaseMigrations()
-    {
-        Artisan::call('make:queue-batches-table');
+//    public function runDatabaseMigrations()
+//    {
+//        Artisan::call('make:queue-batches-table');
+//
+//        parent::runDatabaseMigrations();
+//    }
 
-        parent::runDatabaseMigrations();
+    /**
+     * Define database migrations.
+     *
+     * @return void
+     */
+    protected function defineDatabaseMigrations()
+    {
+        artisan($this, 'make:queue-batches-table');
+
+        artisan($this, 'migrate', ['--database' => 'testing']);
+
+        $this->beforeApplicationDestroyed(
+            fn () => artisan($this, 'migrate:rollback', ['--database' => 'testing'])
+        );
     }
 
     protected function getEnvironmentSetUp($app)
