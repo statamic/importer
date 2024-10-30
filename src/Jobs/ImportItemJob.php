@@ -2,6 +2,7 @@
 
 namespace Statamic\Importer\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,7 +21,7 @@ use Statamic\Importer\Imports\Import;
 
 class ImportItemJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable;
 
     public function __construct(public Import $import, public array $item) {}
 
@@ -71,9 +72,12 @@ class ImportItemJob implements ShouldQueue
 
     protected function findOrCreateEntry(array $data): void
     {
+        $collection = Collection::find($this->import->get('destination.collection'));
+        $site = Site::get($this->import->get('destination.site') ?? Site::selected()->handle());
+
         $entry = Entry::query()
-            ->where('collection', $this->import->get('destination.collection'))
-            ->where('site', $this->import->get('destination.site') ?? Site::selected()->handle())
+            ->where('locale', $site->handle())
+            ->where('collection', $collection->handle())
             ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
             ->first();
 
@@ -82,9 +86,7 @@ class ImportItemJob implements ShouldQueue
                 return;
             }
 
-            $entry = Entry::make()
-                ->collection($this->import->get('destination.collection'))
-                ->locale($this->import->get('destination.site') ?? Site::selected()->handle());
+            $entry = Entry::make()->collection($collection)->locale($site);
         }
 
         if ($entry->id() && ! $this->import->get('strategy.update', true)) {

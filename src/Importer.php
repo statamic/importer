@@ -2,6 +2,10 @@
 
 namespace Statamic\Importer;
 
+use Illuminate\Bus\Batch;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Schema;
+use Statamic\Importer\Exceptions\JobBatchesTableMissingException;
 use Statamic\Importer\Imports\Import;
 use Statamic\Importer\Jobs\ImportItemJob;
 use Statamic\Importer\Sources\Csv;
@@ -13,12 +17,18 @@ class Importer
 
     public static function run(Import $import): void
     {
+        if (! Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
+            throw new JobBatchesTableMissingException;
+        }
+
         $items = match ($import->get('type')) {
             'csv' => (new Csv($import->config()->all()))->getItems($import->get('path')),
             'xml' => (new Xml($import->config()->all()))->getItems($import->get('path')),
         };
 
-        $items->each(fn (array $item) => ImportItemJob::dispatch($import, $item));
+        Bus::batch($items->map(fn (array $item) => new ImportItemJob($import, $item)))
+            ->before(fn (Batch $batch) => $import->batchId($batch->id)->save())
+            ->dispatch();
     }
 
     public static function getTransformer(string $fieldtype): ?string

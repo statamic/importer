@@ -2,6 +2,8 @@
 
 namespace Statamic\Importer\Imports;
 
+use Illuminate\Bus\PendingBatch;
+use Illuminate\Support\Facades\Bus;
 use Statamic\Importer\Facades\Import as ImportFacade;
 use Statamic\Importer\Importer;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
@@ -13,6 +15,7 @@ class Import
     public $id;
     public $name;
     public $config;
+    public $batchId;
 
     public function __construct()
     {
@@ -51,11 +54,26 @@ class Import
         return data_get($this->config, $key, $default);
     }
 
+    public function batchId($batchId = null)
+    {
+        return $this->fluentlyGetOrSet('batchId')->args(func_get_args());
+    }
+
+    public function batch(): ?PendingBatch
+    {
+        if (! $this->batchId()) {
+            return null;
+        }
+
+        return Bus::batch($this->batchId());
+    }
+
     public function fileData(): array
     {
         return collect([
             'name' => $this->name(),
             'config' => $this->config()->all(),
+            'batch_id' => $this->batchId(),
         ])->filter()->all();
     }
 

@@ -7,6 +7,8 @@ use Statamic\Facades\Site;
 use Statamic\Importer\ServiceProvider;
 use Statamic\Testing\AddonTestCase;
 
+use function Orchestra\Testbench\artisan;
+
 abstract class TestCase extends AddonTestCase
 {
     protected string $addonServiceProvider = ServiceProvider::class;
@@ -23,12 +25,30 @@ abstract class TestCase extends AddonTestCase
             'driver' => 'file',
             'path' => storage_path('framework/cache/outpost-data'),
         ]);
+
+        $app['config']->set('queue.batching.database', 'testing');
     }
 
-    protected function setSites($sites)
+    protected function setSites($sites): void
     {
         Site::setSites($sites);
 
         Config::set('statamic.system.multisite', Site::hasMultiple());
+    }
+
+    /**
+     * Define database migrations.
+     *
+     * @return void
+     */
+    protected function defineDatabaseMigrations()
+    {
+        artisan($this, 'queue:batches-table');
+
+        artisan($this, 'migrate', ['--database' => 'testing']);
+
+        $this->beforeApplicationDestroyed(
+            fn () => artisan($this, 'migrate:rollback', ['--database' => 'testing'])
+        );
     }
 }

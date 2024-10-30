@@ -4,6 +4,8 @@ namespace Statamic\Importer\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Statamic\CP\Breadcrumbs;
@@ -94,6 +96,7 @@ class ImportController extends CpController
 
         return view('importer::edit', [
             'import' => $import,
+            'batchesTableMissing' => ! $this->ensureJobBatchesTableExists(),
             'breadcrumbs' => Breadcrumbs::make([
                 ['text' => __('Imports'), 'url' => cp_route('utilities.importer')],
             ]),
@@ -210,5 +213,30 @@ class ImportController extends CpController
         }
 
         return $blueprint;
+    }
+
+    private function ensureJobBatchesTableExists(): bool
+    {
+        if (Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
+            return true;
+        }
+
+        if (app()->isProduction()) {
+            return false;
+        }
+
+        try {
+            // When this return a non-zero exit code, it doesn't necessarily mean there's an issue.
+            // It could be because the migration has already been published.
+            Artisan::call('make:queue-batches-table');
+
+            if (Artisan::call('migrate') !== 0) {
+                return false;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 }
