@@ -13,16 +13,16 @@ abstract class TestCase extends AddonTestCase
 {
     protected string $addonServiceProvider = ServiceProvider::class;
 
-//    protected function setUp(): void
-//    {
-//        parent::setUp();
-//
-//        $uses = array_flip(class_uses_recursive(static::class));
-//
-//        if (isset($uses[DatabaseMigrations::class])) {
-//            Artisan::call('make:queue-batches-table');
-//        }
-//    }
+    //    protected function setUp(): void
+    //    {
+    //        parent::setUp();
+    //
+    //        $uses = array_flip(class_uses_recursive(static::class));
+    //
+    //        if (isset($uses[DatabaseMigrations::class])) {
+    //            Artisan::call('make:queue-batches-table');
+    //        }
+    //    }
 
     public function runDatabaseMigrations()
     {
