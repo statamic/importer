@@ -2,8 +2,6 @@
 
 namespace Statamic\Importer\Tests;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Support\Facades\Artisan;
 use Statamic\Facades\Config;
 use Statamic\Facades\Site;
 use Statamic\Importer\ServiceProvider;
