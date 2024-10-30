@@ -45,7 +45,7 @@ abstract class TestCase extends AddonTestCase
      */
     protected function defineDatabaseMigrations()
     {
-        artisan($this, 'make:queue-batches-table');
+        artisan($this, 'queue:batches-table');
 
         artisan($this, 'migrate', ['--database' => 'testing']);
 
