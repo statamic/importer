@@ -4,6 +4,7 @@ namespace Statamic\Importer\WordPress;
 
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Blueprint as BlueprintFacade;
+use Statamic\Facades\Fieldset;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
@@ -404,6 +405,48 @@ class Gutenberg
         if ($setExists) {
             return;
         }
+
+        if ($prefix = $field->prefix()) {
+            /** @var \Statamic\Fields\Fieldset $fieldset */
+            $fieldset = $blueprint->fields()->items()
+                ->filter(fn (array $field) => isset($field['import']))
+                ->map(fn (array $field) => Fieldset::find($field['import']))
+                ->filter(function ($fieldset) use ($field, $prefix) {
+                    return collect($fieldset->fields()->items())
+                        ->where('handle', Str::after($field->handle(), $prefix))
+                        ->isNotEmpty();
+                })
+                ->first();
+
+            $fieldset->setContents([
+                ...$fieldset->contents(),
+                'fields' => collect($fieldset->contents()['fields'])
+                    ->map(function (array $fieldsetField) use ($field, $handle, $config, $prefix) {
+                        if ($fieldsetField['handle'] === Str::after($field->handle(), $prefix)) {
+                            return [
+                                'handle' => $fieldsetField['handle'],
+                                'field' => array_merge($fieldsetField['field'], [
+                                    ...$field->config(),
+                                    'sets' => array_merge($field->get('sets', []), [
+                                        'main' => array_merge($field->get('sets.main', []), [
+                                            'sets' => array_merge($field->get('sets.main.sets', []), [
+                                                $handle => $config,
+                                            ]),
+                                        ]),
+                                    ]),
+                                ]),
+                            ];
+                        }
+
+                        return $fieldsetField;
+                    })
+                    ->all(),
+            ])->save();
+
+            return;
+        }
+
+
 
         $blueprint
             ->ensureFieldHasConfig($field->handle(), [

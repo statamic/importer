@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Transformers;
 
 use Statamic\Facades\AssetContainer;
+use Statamic\Facades\Fieldset;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
 use Statamic\Importer\WordPress\Gutenberg;
@@ -56,29 +57,59 @@ class BardTransformer extends AbstractTransformer
 
     private function enableBardButtons(): void
     {
+        $buttons = [
+            'h1',
+            'h2',
+            'h3',
+            'bold',
+            'italic',
+            'unorderedlist',
+            'orderedlist',
+            'removeformat',
+            'quote',
+            'anchor',
+            'image',
+            'table',
+            'horizontalrule',
+            'codeblock',
+            'underline',
+            'superscript',
+        ];
+
+        if ($prefix = $this->field->prefix()) {
+            /** @var \Statamic\Fields\Fieldset $fieldset */
+            $fieldset = $this->blueprint->fields()->items()
+                ->filter(fn (array $field) => isset($field['import']))
+                ->map(fn (array $field) => Fieldset::find($field['import']))
+                ->filter(function ($fieldset) use ($prefix) {
+                    return collect($fieldset->fields()->items())
+                        ->where('handle', Str::after($this->field->handle(), $prefix))
+                        ->isNotEmpty();
+                })
+                ->first();
+
+            $fieldset->setContents([
+                ...$fieldset->contents(),
+                'fields' => collect($fieldset->contents()['fields'])
+                    ->map(function (array $field) use ($buttons, $prefix) {
+                        if ($field['handle'] === Str::after($this->field->handle(), $prefix)) {
+                            return [
+                                'handle' => $field['handle'],
+                                'field' => array_merge($field['field'], ['buttons' => $buttons]),
+                            ];
+                        }
+
+                        return $field;
+                    })
+                    ->all(),
+            ])->save();
+
+            return;
+        }
+
         $this->blueprint->ensureFieldHasConfig(
             handle: $this->field->handle(),
-            config: array_merge($this->field->config(), [
-                'container' => $this->field->get('container') ?? AssetContainer::all()->first()?->handle(),
-                'buttons' => [
-                    'h1',
-                    'h2',
-                    'h3',
-                    'bold',
-                    'italic',
-                    'unorderedlist',
-                    'orderedlist',
-                    'removeformat',
-                    'quote',
-                    'anchor',
-                    'image',
-                    'table',
-                    'horizontalrule',
-                    'codeblock',
-                    'underline',
-                    'superscript',
-                ],
-            ])
+            config: array_merge($this->field->config(), ['buttons' => $buttons])
         );
 
         $this->blueprint->save();
