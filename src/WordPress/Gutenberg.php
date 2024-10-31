@@ -406,6 +406,44 @@ class Gutenberg
             return;
         }
 
+        $importedField = $blueprint->fields()->items()
+            ->where('handle', $field->handle())
+            ->filter(fn (array $field) => isset($field['field']) && is_string($field['field']))
+            ->first();
+
+        if ($importedField) {
+            /** @var \Statamic\Fields\Fieldset $fieldset */
+            $fieldHandle = Str::after($importedField['field'], '.');
+            $fieldset = Fieldset::find(Str::before($importedField['field'], '.'));
+
+            $fieldset->setContents([
+                ...$fieldset->contents(),
+                'fields' => collect($fieldset->contents()['fields'])
+                    ->map(function (array $fieldsetField) use ($field, $handle, $config, $fieldHandle) {
+                        if ($fieldsetField['handle'] === $fieldHandle) {
+                            return [
+                                'handle' => $fieldsetField['handle'],
+                                'field' => array_merge($fieldsetField['field'], [
+                                    ...$field->config(),
+                                    'sets' => array_merge($field->get('sets', []), [
+                                        'main' => array_merge($field->get('sets.main', []), [
+                                            'sets' => array_merge($field->get('sets.main.sets', []), [
+                                                $handle => $config,
+                                            ]),
+                                        ]),
+                                    ]),
+                                ]),
+                            ];
+                        }
+
+                        return $field;
+                    })
+                    ->all(),
+            ])->save();
+
+            return;
+        }
+
         if ($prefix = $field->prefix()) {
             /** @var \Statamic\Fields\Fieldset $fieldset */
             $fieldset = $blueprint->fields()->items()

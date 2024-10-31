@@ -76,6 +76,35 @@ class BardTransformer extends AbstractTransformer
             'superscript',
         ];
 
+        $importedField = $this->blueprint->fields()->items()
+            ->where('handle', $this->field->handle())
+            ->filter(fn (array $field) => isset($field['field']) && is_string($field['field']))
+            ->first();
+
+        if ($importedField) {
+            /** @var \Statamic\Fields\Fieldset $fieldset */
+            $fieldHandle = Str::after($importedField['field'], '.');
+            $fieldset = Fieldset::find(Str::before($importedField['field'], '.'));
+
+            $fieldset->setContents([
+                ...$fieldset->contents(),
+                'fields' => collect($fieldset->contents()['fields'])
+                    ->map(function (array $field) use ($buttons, $fieldHandle) {
+                        if ($field['handle'] === $fieldHandle) {
+                            return [
+                                'handle' => $field['handle'],
+                                'field' => array_merge($field['field'], ['buttons' => $buttons]),
+                            ];
+                        }
+
+                        return $field;
+                    })
+                    ->all(),
+            ])->save();
+
+            return;
+        }
+
         if ($prefix = $this->field->prefix()) {
             /** @var \Statamic\Fields\Fieldset $fieldset */
             $fieldset = $this->blueprint->fields()->items()
