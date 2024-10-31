@@ -4,6 +4,7 @@ namespace Statamic\Importer\Tests\Transformers;
 
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
+use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\DateTransformer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
@@ -14,6 +15,7 @@ class DateTransformerTest extends TestCase
 
     public $collection;
     public $blueprint;
+    public $import;
 
     public function setUp(): void
     {
@@ -21,6 +23,8 @@ class DateTransformerTest extends TestCase
 
         $this->collection = tap(Collection::make('pages'))->save();
         $this->blueprint = $this->collection->entryBlueprint();
+
+        $this->import = Import::make();
     }
 
     #[Test]
@@ -29,6 +33,7 @@ class DateTransformerTest extends TestCase
         $this->blueprint->ensureField('the_date', ['type' => 'date', 'time_enabled' => false]);
 
         $transformer = new DateTransformer(
+            import: $this->import,
             blueprint: $this->blueprint,
             field: $this->blueprint->field('the_date'),
             config: []
@@ -43,6 +48,7 @@ class DateTransformerTest extends TestCase
         $this->blueprint->ensureField('the_date', ['type' => 'date', 'time_enabled' => true]);
 
         $transformer = new DateTransformer(
+            import: $this->import,
             blueprint: $this->blueprint,
             field: $this->blueprint->field('the_date'),
             config: []
@@ -57,6 +63,7 @@ class DateTransformerTest extends TestCase
         $this->blueprint->ensureField('the_date', ['type' => 'date', 'format' => 'jS F Y']);
 
         $transformer = new DateTransformer(
+            import: $this->import,
             blueprint: $this->blueprint,
             field: $this->blueprint->field('the_date'),
             config: []

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Collection;
+use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\AssetsTransformer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
@@ -19,6 +20,7 @@ class AssetsTransformerTest extends TestCase
     public $collection;
     public $blueprint;
     public $field;
+    public $import;
 
     public function setUp(): void
     {
@@ -32,6 +34,8 @@ class AssetsTransformerTest extends TestCase
         $this->blueprint->ensureField('featured_image', ['type' => 'assets', 'max_files' => 1])->save();
 
         $this->field = $this->blueprint->field('featured_image');
+
+        $this->import = Import::make();
     }
 
     #[Test]
@@ -41,10 +45,15 @@ class AssetsTransformerTest extends TestCase
 
         Storage::disk('public')->put('2024/10/image.png', 'original');
 
-        $transformer = new AssetsTransformer($this->blueprint, $this->field, [
-            'related_field' => 'url',
-            'base_url' => 'https://example.com/wp-content/uploads',
-        ]);
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+            ]
+        );
 
         $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
 
@@ -58,9 +67,14 @@ class AssetsTransformerTest extends TestCase
 
         Storage::disk('public')->put('2024/10/image.png', 'original');
 
-        $transformer = new AssetsTransformer($this->blueprint, $this->field, [
-            'related_field' => 'path',
-        ]);
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'path',
+            ]
+        );
 
         $output = $transformer->transform('2024/10/image.png');
 
@@ -76,11 +90,16 @@ class AssetsTransformerTest extends TestCase
 
         Storage::disk('public')->assertMissing('2024/10/image.png');
 
-        $transformer = new AssetsTransformer($this->blueprint, $this->field, [
-            'related_field' => 'url',
-            'base_url' => 'https://example.com/wp-content/uploads',
-            'download_when_missing' => true,
-        ]);
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'download_when_missing' => true,
+            ]
+        );
 
         $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
 
@@ -96,11 +115,16 @@ class AssetsTransformerTest extends TestCase
 
         Storage::disk('public')->assertMissing('2024/10/image.png');
 
-        $transformer = new AssetsTransformer($this->blueprint, $this->field, [
-            'related_field' => 'url',
-            'base_url' => 'https://example.com/wp-content/uploads',
-            'download_when_missing' => false,
-        ]);
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'download_when_missing' => false,
+            ]
+        );
 
         $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
 
