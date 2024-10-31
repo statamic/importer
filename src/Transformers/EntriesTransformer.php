@@ -39,7 +39,7 @@ class EntriesTransformer extends AbstractTransformer
                     $entry->afterSave(function ($entry) use ($structure) {
                         $tree = $structure->in($entry->site()->handle());
 
-                        if (!$tree->find($entry->id())) {
+                        if (! $tree->find($entry->id())) {
                             $tree->append($entry)->save();
                         }
                     });

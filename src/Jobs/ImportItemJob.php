@@ -109,7 +109,7 @@ class ImportItemJob implements ShouldQueue
         if ($structure = $collection->structure()) {
             $parent = Arr::pull($data, 'parent');
 
-            $entry->afterSave(function ($entry) use ($structure, $site, $parent, $data) {
+            $entry->afterSave(function ($entry) use ($structure, $site, $parent) {
                 $tree = $structure->in($site->handle());
 
                 if (! $tree->find($entry->id())) {
