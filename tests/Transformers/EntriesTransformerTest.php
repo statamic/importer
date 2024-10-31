@@ -68,6 +68,61 @@ class EntriesTransformerTest extends TestCase
     }
 
     #[Test]
+    public function it_only_finds_existing_entries_in_the_chosen_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'de' => ['locale' => 'de', 'url' => '/de/'],
+        ]);
+
+        $this->import->config(['destination' => ['site' => 'de']]);
+
+        Entry::make()->collection('pages')->locale('de')->id('ein')->set('title', 'Entry Ein')->save();
+        Entry::make()->collection('pages')->locale('de')->id('zwei')->set('title', 'Entry Zwei')->save();
+        Entry::make()->collection('pages')->locale('en')->id('three')->set('title', 'Entry Three')->save();
+
+        $transformer = new EntriesTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: ['related_field' => 'title']
+        );
+
+        $output = $transformer->transform('Entry Ein|Entry Zwei|Entry Three');
+
+        $this->assertEquals(['ein', 'zwei'], $output);
+    }
+
+    #[Test]
+    public function it_finds_entries_on_any_sites_when_select_across_sites_is_enabled()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'de' => ['locale' => 'de', 'url' => '/de/'],
+        ]);
+
+        $this->import->config(['destination' => ['site' => 'de']]);
+
+        $this->blueprint->ensureFieldHasConfig('other_entries', ['type' => 'entries', 'collections' => ['pages'], 'select_across_sites' => true]);
+        $this->field = $this->blueprint->field('other_entries');
+
+        Entry::make()->collection('pages')->locale('de')->id('ein')->set('title', 'Entry Ein')->save();
+        Entry::make()->collection('pages')->locale('de')->id('zwei')->set('title', 'Entry Zwei')->save();
+        Entry::make()->collection('pages')->locale('en')->id('three')->set('title', 'Entry Three')->save();
+
+        $transformer = new EntriesTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: ['related_field' => 'title']
+        );
+
+        $output = $transformer->transform('Entry Ein|Entry Zwei|Entry Three');
+
+        $this->assertEquals(['ein', 'zwei', 'three'], $output);
+    }
+
+    #[Test]
     public function it_create_new_entries()
     {
         $this->assertNull(Entry::query()->where('title', 'Entry One')->first());
@@ -117,5 +172,38 @@ class EntriesTransformerTest extends TestCase
         $this->assertNull(Entry::query()->where('title', 'Entry One')->first());
         $this->assertNull(Entry::query()->where('title', 'Entry Two')->first());
         $this->assertNull(Entry::query()->where('title', 'Entry Three')->first());
+    }
+
+    #[Test]
+    public function it_create_new_entries_in_selected_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'de' => ['locale' => 'de', 'url' => '/de/'],
+        ]);
+
+        $this->import->config(['destination' => ['site' => 'de']]);
+
+        $this->assertNull(Entry::query()->where('title', 'Entry One')->first());
+        $this->assertNull(Entry::query()->where('title', 'Entry Two')->first());
+        $this->assertNull(Entry::query()->where('title', 'Entry Three')->first());
+
+        $transformer = new EntriesTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'title',
+                'create_when_missing' => true,
+            ]
+        );
+
+        $output = $transformer->transform('Entry One|Entry Two|Entry Three');
+
+        $this->assertCount(3, $output);
+
+        $this->assertNotNull(Entry::query()->where('locale', 'de')->where('title', 'Entry One')->first());
+        $this->assertNotNull(Entry::query()->where('locale', 'de')->where('title', 'Entry Two')->first());
+        $this->assertNotNull(Entry::query()->where('locale', 'de')->where('title', 'Entry Three')->first());
     }
 }
