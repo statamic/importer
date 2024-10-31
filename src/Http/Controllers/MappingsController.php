@@ -24,8 +24,8 @@ class MappingsController extends CpController
         $blueprint = $this->getBlueprint($request);
 
         $row = match ($request->type) {
-            'csv' => (new Csv())->getItems($request->path)->first(),
-            'xml' => (new Xml())->getItems($request->path)->first(),
+            'csv' => (new Csv)->getItems($request->path)->first(),
+            'xml' => (new Xml)->getItems($request->path)->first(),
         };
 
         return [
