@@ -484,8 +484,6 @@ class Gutenberg
             return;
         }
 
-
-
         $blueprint
             ->ensureFieldHasConfig($field->handle(), [
                 ...$field->config(),
