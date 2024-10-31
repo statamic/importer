@@ -26,8 +26,8 @@ class Importer
         }
 
         $items = match ($import->get('type')) {
-            'csv' => (new Csv($import->config()->all()))->getItems($import->get('path')),
-            'xml' => (new Xml($import->config()->all()))->getItems($import->get('path')),
+            'csv' => (new Csv($import))->getItems($import->get('path')),
+            'xml' => (new Xml($import))->getItems($import->get('path')),
         };
 
         Bus::batch($items->map(fn (array $item) => new ImportItemJob($import, $item)))
