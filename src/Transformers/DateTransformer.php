@@ -25,7 +25,7 @@ class DateTransformer extends AbstractTransformer
     private function defaultFormat()
     {
         if ($this->field->get('time_enabled') && $this->field->get('mode', 'single') === 'single') {
-            return $this->config('time_seconds_enabled')
+            return $this->field->get('time_seconds_enabled')
                 ? DateFieldtype::DEFAULT_DATETIME_WITH_SECONDS_FORMAT
                 : DateFieldtype::DEFAULT_DATETIME_FORMAT;
         }

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Statamic\Facades\Collection;
@@ -103,7 +104,7 @@ class ImportItemJob implements ShouldQueue
         }
 
         if (isset($data['date'])) {
-            $entry->date(Arr::pull($data, 'date'));
+            $entry->date(Carbon::parse(Arr::pull($data, 'date')));
         }
 
         if ($structure = $collection->structure()) {
