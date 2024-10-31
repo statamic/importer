@@ -221,7 +221,7 @@ class ImportController extends CpController
             return true;
         }
 
-        if (app()->isProduction()) {
+        if (app()->runningUnitTests() || app()->isProduction()) {
             return false;
         }
 
