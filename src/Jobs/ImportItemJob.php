@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
@@ -103,6 +104,25 @@ class ImportItemJob implements ShouldQueue
 
         if (isset($data['date'])) {
             $entry->date(Arr::pull($data, 'date'));
+        }
+
+        if ($structure = $collection->structure()) {
+            $parent = Arr::pull($data, 'parent');
+
+            $entry->afterSave(function ($entry) use ($structure, $site, $parent) {
+                $tree = $structure->in($site->handle());
+
+                if (! $tree->find($entry->id())) {
+                    $tree->append($entry)->save();
+                }
+
+                if ($parent) {
+                    $parents = Cache::get("importer.{$this->import->id()}.parents", []);
+                    $parents[] = ['id' => $entry->id(), 'parent' => $parent];
+
+                    Cache::forever("importer.{$this->import->id()}.parents", $parents);
+                }
+            });
         }
 
         $entry->merge($data);
