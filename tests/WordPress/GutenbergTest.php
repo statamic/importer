@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Blueprint;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Fieldset;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\WordPress\Gutenberg;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
@@ -765,6 +766,39 @@ HTML
                 ],
             ],
         ], $output);
+    }
+
+    #[Test]
+    public function it_append_sets_to_bard_field_in_fieldset()
+    {
+        Fieldset::make('content_stuff')->setContents(['fields' => [
+            ['handle' => 'bard_basic', 'field' => ['type' => 'bard']],
+        ]])->save();
+
+        $this->blueprint->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['import' => 'content_stuff', 'prefix' => 'resources_'],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        Gutenberg::toBard(
+            config: [],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('resources_bard_basic'),
+            value: <<<'HTML'
+<!-- wp:spacer -->
+<div style="height:100px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+HTML
+        );
+
+        $fieldset = Fieldset::find('content_stuff');
+
+        $this->assertSetExists('spacer', $fieldset->field('bard_basic'));
     }
 
     #[Test]

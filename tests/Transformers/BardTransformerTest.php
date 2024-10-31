@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Fieldset;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\BardTransformer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
@@ -135,5 +136,79 @@ HTML);
                 ],
             ],
         ], $output);
+    }
+
+    #[Test]
+    public function is_enables_buttons_on_bard_field()
+    {
+        $transformer = new BardTransformer($this->blueprint, $this->field, []);
+
+        $transformer->transform('<p>Hello world!</p>');
+
+        $blueprint = $this->collection->entryBlueprint();
+
+        $this->assertEquals([
+            'h1',
+            'h2',
+            'h3',
+            'bold',
+            'italic',
+            'unorderedlist',
+            'orderedlist',
+            'removeformat',
+            'quote',
+            'anchor',
+            'image',
+            'table',
+            'horizontalrule',
+            'codeblock',
+            'underline',
+            'superscript',
+        ], $blueprint->field('content')->get('buttons'));
+    }
+
+    #[Test]
+    public function is_enables_buttons_on_bard_field_in_fieldset()
+    {
+        Fieldset::make('content_stuff')->setContents(['fields' => [
+            ['handle' => 'bard_basic', 'field' => ['type' => 'bard']],
+        ]])->save();
+
+        $blueprint = $this->collection->entryBlueprint();
+
+        $this->blueprint->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['import' => 'content_stuff', 'prefix' => 'resources_'],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $transformer = new BardTransformer($blueprint, $blueprint->field('resources_bard_basic'), []);
+
+        $transformer->transform('<p>Hello world!</p>');
+
+        $fieldset = Fieldset::find('content_stuff');
+
+        $this->assertEquals([
+            'h1',
+            'h2',
+            'h3',
+            'bold',
+            'italic',
+            'unorderedlist',
+            'orderedlist',
+            'removeformat',
+            'quote',
+            'anchor',
+            'image',
+            'table',
+            'horizontalrule',
+            'codeblock',
+            'underline',
+            'superscript',
+        ], $fieldset->field('bard_basic')->get('buttons'));
     }
 }
