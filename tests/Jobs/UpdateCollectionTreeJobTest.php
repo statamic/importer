@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
-use Statamic\Facades\Structure;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Jobs\UpdateCollectionTreeJob;
 use Statamic\Importer\Tests\TestCase;
@@ -53,7 +52,7 @@ class UpdateCollectionTreeJobTest extends TestCase
                 'entry' => 'two',
                 'children' => [
                     ['entry' => 'three', 'children' => [['entry' => 'five']]],
-                    ['entry' => 'four']
+                    ['entry' => 'four'],
                 ],
             ],
         ], $collection->structure()->in('default')->tree());
