@@ -8,8 +8,6 @@ use Statamic\Facades\Site;
 use Statamic\Importer\ServiceProvider;
 use Statamic\Testing\AddonTestCase;
 
-use function Orchestra\Testbench\artisan;
-
 #[WithMigration('queue')]
 abstract class TestCase extends AddonTestCase
 {
