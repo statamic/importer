@@ -389,6 +389,10 @@ class Gutenberg
 
     protected static function renderHtmlToProsemirror(Field $field, string $html)
     {
+        if (empty($html)) {
+            return null;
+        }
+
         return (new BardAugmentor($field->fieldtype()))->renderHtmlToProsemirror($html)['content'][0];
     }
 
