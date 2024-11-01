@@ -3,7 +3,7 @@
 ## 1.1.0 (2024-11-01)
 
 ### What's new
-* Multi-site Support (#13)
+* Multi-site Support #13 by @duncanmcclean
 * Entry parents can now be imported #20 by @duncanmcclean
 * Import jobs are now processed in batches #16 by @duncanmcclean
 * Transformers now have access to the `Import` object by @duncanmcclean
