@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.1 (2024-11-04)
+
+### What's fixed
+* Fixed error when importing a Gutenberg block without content by @duncanmcclean
+
+
+
 ## 1.1.0 (2024-11-01)
 
 ### What's new
