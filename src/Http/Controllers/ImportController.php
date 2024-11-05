@@ -2,15 +2,14 @@
 
 namespace Statamic\Importer\Http\Controllers;
 
-use Illuminate\Support\Str;
-use Statamic\Facades;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Statamic\CP\Breadcrumbs;
-use Statamic\Exceptions\NotFoundHttpException;
+use Statamic\Facades;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Fields\Blueprint;
@@ -76,7 +75,7 @@ class ImportController extends CpController
 
         Storage::disk('local')->move(
             from: "statamic/file-uploads/{$file}",
-            to:  $path = "statamic/imports/{$id}/" . basename($file)
+            to: $path = "statamic/imports/{$id}/".basename($file)
         );
 
         $path = Storage::disk('local')->path($path);
@@ -159,7 +158,7 @@ class ImportController extends CpController
 
             Storage::disk('local')->move(
                 from: "statamic/file-uploads/{$file}",
-                to:  $path = "statamic/imports/{$import->id()}/" . basename($file)
+                to: $path = "statamic/imports/{$import->id()}/".basename($file)
             );
 
             $path = Storage::disk('local')->path($path);

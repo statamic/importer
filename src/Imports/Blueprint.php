@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Storage;
 use Statamic\Facades;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Site;
-use Statamic\Importer\Facades\Import as ImportFacade;
 
 class Blueprint
 {
@@ -20,7 +19,7 @@ class Blueprint
         'text/xml',
     ];
 
-    public static function getBlueprint(Import $import = null): \Statamic\Fields\Blueprint
+    public static function getBlueprint(?Import $import = null): \Statamic\Fields\Blueprint
     {
         return Facades\Blueprint::make('import-blueprint')->setContents([
             'tabs' => [
@@ -175,7 +174,7 @@ class Blueprint
                                                 if (collect($value)->reject(fn (array $mapping) => empty($mapping['key']))->isEmpty()) {
                                                     $fail('You must map at least one field.')->translate();
                                                 }
-                                            }
+                                            },
                                         ],
                                     ],
                                 ],
@@ -191,16 +190,16 @@ class Blueprint
                                             ->values(),
                                         'validate' => [
                                             'required',
-                                            function (string $attribute, mixed $value, Closure $fail) use ($import) {
+                                            function (string $attribute, mixed $value, Closure $fail) {
                                                 if (! collect(request()->mappings)->reject(fn ($mapping) => empty($mapping['key']))->has($value)) {
-                                                    $fail("Please configure a mapping for this field.")->translate();
+                                                    $fail('Please configure a mapping for this field.')->translate();
                                                 }
                                             },
                                         ],
                                     ],
                                 ],
                             ],
-                        ]
+                        ],
                     ],
                 ],
             ],

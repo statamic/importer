@@ -119,7 +119,7 @@ class ImportMappingsFieldtype extends Fieldtype
                         'clearable' => true,
                     ],
                     ...$fields,
-                ])->setHandle('mappings-' . $field->handle());
+                ])->setHandle('mappings-'.$field->handle());
 
                 return [$field->handle() => $blueprint->fields()];
             });

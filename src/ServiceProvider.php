@@ -7,7 +7,6 @@ use Statamic\Exceptions\NotFoundHttpException;
 use Statamic\Facades\Utility;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Http\Controllers\ImportController;
-use Statamic\Importer\Http\Controllers\MappingsController;
 use Statamic\Providers\AddonServiceProvider;
 
 class ServiceProvider extends AddonServiceProvider
