@@ -4,6 +4,9 @@ namespace Statamic\Importer\Imports;
 
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Support\Facades\Bus;
+use Statamic\Facades\Collection;
+use Statamic\Facades\Taxonomy;
+use Statamic\Facades\User;
 use Statamic\Importer\Facades\Import as ImportFacade;
 use Statamic\Importer\Importer;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
@@ -119,5 +122,25 @@ class Import
     public function deleteUrl(): string
     {
         return cp_route('utilities.importer.destroy', $this->id());
+    }
+
+    public function blueprint(): \Statamic\Fields\Blueprint
+    {
+        return Blueprint::getBlueprint($this);
+    }
+
+    public function destinationBlueprint(): \Statamic\Fields\Blueprint
+    {
+        if ($this->get('destination.type') === 'entries') {
+            return Collection::find($this->get('destination.collection'))->entryBlueprint();
+        }
+
+        if ($this->get('destination.type') === 'terms') {
+            return Taxonomy::find($this->get('destination.taxonomy'))->termBlueprint();
+        }
+
+        if ($this->get('destination.type') === 'users') {
+            return User::blueprint();
+        }
     }
 }

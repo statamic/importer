@@ -55,8 +55,8 @@ class ImportRepository
     {
         File::delete($import->path());
 
-        if (Storage::disk('local')->exists($import->path())) {
-            Storage::disk('local')->delete($import->path());
+        if (Storage::disk('local')->exists($import->get('path'))) {
+            Storage::disk('local')->delete($import->get('path'));
         }
     }
 

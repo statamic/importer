@@ -2,7 +2,10 @@
 
 namespace Statamic\Importer;
 
+use Illuminate\Support\Facades\Route;
+use Statamic\Exceptions\NotFoundHttpException;
 use Statamic\Facades\Utility;
+use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Http\Controllers\ImportController;
 use Statamic\Importer\Http\Controllers\MappingsController;
 use Statamic\Providers\AddonServiceProvider;
@@ -43,9 +46,19 @@ class ServiceProvider extends AddonServiceProvider
                     $router->get('{import}', [ImportController::class, 'edit'])->name('edit');
                     $router->patch('{import}', [ImportController::class, 'update'])->name('update');
                     $router->delete('{import}', [ImportController::class, 'destroy'])->name('destroy');
-
-                    $router->post('mappings', MappingsController::class)->name('mappings');
                 });
+        });
+
+        Route::bind('import', function ($id, $route = null) {
+            if (! $route) {
+                return false;
+            }
+
+            $import = Import::find($id);
+
+            throw_if(! $import, new NotFoundHttpException("Import [$id] not found."));
+
+            return $import;
         });
     }
 }

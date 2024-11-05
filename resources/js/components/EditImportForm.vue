@@ -16,41 +16,71 @@
             <p v-html="__('importer::messages.migrations_needed')"></p>
         </div>
 
-        <div class="mt-3 card overflow-hidden">
-            <Mappings
-                :config="config"
-                :errors="errors"
-                :mappings-url="mappingsUrl"
-                @updated="config = $event"
-            />
-        </div>
+        <publish-container
+            v-if="fieldset"
+            ref="container"
+            :name="publishContainer"
+            :blueprint="fieldset"
+            :values="values"
+            :reference="initialReference"
+            :meta="meta"
+            :errors="errors"
+            :track-dirty-state="trackDirtyState"
+            @updated="values = $event"
+        >
+            <div slot-scope="{ container, setFieldValue, setFieldMeta }">
+                <publish-tabs
+                    :enable-sidebar="false"
+                    @updated="setFieldValue"
+                    @meta-updated="setFieldMeta"
+                    @focus="container.$emit('focus', $event)"
+                    @blur="container.$emit('blur', $event)"
+                ></publish-tabs>
+            </div>
+        </publish-container>
     </div>
 </template>
 
 <script>
-import axios from 'axios';
-import Mappings from "./Mappings.vue";
+import HasHiddenFields from '../../../vendor/statamic/cms/resources/js/components/publish/HasHiddenFields';
 
 export default {
-    components: {Mappings},
+    mixins: [HasHiddenFields],
 
     props: {
+        publishContainer: String,
+        initialFieldset: Object,
+        initialValues: Object,
+        initialMeta: Object,
+        initialTitle: String,
         action: String,
+        method: String,
         breadcrumbs: Array,
-        title: String,
-        initialConfig: Object,
-        mappingsUrl: String,
         batchesTableMissing: Boolean,
     },
 
     data() {
         return {
+            fieldset: _.clone(this.initialFieldset),
+            values: _.clone(this.initialValues),
+            meta: _.clone(this.initialMeta),
             error: null,
             errors: {},
+            title: this.initialTitle,
             saving: false,
-            config: this.initialConfig,
             quickSaveKeyBinding: null,
+            trackDirtyState: true,
         }
+    },
+
+    computed: {
+        hasErrors() {
+            return this.error || Object.keys(this.errors).length;
+        },
+
+        isDirty() {
+            return this.$dirty.has(this.publishContainer);
+        },
     },
 
     mounted() {
@@ -70,30 +100,49 @@ export default {
             this.saving = true;
             this.clearErrors();
 
-            axios.patch(this.action, {
-                mappings: this.config.mappings,
-                unique_field: this.config.unique_field,
-                run: shouldRun,
-            })
-                .then(response => {
-                    this.saving = false;
-                    if (shouldRun) this.$toast.success(__('Saved & Running'));
-                    if (! shouldRun) this.$toast.success(__('Saved'));
-                })
-                .catch(e => {
-                    this.saving = false;
+            setTimeout(() => {
+                this.$refs.container.saving();
+                this.performSaveRequest(shouldRun);
+            }, 151); // 150ms is the debounce time for fieldtype updates
+        },
 
-                    if (e.response && e.response.status === 422) {
-                        const { message, errors } = e.response.data;
-                        this.error = message;
-                        this.errors = errors;
-                        this.$toast.error(message);
-                        return;
-                    }
+        performSaveRequest(shouldRun = false) {
+            const payload = _.clone(this.values);
 
-                    const message = data_get(e, 'response.data.message');
-                    this.$toast.error(message || e);
-                });
+            if (shouldRun) {
+                payload['run'] = true;
+            }
+
+            this.$axios[this.method](this.action, payload).then(response => {
+                this.saving = false;
+                if (! response.data.saved) {
+                    return this.$toast.error(__(`Couldn't save import`));
+                }
+                this.title = response.data.data.name;
+                this.$refs.container.saved();
+                this.$toast.success(__('Saved'));
+                clearTimeout(this.trackDirtyStateTimeout);
+                this.trackDirtyState = false;
+                this.meta = response.data.data.meta;
+                this.values = this.resetValuesFromResponse(response.data.data.values);
+                this.trackDirtyStateTimeout = setTimeout(() => (this.trackDirtyState = true), 500);
+                this.$nextTick(() => this.$emit('saved', response));
+            }).catch(error => this.handleAxiosError(error));
+        },
+
+        handleAxiosError(e) {
+            this.saving = false;
+            if (e.response && e.response.status === 422) {
+                const { message, errors } = e.response.data;
+                this.error = message;
+                this.errors = errors;
+                this.$toast.error(message);
+                this.$reveal.invalid();
+            } else if (e.response) {
+                this.$toast.error(e.response.data.message);
+            } else {
+                this.$toast.error(e || 'Something went wrong');
+            }
         },
     },
 }

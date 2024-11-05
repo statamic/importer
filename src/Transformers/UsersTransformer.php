@@ -60,6 +60,7 @@ class UsersTransformer extends AbstractTransformer
                     ->prepend(['key' => 'id', 'value' => __('ID')])
                     ->values()
                     ->all(),
+                'validate' => 'required',
             ],
             'create_when_missing' => [
                 'type' => 'toggle',
