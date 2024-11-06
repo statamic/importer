@@ -57,7 +57,7 @@ class CreateImportRequest extends FormRequest
             'destination_site' => [
                 Rule::requiredIf(fn () => Site::hasMultiple() && $this->destination_type === 'entries'),
                 function (string $attribute, mixed $value, Closure $fail) {
-                    if ($value && $this->destination_collection && ! Collection::find($this->destination_collection[0])->sites()->contains($value)) {
+                    if (isset($value[0]) && $this->destination_collection && ! Collection::find($this->destination_collection[0])->sites()->contains($value[0])) {
                         $fail('The chosen collection is not available on this site.')->translate();
                     }
                 },
