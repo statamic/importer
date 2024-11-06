@@ -214,15 +214,15 @@ class Blueprint
         ];
 
         if ($import->get('destination.collection')) {
-            $conditions['destination.collection'] = 'contains ' . $import->get('destination.collection');
+            $conditions['destination.collection'] = 'contains '.$import->get('destination.collection');
         }
 
         if ($import->get('destination.taxonomy')) {
-            $conditions['destination.taxonomy'] = 'contains ' . $import->get('destination.taxonomy');
+            $conditions['destination.taxonomy'] = 'contains '.$import->get('destination.taxonomy');
         }
 
         if ($import->get('destination.site')) {
-            $conditions['destination.site'] = 'contains ' . $import->get('destination.site');
+            $conditions['destination.site'] = 'contains '.$import->get('destination.site');
         }
 
         return $conditions;
