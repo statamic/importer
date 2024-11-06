@@ -76,7 +76,7 @@ class StoreImportTest extends TestCase
                 ],
                 'destination_type' => 'entries',
                 'destination_collection' => ['posts'],
-                'destination_site' => 'en',
+                'destination_site' => ['en'],
                 'strategy' => ['create', 'update'],
             ])
             ->assertJsonStructure(['redirect']);
@@ -114,7 +114,7 @@ class StoreImportTest extends TestCase
                 ],
                 'destination_type' => 'entries',
                 'destination_collection' => ['posts'],
-                'destination_site' => 'fr',
+                'destination_site' => ['fr'],
                 'strategy' => ['create', 'update'],
             ])
             ->assertSessionHasErrors('destination_site');
