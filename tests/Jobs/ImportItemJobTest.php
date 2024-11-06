@@ -76,10 +76,7 @@ class ImportItemJobTest extends TestCase
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
             ],
-            'strategy' => [
-                'create' => true,
-                'update' => false,
-            ],
+            'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -119,10 +116,7 @@ class ImportItemJobTest extends TestCase
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
             ],
-            'strategy' => [
-                'create' => true,
-                'update' => false,
-            ],
+            'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -156,10 +150,7 @@ class ImportItemJobTest extends TestCase
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => false,
-            ],
+            'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -189,10 +180,7 @@ class ImportItemJobTest extends TestCase
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => true,
-            ],
+            'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -233,10 +221,7 @@ class ImportItemJobTest extends TestCase
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => true,
-            ],
+            'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -278,10 +263,7 @@ class ImportItemJobTest extends TestCase
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
             ],
-            'strategy' => [
-                'create' => true,
-                'update' => true,
-            ],
+            'strategy' => ['create', 'update'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -327,10 +309,7 @@ class ImportItemJobTest extends TestCase
                 'email' => ['key' => 'Email'],
                 'role' => ['key' => 'Role'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => false,
-            ],
+            'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -360,10 +339,7 @@ class ImportItemJobTest extends TestCase
             'mappings' => [
                 'title' => ['key' => 'Title'],
             ],
-            'strategy' => [
-                'create' => true,
-                'update' => false,
-            ],
+            'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -388,10 +364,7 @@ class ImportItemJobTest extends TestCase
             'mappings' => [
                 'title' => ['key' => 'Title'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => false,
-            ],
+            'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -414,10 +387,7 @@ class ImportItemJobTest extends TestCase
                 'title' => ['key' => 'Title'],
                 'foo' => ['key' => 'Foo'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => true,
-            ],
+            'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -446,10 +416,7 @@ class ImportItemJobTest extends TestCase
                 'title' => ['key' => 'Title'],
                 'foo' => ['key' => 'Foo'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => false,
-            ],
+            'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -478,10 +445,7 @@ class ImportItemJobTest extends TestCase
                 'last_name' => ['key' => 'Last Name'],
                 'email' => ['key' => 'Email'],
             ],
-            'strategy' => [
-                'create' => true,
-                'update' => false,
-            ],
+            'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -511,10 +475,7 @@ class ImportItemJobTest extends TestCase
                 'last_name' => ['key' => 'Last Name'],
                 'email' => ['key' => 'Email'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => false,
-            ],
+            'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -540,10 +501,7 @@ class ImportItemJobTest extends TestCase
                 'last_name' => ['key' => 'Last Name'],
                 'email' => ['key' => 'Email'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => true,
-            ],
+            'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
@@ -574,10 +532,7 @@ class ImportItemJobTest extends TestCase
                 'last_name' => ['key' => 'Last Name'],
                 'email' => ['key' => 'Email'],
             ],
-            'strategy' => [
-                'create' => false,
-                'update' => false,
-            ],
+            'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [

@@ -32,10 +32,8 @@
 <script>
 import axios from 'axios';
 import HasInputOptions from '../../../vendor/statamic/cms/resources/js/components/fieldtypes/HasInputOptions.js';
-import Mappings from "./Mappings.vue";
 
 export default {
-    components: {Mappings},
     mixins: [HasInputOptions],
 
     props: {

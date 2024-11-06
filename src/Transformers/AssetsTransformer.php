@@ -56,6 +56,7 @@ class AssetsTransformer extends AbstractTransformer
                     ['key' => 'path', 'value' => __('Path')],
                     ['key' => 'url', 'value' => __('URL')],
                 ],
+                'validate' => 'required',
             ],
             'base_url' => [
                 'type' => 'text',
