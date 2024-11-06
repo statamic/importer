@@ -40,17 +40,15 @@ class Blueprint
                                     'handle' => 'file',
                                     'field' => [
                                         'type' => 'files',
-                                        'display' => __('File'),
-                                        'instructions' => __('Upload a CSV or XML file to import.'),
+                                        'display' => __('Upload a new file'),
+                                        'instructions' => __('Upload a CSV or XML file to import. This will replace the current file.'),
                                         'max_files' => 1,
                                         'allowed_extensions' => ['csv', 'xml'],
                                         'validate' => [
-                                            'required',
+                                            'nullable',
                                             'max:1',
                                             function (string $attribute, mixed $value, Closure $fail) {
-                                                $import = request()->route('import');
-
-                                                if ($import && basename($import->get('path')) === $value[0]) {
+                                                if (! $value) {
                                                     return;
                                                 }
 
@@ -176,6 +174,7 @@ class Blueprint
                                                 }
                                             },
                                         ],
+                                        'if' => $import ? static::buildFieldConditions($import) : null,
                                     ],
                                 ],
                                 [
@@ -196,6 +195,7 @@ class Blueprint
                                                 }
                                             },
                                         ],
+                                        'if' => $import ? static::buildFieldConditions($import) : null,
                                     ],
                                 ],
                             ],
@@ -204,5 +204,27 @@ class Blueprint
                 ],
             ],
         ]);
+    }
+
+    private static function buildFieldConditions(Import $import): array
+    {
+        $conditions = [
+            'file' => 'empty',
+            'destination.type' => $import->get('destination.type'),
+        ];
+
+        if ($import->get('destination.collection')) {
+            $conditions['destination.collection'] = 'contains ' . $import->get('destination.collection');
+        }
+
+        if ($import->get('destination.taxonomy')) {
+            $conditions['destination.taxonomy'] = 'contains ' . $import->get('destination.taxonomy');
+        }
+
+        if ($import->get('destination.site')) {
+            $conditions['destination.site'] = 'contains ' . $import->get('destination.site');
+        }
+
+        return $conditions;
     }
 }

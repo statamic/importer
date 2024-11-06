@@ -62,7 +62,6 @@ class UpdateImportTest extends TestCase
             ->actingAs(User::make()->makeSuper()->save())
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Old Posts',
-                'file' => ['posts.csv'],
                 'destination' => ['type' => 'entries', 'collection' => ['posts']],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
@@ -180,7 +179,6 @@ class UpdateImportTest extends TestCase
             ->actingAs(User::make()->makeSuper()->save())
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
-                'file' => ['posts.csv'],
                 'destination' => ['type' => 'entries', 'collection' => ['posts']],
                 'strategy' => [],
                 'mappings' => [
@@ -206,7 +204,6 @@ class UpdateImportTest extends TestCase
             ->actingAs(User::make()->makeSuper()->save())
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
-                'file' => ['posts.csv'],
                 'destination' => ['type' => 'entries', 'collection' => ['posts']],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
@@ -228,7 +225,6 @@ class UpdateImportTest extends TestCase
             ->actingAs(User::make()->makeSuper()->save())
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
-                'file' => ['posts.csv'],
                 'destination' => ['type' => 'entries', 'collection' => ['posts']],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
@@ -246,7 +242,6 @@ class UpdateImportTest extends TestCase
             ->actingAs(User::make()->makeSuper()->save())
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
-                'file' => ['posts.csv'],
                 'destination' => ['type' => 'entries', 'collection' => ['posts']],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
@@ -268,7 +263,6 @@ class UpdateImportTest extends TestCase
             ->actingAs(User::make()->makeSuper()->save())
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
-                'file' => ['posts.csv'],
                 'destination' => ['type' => 'entries', 'collection' => ['posts']],
                 'strategy' => ['create', 'update'],
                 'mappings' => [

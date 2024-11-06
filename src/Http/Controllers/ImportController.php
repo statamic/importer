@@ -115,7 +115,6 @@ class ImportController extends CpController
             ->setParent($import)
             ->addValues($import->config()->merge([
                 'name' => $import->name(),
-                'file' => [basename($import->get('path'))],
             ])->all())
             ->preProcess();
 
@@ -150,7 +149,7 @@ class ImportController extends CpController
         $type = $import->get('type');
         $path = $import->get('path');
 
-        if (($file = $request->file[0]) && basename($import->get('path')) !== $request->file[0]) {
+        if ($request->file && $file = $request->file[0]) {
             $type = match (Storage::disk('local')->mimeType("statamic/file-uploads/{$file}")) {
                 'text/csv', 'application/csv', 'text/plain' => 'csv',
                 'application/xml', 'text/xml' => 'xml',
@@ -189,12 +188,16 @@ class ImportController extends CpController
             $import->run();
         }
 
-        [$values, $meta] = $this->extractFromFields($import, $blueprint);
+        // We need to refresh the blueprint after saving, so the field conditions are up-to-date.
+        $blueprint = $import->blueprint();
+
+        [$values, $meta] = $this->extractFromFields($import, $fields);
 
         return [
             'data' => array_merge((new ImportResource($import->fresh()))->resolve()['data'], [
                 'values' => $values,
                 'meta' => $meta,
+                'blueprint' => $blueprint->setParent($import)->toPublishArray(),
             ]),
             'saved' => $saved,
         ];
@@ -209,9 +212,17 @@ class ImportController extends CpController
 
     private function createBlueprint(): Blueprint
     {
-        return Facades\Blueprint::make()->setContents([
+        $blueprint = Facades\Blueprint::make()->setContents([
             'fields' => Arr::get(ImportBlueprint::getBlueprint()->contents(), 'tabs.main.sections.0.fields'),
         ]);
+
+        $blueprint->ensureFieldHasConfig('file', [
+            'display' => __('File'),
+            'instructions' => __('Upload a CSV or XML file to import.'),
+            'required' => true,
+        ]);
+
+        return $blueprint;
     }
 
     private function ensureJobBatchesTableExists(): bool

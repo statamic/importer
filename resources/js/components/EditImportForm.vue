@@ -22,7 +22,6 @@
             :name="publishContainer"
             :blueprint="fieldset"
             :values="values"
-            :reference="initialReference"
             :meta="meta"
             :errors="errors"
             :track-dirty-state="trackDirtyState"
@@ -123,6 +122,7 @@ export default {
                 this.$toast.success(__('Saved'));
                 clearTimeout(this.trackDirtyStateTimeout);
                 this.trackDirtyState = false;
+                this.fieldset = response.data.data.blueprint;
                 this.meta = response.data.data.meta;
                 this.values = this.resetValuesFromResponse(response.data.data.values);
                 this.trackDirtyStateTimeout = setTimeout(() => (this.trackDirtyState = true), 500);
