@@ -77,7 +77,7 @@ class ImportController extends CpController
                     'type' => $request->destination_type,
                     'collection' => Arr::first($request->destination_collection),
                     'taxonomy' => Arr::first($request->destination_taxonomy),
-                    'site' => $request->destination_site,
+                    'site' => Arr::first($request->destination_site),
                 ])->filter()->all(),
             ]);
 
