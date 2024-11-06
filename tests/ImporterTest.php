@@ -46,7 +46,7 @@ CSV
             'type' => 'csv',
             'path' => storage_path('import.csv'),
             'destination' => ['type' => 'entries', 'collection' => 'team'],
-            'unique_field' => 'imported_id',
+            'strategy' => ['create', 'update'],
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
                 'last_name' => ['key' => 'Last Name'],
@@ -54,6 +54,7 @@ CSV
                 'role' => ['key' => 'Role'],
                 'imported_id' => ['key' => 'ID'],
             ],
+            'unique_field' => 'imported_id',
         ]);
 
         Importer::run($import);
@@ -119,7 +120,7 @@ XML
             'type' => 'xml',
             'path' => storage_path('import.xml'),
             'destination' => ['type' => 'entries', 'collection' => 'posts'],
-            'unique_field' => 'imported_id',
+            'strategy' => ['create', 'update'],
             'mappings' => [
                 'title' => ['key' => 'title'],
                 'date' => ['key' => 'pubDate'],
@@ -127,6 +128,7 @@ XML
                 'excerpt' => ['key' => 'excerpt:encoded'],
                 'imported_id' => ['key' => 'wp:post_id'],
             ],
+            'unique_field' => 'imported_id',
         ]);
 
         Importer::run($import);
