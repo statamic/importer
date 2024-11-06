@@ -98,8 +98,7 @@ class ImportMappingsFieldtype extends Fieldtype
             ->reject(function (Field $field) {
                 $transformer = Importer::getTransformer($field->type());
 
-                return in_array($field->type(), ['section', 'grid', 'replicator', 'group'])
-                    && ! $transformer;
+                return ! $transformer || in_array($field->type(), ['section', 'grid', 'replicator', 'group']);
             })
             ->mapWithKeys(function (Field $field) use ($row) {
                 $fields = [];
