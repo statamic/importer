@@ -8,10 +8,7 @@ trait ExtractFromImportFields
     {
         $fields = $fields->preProcess();
 
-        $values = $fields->values()->merge([
-            'name' => $import->name(),
-            'strategy' => array_keys($import->get('strategy')),
-        ]);
+        $values = $fields->values();
 
         return [$values->all(), $fields->meta()];
     }

@@ -51,7 +51,7 @@ class StoreImportTest extends TestCase
         $this->assertEquals('Posts', $import->name());
         $this->assertEquals('csv', $import->get('type'));
         $this->assertEquals(storage_path('app/statamic/imports/posts/import.csv'), $import->get('path'));
-        $this->assertEquals(['create' => true, 'update' => true], $import->get('strategy'));
+        $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
     #[Test]
@@ -87,7 +87,7 @@ class StoreImportTest extends TestCase
         $this->assertEquals('Posts', $import->name());
         $this->assertEquals('csv', $import->get('type'));
         $this->assertEquals(storage_path('app/statamic/imports/posts/import.csv'), $import->get('path'));
-        $this->assertEquals(['create' => true, 'update' => true], $import->get('strategy'));
+        $this->assertEquals(['create', 'update'], $import->get('strategy'));
 
         $this->assertEquals('en', $import->get('destination.site'));
     }
@@ -178,7 +178,7 @@ class StoreImportTest extends TestCase
         $this->assertEquals('Categories', $import->name());
         $this->assertEquals('csv', $import->get('type'));
         $this->assertEquals(storage_path('app/statamic/imports/categories/import.csv'), $import->get('path'));
-        $this->assertEquals(['create' => true, 'update' => true], $import->get('strategy'));
+        $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
     #[Test]
@@ -205,7 +205,7 @@ class StoreImportTest extends TestCase
         $this->assertEquals('Users', $import->name());
         $this->assertEquals('csv', $import->get('type'));
         $this->assertEquals(storage_path('app/statamic/imports/users/import.csv'), $import->get('path'));
-        $this->assertEquals(['create' => true, 'update' => true], $import->get('strategy'));
+        $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
     #[Test]

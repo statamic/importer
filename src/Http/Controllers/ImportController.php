@@ -91,11 +91,8 @@ class ImportController extends CpController
             ->config([
                 'type' => $type,
                 'path' => $path,
-                'strategy' => [
-                    'create' => in_array('create', $request->strategy),
-                    'update' => in_array('update', $request->strategy),
-                ],
                 'destination' => collect($values['destination'])->filter()->all(),
+                'strategy' => $values['strategy'],
             ]);
 
         $saved = $import->save();
@@ -173,11 +170,8 @@ class ImportController extends CpController
             ->config($import->config()->merge([
                 'type' => $type,
                 'path' => $path,
-                'strategy' => [
-                    'create' => in_array('create', $request->strategy),
-                    'update' => in_array('update', $request->strategy),
-                ],
                 'destination' => collect($values['destination'])->filter()->all(),
+                'strategy' => $values['strategy'],
                 'mappings' => $values['mappings'],
                 'unique_field' => $values['unique_field'],
             ]));
