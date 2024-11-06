@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Tests\Imports;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Facades\User;
@@ -26,9 +27,15 @@ class EditImportTest extends TestCase
     {
         Collection::make('posts')->save();
 
+        Storage::disk('local')->put('statamic/imports/posts/posts.csv', '');
+
         $import = Import::make()
             ->name('Posts')
-            ->config(['type' => 'csv', 'path' => 'posts.csv', 'destination' => ['type' => 'entries', 'collection' => 'posts']]);
+            ->config([
+                'type' => 'csv',
+                'path' => Storage::disk('local')->path('statamic/imports/posts/posts.csv'),
+                'destination' => ['type' => 'entries', 'collection' => 'posts'],
+            ]);
 
         $import->save();
 

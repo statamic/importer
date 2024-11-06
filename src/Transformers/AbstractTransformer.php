@@ -7,12 +7,18 @@ use Statamic\Extend\HasFields;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
 use Statamic\Importer\Contracts\Transformer;
+use Statamic\Importer\Imports\Import;
 
 abstract class AbstractTransformer implements Transformer
 {
     use HasFields;
 
-    public function __construct(protected ?Blueprint $blueprint = null, protected ?Field $field = null, protected ?array $config = null) {}
+    public function __construct(
+        protected ?Import $import = null,
+        protected ?Blueprint $blueprint = null,
+        protected ?Field $field = null,
+        protected ?array $config = null
+    ) {}
 
     abstract public function transform(string $value);
 

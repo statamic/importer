@@ -4,6 +4,7 @@ namespace Statamic\Importer\Transformers;
 
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
+use Statamic\Facades\Site;
 use Statamic\Support\Arr;
 use Statamic\Support\Str;
 
@@ -23,11 +24,16 @@ class EntriesTransformer extends AbstractTransformer
         $entries = collect(explode('|', $value))->map(function ($value) {
             $entry = Entry::query()
                 ->whereIn('collection', Arr::wrap($this->field->get('collections')))
+                ->when(! $this->field->get('select_across_sites'), function ($query) {
+                    $query->where('locale', $this->import->get('destination.site') ?? Site::default()->handle());
+                })
                 ->where($this->config('related_field'), $value)
                 ->first();
 
             if (! $entry && $this->config('create_when_missing')) {
-                $entry = Entry::make()->collection(Arr::first($this->field->get('collections')));
+                $entry = Entry::make()
+                    ->collection(Arr::first($this->field->get('collections')))
+                    ->locale($this->import->get('destination.site') ?? Site::default()->handle());
 
                 if ($this->config('related_field') === 'slug') {
                     $entry->slug($value);
@@ -76,6 +82,7 @@ class EntriesTransformer extends AbstractTransformer
                     ->prepend(['key' => 'id', 'value' => __('ID')])
                     ->values()
                     ->all(),
+                'validate' => 'required',
             ],
             'create_when_missing' => [
                 'type' => 'toggle',

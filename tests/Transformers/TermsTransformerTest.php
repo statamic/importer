@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\Term;
+use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\TermsTransformer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
@@ -17,6 +18,7 @@ class TermsTransformerTest extends TestCase
     public $collection;
     public $blueprint;
     public $field;
+    public $import;
 
     public function setUp(): void
     {
@@ -30,6 +32,8 @@ class TermsTransformerTest extends TestCase
         $this->blueprint->ensureField('categories', ['type' => 'terms', 'taxonomies' => ['categories']])->save();
 
         $this->field = $this->blueprint->field('categories');
+
+        $this->import = Import::make();
     }
 
     #[Test]
@@ -39,7 +43,13 @@ class TermsTransformerTest extends TestCase
         Term::make()->taxonomy('categories')->slug('two')->set('title', 'Category Two')->save();
         Term::make()->taxonomy('categories')->slug('three')->set('title', 'Category Three')->save();
 
-        $transformer = new TermsTransformer($this->blueprint, $this->field, ['related_field' => 'title']);
+        $transformer = new TermsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: ['related_field' => 'title']
+        );
+
         $output = $transformer->transform('Category One|Category Two|Category Three');
 
         $this->assertEquals(['categories::one', 'categories::two', 'categories::three'], $output);
@@ -52,7 +62,16 @@ class TermsTransformerTest extends TestCase
         $this->assertNull(Term::query()->where('title', 'Category Two')->first());
         $this->assertNull(Term::query()->where('title', 'Category Three')->first());
 
-        $transformer = new TermsTransformer($this->blueprint, $this->field, ['related_field' => 'title', 'create_when_missing' => true]);
+        $transformer = new TermsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'title',
+                'create_when_missing' => true,
+            ]
+        );
+
         $output = $transformer->transform('Category One|Category Two|Category Three');
 
         $this->assertCount(3, $output);
@@ -69,7 +88,16 @@ class TermsTransformerTest extends TestCase
         $this->assertNull(Term::query()->where('title', 'Category Two')->first());
         $this->assertNull(Term::query()->where('title', 'Category Three')->first());
 
-        $transformer = new TermsTransformer($this->blueprint, $this->field, ['related_field' => 'title', 'create_when_missing' => false]);
+        $transformer = new TermsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'title',
+                'create_when_missing' => false,
+            ]
+        );
+
         $output = $transformer->transform('Category One|Category Two|Category Three');
 
         $this->assertCount(0, $output);

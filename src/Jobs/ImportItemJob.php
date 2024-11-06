@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Statamic\Facades\Collection;
@@ -41,7 +42,7 @@ class ImportItemJob implements ShouldQueue
                 }
 
                 if ($transformer = Importer::getTransformer($field->type())) {
-                    $value = (new $transformer($blueprint, $field, $mapping))->transform($value);
+                    $value = (new $transformer($this->import, $blueprint, $field, $mapping))->transform($value);
                 }
 
                 return [$fieldHandle => $value];
@@ -74,7 +75,7 @@ class ImportItemJob implements ShouldQueue
     protected function findOrCreateEntry(array $data): void
     {
         $collection = Collection::find($this->import->get('destination.collection'));
-        $site = Site::get($this->import->get('destination.site') ?? Site::selected()->handle());
+        $site = Site::get($this->import->get('destination.site') ?? Site::default()->handle());
 
         $entry = Entry::query()
             ->where('locale', $site->handle())
@@ -83,14 +84,14 @@ class ImportItemJob implements ShouldQueue
             ->first();
 
         if (! $entry) {
-            if (! $this->import->get('strategy.create', true)) {
+            if (! in_array('create', $this->import->get('strategy'))) {
                 return;
             }
 
             $entry = Entry::make()->collection($collection)->locale($site);
         }
 
-        if ($entry->id() && ! $this->import->get('strategy.update', true)) {
+        if ($entry->id() && ! in_array('update', $this->import->get('strategy'))) {
             return;
         }
 
@@ -103,7 +104,7 @@ class ImportItemJob implements ShouldQueue
         }
 
         if (isset($data['date'])) {
-            $entry->date(Arr::pull($data, 'date'));
+            $entry->date(Carbon::parse(Arr::pull($data, 'date')));
         }
 
         if ($structure = $collection->structure()) {
@@ -137,14 +138,14 @@ class ImportItemJob implements ShouldQueue
             ->first();
 
         if (! $term) {
-            if (! $this->import->get('strategy.create', true)) {
+            if (! in_array('create', $this->import->get('strategy'))) {
                 return;
             }
 
             $term = Term::make()->taxonomy($this->import->get('destination.taxonomy'));
         }
 
-        if (Term::find($term->id()) && ! $this->import->get('strategy.update', true)) {
+        if (Term::find($term->id()) && ! in_array('update', $this->import->get('strategy'))) {
             return;
         }
 
@@ -168,14 +169,14 @@ class ImportItemJob implements ShouldQueue
             ->first();
 
         if (! $user) {
-            if (! $this->import->get('strategy.create', true)) {
+            if (! in_array('create', $this->import->get('strategy'))) {
                 return;
             }
 
             $user = User::make();
         }
 
-        if ($user->id() && ! $this->import->get('strategy.update', true)) {
+        if ($user->id() && ! in_array('update', $this->import->get('strategy'))) {
             return;
         }
 

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Fieldset;
+use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\BardTransformer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
@@ -18,6 +19,7 @@ class BardTransformerTest extends TestCase
     public $collection;
     public $blueprint;
     public $field;
+    public $import;
 
     public function setUp(): void
     {
@@ -29,12 +31,19 @@ class BardTransformerTest extends TestCase
         $this->blueprint->ensureField('content', ['type' => 'bard', 'container' => 'assets'])->save();
 
         $this->field = $this->blueprint->field('content');
+
+        $this->import = Import::make();
     }
 
     #[Test]
     public function it_converts_html_to_prosemirror()
     {
-        $transformer = new BardTransformer($this->blueprint, $this->field, []);
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: []
+        );
 
         $output = $transformer->transform(<<<'HTML'
 <h2>Summary</h2>
@@ -78,9 +87,14 @@ HTML);
         AssetContainer::make('assets')->disk('public')->save();
         Storage::disk('public')->put('2024/10/image.png', 'original');
 
-        $transformer = new BardTransformer($this->blueprint, $this->field, [
-            'assets_base_url' => 'https://example.com/wp-content/uploads',
-        ]);
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'assets_base_url' => 'https://example.com/wp-content/uploads',
+            ]
+        );
 
         $output = $transformer->transform(<<<'HTML'
 <p>Nam voluptatem rem molestiae cumque doloremque. <strong>Saepe animi deserunt</strong> Maxime iam et inventore. ipsam in dignissimos qui occaecati.</p>
@@ -112,7 +126,12 @@ HTML);
         AssetContainer::make('assets')->disk('public')->save();
         Storage::disk('public')->put('2024/10/image.png', 'original');
 
-        $transformer = new BardTransformer($this->blueprint, $this->field, []);
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: []
+        );
 
         $output = $transformer->transform(<<<'HTML'
 <p>Nam voluptatem rem molestiae cumque doloremque. <strong>Saepe animi deserunt</strong> Maxime iam et inventore. ipsam in dignissimos qui occaecati.</p>
