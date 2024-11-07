@@ -90,18 +90,17 @@ class ImportMappingsFieldtype extends Fieldtype
         $import = $this->field()->parent();
 
         $row = match ($import->get('type')) {
-            'csv' => (new Csv($import))->getItems($import->get('path'), [])->first(),
-            'xml' => (new Xml($import))->getItems($import->get('path'), [])->first(),
+            'csv' => (new Csv($import))->getItems($import->get('path'))->first(),
+            'xml' => (new Xml($import))->getItems($import->get('path'))->first(),
         };
 
         return $import->destinationBlueprint()->fields()->all()
             ->reject(function (Field $field) {
                 $transformer = Importer::getTransformer($field->type());
 
-                return in_array($field->type(), ['section', 'grid', 'replicator', 'group'])
-                    && ! $transformer;
+                return ! $transformer && in_array($field->type(), ['section', 'grid', 'replicator', 'group']);
             })
-            ->mapWithKeys(function (Field $field) use ($row) {
+            ->mapWithKeys(function (Field $field) use ($import, $row) {
                 $fields = [];
 
                 if ($transformer = Importer::getTransformer($field->type())) {
@@ -119,7 +118,7 @@ class ImportMappingsFieldtype extends Fieldtype
                         'clearable' => true,
                     ],
                     ...$fields,
-                ])->setHandle('mappings-'.$field->handle());
+                ])->setHandle("import-mappings-{$field->handle()}".md5($import->config()->toJson()));
 
                 return [$field->handle() => $blueprint->fields()];
             });
