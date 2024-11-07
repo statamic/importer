@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
-use Statamic\Importer\Transformers\DateTransformer;
 use Statamic\Importer\Transformers\ToggleTransformer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
 

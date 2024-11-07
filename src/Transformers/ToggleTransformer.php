@@ -2,10 +2,6 @@
 
 namespace Statamic\Importer\Transformers;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
-use Statamic\Fieldtypes\Date as DateFieldtype;
-
 class ToggleTransformer extends AbstractTransformer
 {
     public function transform(string $value): bool
