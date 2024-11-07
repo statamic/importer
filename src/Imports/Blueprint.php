@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use Statamic\Facades;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Site;
+use Statamic\Importer\Sources\Csv;
+use Statamic\Importer\Sources\Xml;
 
 class Blueprint
 {
@@ -78,7 +80,7 @@ class Blueprint
                                                 'field' => [
                                                     'type' => 'button_group',
                                                     'display' => __('Data Type'),
-                                                    'instructions' => __('Choose what type of data are you importing'),
+                                                    'instructions' => __('Choose what type of data are you importing.'),
                                                     'width' => 50,
                                                     'options' => [
                                                         ['key' => 'entries', 'value' => __('Entries')],
@@ -159,6 +161,7 @@ class Blueprint
                             'display' => __('Configuration'),
                             'instructions' => __('importer::messages.configuration_instructions'),
                             'fields' => [
+                                ...static::getSourceFields($import),
                                 [
                                     'handle' => 'mappings',
                                     'field' => [
@@ -204,6 +207,33 @@ class Blueprint
                 ],
             ],
         ]);
+    }
+
+    private static function getSourceFields(?Import $import = null): array
+    {
+        if (! $import) {
+            return [];
+        }
+
+        $fields = match ($import->get('type')) {
+            'csv' => (new Csv($import))->fields(),
+            'xml' => (new Xml($import))->fields(),
+        };
+
+        if ($fields->items()->isEmpty()) {
+            return [];
+        }
+
+        return [[
+            'handle' => 'source',
+            'field' => [
+                'type' => 'group',
+                'hide_display' => true,
+                'fullscreen' => false,
+                'border' => false,
+                'fields' => $fields->items()->all(),
+            ],
+        ]];
     }
 
     private static function buildFieldConditions(Import $import): array
