@@ -64,7 +64,7 @@ class UpdateImportTest extends TestCase
                 'name' => 'Old Posts',
                 'destination' => ['type' => 'entries', 'collection' => ['posts']],
                 'strategy' => ['create', 'update'],
-                'source' => ['delimiter' => ','],
+                'source' => ['csv_delimiter' => ','],
                 'mappings' => [
                     'title' => ['key' => 'Title'],
                     'slug' => ['key' => 'Slug'],
@@ -96,7 +96,7 @@ class UpdateImportTest extends TestCase
                 'file' => ['123456789/latest-posts.csv'],
                 'destination' => ['type' => 'entries', 'collection' => ['posts']],
                 'strategy' => ['create', 'update'],
-                'source' => ['delimiter' => ','],
+                'source' => ['csv_delimiter' => ','],
                 'mappings' => [
                     'title' => ['key' => 'Title'],
                     'slug' => ['key' => 'Slug'],
