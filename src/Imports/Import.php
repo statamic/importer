@@ -132,7 +132,14 @@ class Import
     public function destinationBlueprint(): \Statamic\Fields\Blueprint
     {
         if ($this->get('destination.type') === 'entries') {
-            return Collection::find($this->get('destination.collection'))->entryBlueprint();
+            $blueprint = Collection::find($this->get('destination.collection'))->entryBlueprint();
+
+            $blueprint->ensureField('published', [
+                'type' => 'toggle',
+                'display' => __('Published'),
+            ]);
+
+            return $blueprint;
         }
 
         if ($this->get('destination.type') === 'terms') {
