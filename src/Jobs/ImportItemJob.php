@@ -29,7 +29,7 @@ class ImportItemJob implements ShouldQueue
 
     public function handle(): void
     {
-        $blueprint = $this->getBlueprint();
+        $blueprint = $this->import->destinationBlueprint();
 
         $data = collect($this->import->get('mappings'))
             ->reject(fn (array $mapping) => empty($mapping['key']))
@@ -55,21 +55,6 @@ class ImportItemJob implements ShouldQueue
             'terms' => $this->findOrCreateTerm($data),
             'users' => $this->findOrCreateUser($data),
         };
-    }
-
-    protected function getBlueprint(): Blueprint
-    {
-        if ($this->import->get('destination.type') === 'entries') {
-            return Collection::find($this->import->get('destination.collection'))->entryBlueprint();
-        }
-
-        if ($this->import->get('destination.type') === 'terms') {
-            return Taxonomy::find($this->import->get('destination.taxonomy'))->termBlueprint();
-        }
-
-        if ($this->import->get('destination.type') === 'users') {
-            return User::blueprint();
-        }
     }
 
     protected function findOrCreateEntry(array $data): void
