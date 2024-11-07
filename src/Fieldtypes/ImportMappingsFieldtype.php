@@ -39,9 +39,7 @@ class ImportMappingsFieldtype extends Fieldtype
     public function preProcess($data): array
     {
         return $this->fields()->map(function (Fields $fields, string $handle) use ($data) {
-            $field = $this->field()->parent()->destinationBlueprint()->field($handle);
-
-            return $fields->addValues(Arr::get($data, $field->handle(), []))->preProcess()->values()->all();
+            return $fields->addValues(Arr::get($data, $handle, []))->preProcess()->values()->all();
         })->all();
     }
 
