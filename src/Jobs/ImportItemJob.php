@@ -47,7 +47,7 @@ class ImportItemJob implements ShouldQueue
 
                 return [$fieldHandle => $value];
             })
-            ->filter()
+            ->reject(fn ($value) => is_null($value))
             ->all();
 
         match ($this->import->get('destination.type')) {
