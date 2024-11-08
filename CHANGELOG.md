@@ -1,6 +1,16 @@
 # Changelog
 
-## 1.1.2 (2024-11-06)
+## 1.2.0 (2024-11-08)
+
+### What's new
+* UX Improvements #24
+* Added "CSV Delimiter" option #29 by @duncanmcclean
+* Add "Folder" option to Assets Transformer #31 by @duncanmcclean
+* You can now import publish states (& toggle fields) #30 by @duncanmcclean
+
+
+
+### 1.1.2 (2024-11-06)
 
 ### What's fixed
 * Fixed validation error when creating an import in a multi-site #27 by @duncanmcclean
