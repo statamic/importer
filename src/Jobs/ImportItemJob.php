@@ -27,13 +27,14 @@ class ImportItemJob implements ShouldQueue
 
     public function handle(): void
     {
+        $fields = $this->import->mappingFields();
         $blueprint = $this->import->destinationBlueprint();
 
         $data = collect($this->import->get('mappings'))
             ->reject(fn (array $mapping) => empty($mapping['key']))
-            ->mapWithKeys(function (array $mapping, string $fieldHandle) use ($blueprint) {
+            ->mapWithKeys(function (array $mapping, string $fieldHandle) use ($fields, $blueprint) {
+                $field = $fields->get($fieldHandle);
                 $value = Arr::get($this->item, $mapping['key']);
-                $field = $blueprint->field($fieldHandle);
 
                 if (! $value) {
                     return [$fieldHandle => null];

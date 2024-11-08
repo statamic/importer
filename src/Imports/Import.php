@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Bus;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
+use Statamic\Fields\Blueprint as StatamicBlueprint;
+use Statamic\Fields\Fields;
 use Statamic\Importer\Facades\Import as ImportFacade;
 use Statamic\Importer\Importer;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
@@ -124,30 +126,43 @@ class Import
         return cp_route('utilities.importer.destroy', $this->id());
     }
 
-    public function blueprint(): \Statamic\Fields\Blueprint
+    public function blueprint(): StatamicBlueprint
     {
         return Blueprint::getBlueprint($this);
     }
 
-    public function destinationBlueprint(): \Statamic\Fields\Blueprint
+    /**
+     * Returns the blueprint of the destination collection, taxonomy, or user.
+     *
+     * @return StatamicBlueprint
+     */
+    public function destinationBlueprint(): StatamicBlueprint
     {
-        if ($this->get('destination.type') === 'entries') {
-            $blueprint = Collection::find($this->get('destination.collection'))->entryBlueprint();
+        return match ($this->get('destination.type')) {
+            'entries' => Collection::find($this->get('destination.collection'))->entryBlueprint(),
+            'terms' => Taxonomy::find($this->get('destination.taxonomy'))->termBlueprint(),
+            'users' => User::blueprint(),
+        };
+    }
 
+    /**
+     * Returns a Fields instance of the fields available for mapping.
+     * Sometimes, additional fields will be appended, like "Published" for
+     * entries, which doesn't exist as a blueprint field.
+     *
+     * @return Fields
+     */
+    public function mappingFields(): Fields
+    {
+        $blueprint = clone $this->destinationBlueprint();
+
+        if ($this->get('destination.type') === 'entries') {
             $blueprint->ensureField('published', [
                 'type' => 'toggle',
                 'display' => __('Published'),
             ]);
-
-            return $blueprint;
         }
 
-        if ($this->get('destination.type') === 'terms') {
-            return Taxonomy::find($this->get('destination.taxonomy'))->termBlueprint();
-        }
-
-        if ($this->get('destination.type') === 'users') {
-            return User::blueprint();
-        }
+        return $blueprint->fields();
     }
 }
