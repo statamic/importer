@@ -17,6 +17,7 @@ class ServiceProvider extends AddonServiceProvider
         'date' => Transformers\DateTransformer::class,
         'entries' => Transformers\EntriesTransformer::class,
         'terms' => Transformers\TermsTransformer::class,
+        'toggle' => Transformers\ToggleTransformer::class,
         'users' => Transformers\UsersTransformer::class,
     ];
 

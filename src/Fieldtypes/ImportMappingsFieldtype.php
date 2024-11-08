@@ -21,7 +21,7 @@ class ImportMappingsFieldtype extends Fieldtype
     {
         return [
             'fields' => $this->fields()->map(function (Fields $fields, string $handle) {
-                $field = $this->field()->parent()->destinationBlueprint()->field($handle);
+                $field = $this->field()->parent()->mappingFields()->get($handle);
 
                 return [
                     'type' => $field->type(),
@@ -39,9 +39,7 @@ class ImportMappingsFieldtype extends Fieldtype
     public function preProcess($data): array
     {
         return $this->fields()->map(function (Fields $fields, string $handle) use ($data) {
-            $field = $this->field()->parent()->destinationBlueprint()->field($handle);
-
-            return $fields->addValues(Arr::get($data, $field->handle(), []))->preProcess()->values()->all();
+            return $fields->addValues(Arr::get($data, $handle, []))->preProcess()->values()->all();
         })->all();
     }
 
@@ -94,11 +92,11 @@ class ImportMappingsFieldtype extends Fieldtype
             'xml' => (new Xml($import))->getItems($import->get('path'))->first(),
         };
 
-        return $import->destinationBlueprint()->fields()->all()
+        return $import->mappingFields()->all()
             ->reject(function (Field $field) {
                 $transformer = Importer::getTransformer($field->type());
 
-                return ! $transformer && in_array($field->type(), ['section', 'grid', 'replicator', 'group']);
+                return in_array($field->type(), ['section', 'grid', 'replicator', 'group', 'array']) && ! $transformer;
             })
             ->mapWithKeys(function (Field $field) use ($import, $row) {
                 $fields = [];
