@@ -1,6 +1,6 @@
 # Changelog
 
-### 1.1.2 (2024-11-06)
+## 1.1.2 (2024-11-06)
 
 ### What's fixed
 * Fixed validation error when creating an import in a multi-site #27 by @duncanmcclean
