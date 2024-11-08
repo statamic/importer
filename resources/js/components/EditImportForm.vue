@@ -40,13 +40,6 @@
     </div>
 </template>
 
-<style>
-    .publish-field__destination .publish-field, .publish-field__source .publish-field {
-        padding-top: 0!important;
-        padding-bottom: 0!important;
-    }
-</style>
-
 <script>
 import HasHiddenFields from '../../../vendor/statamic/cms/resources/js/components/publish/HasHiddenFields';
 
