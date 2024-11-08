@@ -5,12 +5,10 @@ namespace Statamic\Importer\Transformers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Statamic\Assets\AssetUploader;
-use Statamic\Assets\Uploader;
 use Statamic\Contracts\Assets\AssetContainer as AssetContainerContract;
 use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Path;
-use Statamic\Forms\Uploaders\AssetsUploader;
 use Statamic\Support\Str;
 
 class AssetsTransformer extends AbstractTransformer
