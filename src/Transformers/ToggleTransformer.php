@@ -29,15 +29,15 @@ class ToggleTransformer extends AbstractTransformer
                 'display' => __('Format'),
                 'instructions' => __('How is the value stored?'),
                 'options' => [
-                    'boolean' => __('As booleans'),
-                    'string' => __('As strings'),
+                    'boolean' => __('Booleans'),
+                    'string' => __('Strings'),
                 ],
                 'validate' => 'required',
             ],
             'values' => [
                 'type' => 'array',
                 'display' => __('Values'),
-                'instructions' => __('Specify the values that represent true and false in your data. You separate multiple values with a pipe (`|`).'),
+                'instructions' => __('Specify the values that represent true and false in your data. You may separate multiple values with a pipe (`|`).'),
                 'mode' => 'keyed',
                 'keys' => [
                     ['key' => 'true', 'value' => __('True')],
