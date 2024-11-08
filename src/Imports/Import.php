@@ -133,8 +133,6 @@ class Import
 
     /**
      * Returns the blueprint of the destination collection, taxonomy, or user.
-     *
-     * @return StatamicBlueprint
      */
     public function destinationBlueprint(): StatamicBlueprint
     {
@@ -149,8 +147,6 @@ class Import
      * Returns a Fields instance of the fields available for mapping.
      * Sometimes, additional fields will be appended, like "Published" for
      * entries, which doesn't exist as a blueprint field.
-     *
-     * @return Fields
      */
     public function mappingFields(): Fields
     {
