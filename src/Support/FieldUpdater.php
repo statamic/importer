@@ -130,6 +130,10 @@ class FieldUpdater
         $this->clearBlinkCaches();
     }
 
+    /**
+     * When fieldsets are updated, we need to clear the Blueprint Blink caches, so
+     * Blueprint::find() returns the updated field config.
+     */
     private function clearBlinkCaches(): void
     {
         Blink::store('blueprints.found')->flush();
