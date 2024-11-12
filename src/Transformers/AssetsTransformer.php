@@ -113,7 +113,7 @@ class AssetsTransformer extends AbstractTransformer
             'folder' => [
                 'type' => 'asset_folder',
                 'display' => __('Folder'),
-                'instructions' => __('By default, downloaded assets will use same folder structure as the original URL. You can specify a different folder here.'),
+                'instructions' => __('importer::messages.assets_folder_instructions'),
                 'if' => ['download_when_missing' => true],
                 'container' => $this->field->get('container'),
                 'max_items' => 1,

@@ -18,6 +18,7 @@ return [
 
     'assets_base_url_instructions' => 'The base URL to prepend to the path.',
     'assets_download_when_missing_instructions' => 'If the asset can\'t be found in the asset container, should it be downloaded?',
+    'assets_folder_instructions' => 'By default, downloaded assets will use same folder structure as the original URL. You can specify a different folder here.',
     'assets_related_field_instructions' => 'Which field does the data reference?',
     'entries_create_when_missing_instructions' => 'Create the entry if it doesn\'t exist.',
     'entries_related_field_instructions' => 'Which field does the data reference?',
