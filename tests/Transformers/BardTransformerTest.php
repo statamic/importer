@@ -160,7 +160,12 @@ HTML);
     #[Test]
     public function is_enables_buttons_on_bard_field()
     {
-        $transformer = new BardTransformer($this->blueprint, $this->field, []);
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: []
+        );
 
         $transformer->transform('<p>Hello world!</p>');
 
@@ -205,7 +210,12 @@ HTML);
             ],
         ])->save();
 
-        $transformer = new BardTransformer($blueprint, $blueprint->field('resources_bard_basic'), []);
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $blueprint,
+            field: $blueprint->field('resources_bard_basic'),
+            config: []
+        );
 
         $transformer->transform('<p>Hello world!</p>');
 
