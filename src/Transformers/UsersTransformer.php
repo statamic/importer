@@ -3,11 +3,17 @@
 namespace Statamic\Importer\Transformers;
 
 use Statamic\Facades\User;
+use Statamic\Support\Str;
 
 class UsersTransformer extends AbstractTransformer
 {
     public function transform(string $value): null|string|array
     {
+        // When $value is a JSON string, decode it.
+        if (Str::startsWith($value, ['{', '[']) || Str::startsWith($value, ['[', ']'])) {
+            $value = collect(json_decode($value, true))->join('|');
+        }
+
         if ($this->config('related_field') === 'id') {
             if (is_string($value)) {
                 return explode('|', $value);

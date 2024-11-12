@@ -11,6 +11,11 @@ class TermsTransformer extends AbstractTransformer
 {
     public function transform(string $value): null|string|array
     {
+        // When $value is a JSON string, decode it.
+        if (Str::startsWith($value, ['{', '[']) || Str::startsWith($value, ['[', ']'])) {
+            $value = collect(json_decode($value, true))->join('|');
+        }
+
         $terms = collect(explode('|', $value))->map(function ($value) {
             $term = Term::query()
                 ->whereIn('taxonomy', Arr::wrap($this->field->get('taxonomies')))
