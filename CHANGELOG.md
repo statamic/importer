@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0 (2024-11-12)
+
+### What's new
+* Allow selecting a folder for downloaded assets #31 by @duncanmcclean
+* Made more strings translatable and fixed issue when string matches name of lang file #33 by @duncanmcclean
+* JSON arrays now get parsed when importing relationships #32 by @duncanmcclean
+
+
+
 ## 1.2.0 (2024-11-08)
 
 ### What's new
