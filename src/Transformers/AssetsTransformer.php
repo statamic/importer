@@ -17,6 +17,11 @@ class AssetsTransformer extends AbstractTransformer
         $baseUrl = $this->config('base_url');
         $relatedField = $this->config('related_field', 'path');
 
+        // When $value is a JSON string, decode it.
+        if (Str::startsWith($value, ['{', '[']) || Str::startsWith($value, ['[', ']'])) {
+            $value = collect(json_decode($value, true))->join('|');
+        }
+
         $assets = collect(explode('|', $value))->map(function ($path) use ($assetContainer, $relatedField, $baseUrl) {
             $path = Str::of($path)
                 ->when($relatedField === 'url' && $baseUrl, function ($str) use ($baseUrl) {

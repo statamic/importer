@@ -17,6 +17,11 @@ class EntriesTransformer extends AbstractTransformer
             $value = collect(unserialize($value))->join('|');
         }
 
+        // When $value is a JSON string, decode it.
+        if (Str::startsWith($value, ['{', '[']) || Str::startsWith($value, ['[', ']'])) {
+            $value = collect(json_decode($value, true))->join('|');
+        }
+
         if ($this->config('related_field') === 'id') {
             return is_string($value) ? explode('|', $value) : $value;
         }
