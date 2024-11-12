@@ -109,6 +109,34 @@ class AssetsTransformerTest extends TestCase
     }
 
     #[Test]
+    public function it_downloads_new_asset_using_url_and_stores_it_in_configured_folder()
+    {
+        Http::fake([
+            'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
+        ]);
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
+
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'download_when_missing' => true,
+                'folder' => 'custom-folder',
+            ]
+        );
+
+        $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
+
+        $this->assertEquals('custom-folder/image.png', $output);
+
+        Storage::disk('public')->assertExists('custom-folder/image.png');
+    }
+
+    #[Test]
     public function it_doesnt_download_new_asset_when_download_when_missing_option_is_disabled()
     {
         Http::preventStrayRequests();

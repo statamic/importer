@@ -2,8 +2,13 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Statamic\Assets\AssetUploader;
+use Statamic\Contracts\Assets\AssetContainer as AssetContainerContract;
+use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
+use Statamic\Facades\Path;
 use Statamic\Support\Str;
 
 class AssetsTransformer extends AbstractTransformer
@@ -39,14 +44,44 @@ class AssetsTransformer extends AbstractTransformer
                     return null;
                 }
 
-                $assetContainer->disk()->put($path, $request->body());
-                $asset = tap($assetContainer->makeAsset($path))->save();
+                $asset = Asset::make()
+                    ->container($assetContainer)
+                    ->path($this->assetPath($assetContainer, $path));
+
+                $assetContainer->disk()->put($asset->path(), $request->body());
+
+                $asset->save();
             }
 
             return $asset?->path();
         })->filter();
 
         return $this->field->get('max_files') === 1 ? $assets->first() : $assets->all();
+    }
+
+    private function assetPath(AssetContainerContract $assetContainer, string $path): string
+    {
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+        if (config('statamic.assets.lowercase')) {
+            $ext = strtolower($extension);
+        }
+
+        $filename = AssetUploader::getSafeFilename(pathinfo($path, PATHINFO_FILENAME));
+
+        $directory = $this->config('folder') ?? Str::beforeLast($path, '/');
+        $directory = ($directory === '.') ? '/' : $directory;
+
+        $path = Path::tidy($directory.'/'.$filename.'.'.$ext);
+        $path = ltrim($path, '/');
+
+        // If the file exists, we'll append a timestamp to prevent overwriting.
+        if ($assetContainer->disk()->exists($path)) {
+            $basename = $filename.'-'.Carbon::now()->timestamp.'.'.$ext;
+            $path = Str::removeLeft(Path::assemble($directory, $basename), '/');
+        }
+
+        return $path;
     }
 
     public function fieldItems(): array
@@ -74,6 +109,14 @@ class AssetsTransformer extends AbstractTransformer
                 'display' => __('Download when missing?'),
                 'instructions' => __('importer::messages.assets_download_when_missing_instructions'),
                 'if' => ['related_field' => 'url'],
+            ],
+            'folder' => [
+                'type' => 'asset_folder',
+                'display' => __('Folder'),
+                'instructions' => __('By default, downloaded assets will use same folder structure as the original URL. You can specify a different folder here.'),
+                'if' => ['download_when_missing' => true],
+                'container' => $this->field->get('container'),
+                'max_items' => 1,
             ],
         ];
     }
