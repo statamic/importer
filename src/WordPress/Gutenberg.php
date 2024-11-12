@@ -4,9 +4,7 @@ namespace Statamic\Importer\WordPress;
 
 use Facades\Statamic\Importer\Support\FieldUpdater;
 use Statamic\Facades\AssetContainer;
-use Statamic\Facades\Blink;
 use Statamic\Facades\Blueprint as BlueprintFacade;
-use Statamic\Facades\Fieldset;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
