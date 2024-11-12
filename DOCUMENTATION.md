@@ -56,6 +56,8 @@ When you're configuring mappings for an Assets field, or a Bard field, a few add
 * **Download when missing?**
     * By default, when the importer comes across an asset it can't find in Statamic, it will skip it.
     * However, if you wish, the importer can download any missing assets for you into the configured asset container.
+* **Folder**
+    * By default, downloaded assets will use same folder structure as the original URL. If you'd like to download them into a specific folder, you can select one here.
 
 When importing a Bard field, assets will only be imported when the "Container" config option has been set in the blueprint.
 
