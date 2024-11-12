@@ -72,16 +72,6 @@ export default {
         }
     },
 
-    computed: {
-        hasErrors() {
-            return this.error || Object.keys(this.errors).length;
-        },
-
-        isDirty() {
-            return this.$dirty.has(this.publishContainer);
-        },
-    },
-
     mounted() {
         this.quickSaveKeyBinding = this.$keys.bindGlobal(['mod+s'], e => {
             e.preventDefault();

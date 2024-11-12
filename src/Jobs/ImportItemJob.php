@@ -14,10 +14,8 @@ use Illuminate\Support\Str;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Site;
-use Statamic\Facades\Taxonomy;
 use Statamic\Facades\Term;
 use Statamic\Facades\User;
-use Statamic\Fields\Blueprint;
 use Statamic\Importer\Importer;
 use Statamic\Importer\Imports\Import;
 
@@ -29,13 +27,14 @@ class ImportItemJob implements ShouldQueue
 
     public function handle(): void
     {
-        $blueprint = $this->getBlueprint();
+        $fields = $this->import->mappingFields();
+        $blueprint = $this->import->destinationBlueprint();
 
         $data = collect($this->import->get('mappings'))
             ->reject(fn (array $mapping) => empty($mapping['key']))
-            ->mapWithKeys(function (array $mapping, string $fieldHandle) use ($blueprint) {
+            ->mapWithKeys(function (array $mapping, string $fieldHandle) use ($fields, $blueprint) {
+                $field = $fields->get($fieldHandle);
                 $value = Arr::get($this->item, $mapping['key']);
-                $field = $blueprint->field($fieldHandle);
 
                 if (! $value) {
                     return [$fieldHandle => null];
@@ -47,7 +46,7 @@ class ImportItemJob implements ShouldQueue
 
                 return [$fieldHandle => $value];
             })
-            ->filter()
+            ->reject(fn ($value) => is_null($value))
             ->all();
 
         match ($this->import->get('destination.type')) {
@@ -55,21 +54,6 @@ class ImportItemJob implements ShouldQueue
             'terms' => $this->findOrCreateTerm($data),
             'users' => $this->findOrCreateUser($data),
         };
-    }
-
-    protected function getBlueprint(): Blueprint
-    {
-        if ($this->import->get('destination.type') === 'entries') {
-            return Collection::find($this->import->get('destination.collection'))->entryBlueprint();
-        }
-
-        if ($this->import->get('destination.type') === 'terms') {
-            return Taxonomy::find($this->import->get('destination.taxonomy'))->termBlueprint();
-        }
-
-        if ($this->import->get('destination.type') === 'users') {
-            return User::blueprint();
-        }
     }
 
     protected function findOrCreateEntry(array $data): void

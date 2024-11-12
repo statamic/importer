@@ -137,12 +137,15 @@ The importer includes a few transformers out of the box for Core fieldtypes, but
     use App\ImportTransformers\YourTransformer;
     use Illuminate\Support\ServiceProvider;
     use Statamic\Importer\Importer;
+    use Statamic\Statamic;
     
     class AppServiceProvider extends ServiceProvider
     {
         public function boot(): void
         {
-            Importer::registerTransformer('fieldtype', YourTransformer::class);
+            Statamic::booted(function () {
+                Importer::registerTransformer('fieldtype', YourTransformer::class);
+            });
         }
     }
     ```

@@ -4,9 +4,15 @@ namespace Statamic\Importer\Http\Controllers;
 
 trait ExtractFromImportFields
 {
-    protected function extractFromFields($import, $fields)
+    protected function extractFromFields($import, $blueprint)
     {
-        $fields = $fields->preProcess();
+        $fields = $blueprint
+            ->fields()
+            ->setParent($import)
+            ->addValues($import->config()->merge([
+                'name' => $import->name(),
+            ])->all())
+            ->preProcess();
 
         $values = $fields->values();
 

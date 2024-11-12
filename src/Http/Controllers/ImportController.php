@@ -172,6 +172,7 @@ class ImportController extends CpController
                 'path' => $path,
                 'destination' => collect($values['destination'])->filter()->all(),
                 'strategy' => $values['strategy'],
+                'source' => $values['source'],
                 'mappings' => $values['mappings'],
                 'unique_field' => $values['unique_field'],
             ]));
@@ -185,7 +186,7 @@ class ImportController extends CpController
         // We need to refresh the blueprint after saving, so the field conditions are up-to-date.
         $blueprint = $import->blueprint();
 
-        [$values, $meta] = $this->extractFromFields($import, $fields);
+        [$values, $meta] = $this->extractFromFields($import, $blueprint);
 
         return [
             'data' => array_merge((new ImportResource($import->fresh()))->resolve()['data'], [

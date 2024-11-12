@@ -46,18 +46,18 @@
 </template>
 
 <style>
-.field-mappings-table .form-group {
-    padding-top: 16px;
-    padding-bottom: 16px;
-}
+    .field-mappings-table .form-group {
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
 
-.field-mappings-table .form-group:first-child {
-    padding-top: 0;
-}
+    .field-mappings-table .form-group:first-child {
+        padding-top: 0;
+    }
 
-.field-mappings-table .form-group:last-child {
-    padding-bottom: 0;
-}
+    .field-mappings-table .form-group:last-child {
+        padding-bottom: 0;
+    }
 </style>
 
 <script>
