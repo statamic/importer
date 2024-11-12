@@ -68,23 +68,7 @@ class FieldUpdater
         $fieldHandle = Str::after($importedField['field'], '.');
         $fieldset = Fieldset::find(Str::before($importedField['field'], '.'));
 
-        $fieldset->setContents([
-            ...$fieldset->contents(),
-            'fields' => collect($fieldset->contents()['fields'])
-                ->map(function (array $field) use ($config, $fieldHandle) {
-                    if ($field['handle'] === $fieldHandle) {
-                        return [
-                            'handle' => $field['handle'],
-                            'field' => $config,
-                        ];
-                    }
-
-                    return $field;
-                })
-                ->all(),
-        ]);
-
-        $fieldset->save();
+        $fieldset->ensureFieldHasConfig($fieldHandle, $config)->save();
 
         $this->clearBlinkCaches();
     }
@@ -98,6 +82,8 @@ class FieldUpdater
      */
     private function updatePrefixedField(string $prefix, array $config): void
     {
+        $fieldHandle = Str::after($this->field->handle(), $prefix);
+
         /** @var \Statamic\Fields\Fieldset $fieldset */
         $fieldset = $this->blueprint->fields()->items()
             ->filter(fn (array $field) => isset($field['import']))
@@ -109,23 +95,7 @@ class FieldUpdater
             })
             ->first();
 
-        $fieldset->setContents([
-            ...$fieldset->contents(),
-            'fields' => collect($fieldset->contents()['fields'])
-                ->map(function (array $field) use ($config, $prefix) {
-                    if ($field['handle'] === Str::after($this->field->handle(), $prefix)) {
-                        return [
-                            'handle' => $field['handle'],
-                            'field' => $config,
-                        ];
-                    }
-
-                    return $field;
-                })
-                ->all(),
-        ]);
-
-        $fieldset->save();
+        $fieldset->ensureFieldHasConfig($fieldHandle, $config)->save();
 
         $this->clearBlinkCaches();
     }
