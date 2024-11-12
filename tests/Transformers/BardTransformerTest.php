@@ -158,7 +158,7 @@ HTML);
     }
 
     #[Test]
-    public function is_enables_buttons_on_bard_field()
+    public function it_enables_buttons_on_bard_field()
     {
         $transformer = new BardTransformer(
             import: $this->import,
@@ -192,10 +192,10 @@ HTML);
     }
 
     #[Test]
-    public function is_enables_buttons_on_bard_field_in_fieldset()
+    public function it_enables_buttons_on_imported_bard_field()
     {
         Fieldset::make('content_stuff')->setContents(['fields' => [
-            ['handle' => 'bard_basic', 'field' => ['type' => 'bard']],
+            ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
         ]])->save();
 
         $blueprint = $this->collection->entryBlueprint();
@@ -204,7 +204,7 @@ HTML);
             'sections' => [
                 'main' => [
                     'fields' => [
-                        ['import' => 'content_stuff', 'prefix' => 'resources_'],
+                        ['handle' => 'bard_field', 'field' => 'content_stuff.bard_field'],
                     ],
                 ],
             ],
@@ -213,7 +213,7 @@ HTML);
         $transformer = new BardTransformer(
             import: $this->import,
             blueprint: $blueprint,
-            field: $blueprint->field('resources_bard_basic'),
+            field: $blueprint->field('bard_field'),
             config: []
         );
 
@@ -238,6 +238,56 @@ HTML);
             'codeblock',
             'underline',
             'superscript',
-        ], $fieldset->field('bard_basic')->get('buttons'));
+        ], $fieldset->field('bard_field')->get('buttons'));
+    }
+
+    #[Test]
+    public function it_enables_buttons_on_imported_bard_field_with_prefix()
+    {
+        Fieldset::make('content_stuff')->setContents(['fields' => [
+            ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
+        ]])->save();
+
+        $blueprint = $this->collection->entryBlueprint();
+
+        $this->blueprint->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['import' => 'content_stuff', 'prefix' => 'resources_'],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $blueprint,
+            field: $blueprint->field('resources_bard_field'),
+            config: []
+        );
+
+        $transformer->transform('<p>Hello world!</p>');
+
+        $fieldset = Fieldset::find('content_stuff');
+
+        $this->assertEquals([
+            'h1',
+            'h2',
+            'h3',
+            'bold',
+            'italic',
+            'unorderedlist',
+            'orderedlist',
+            'removeformat',
+            'quote',
+            'anchor',
+            'image',
+            'table',
+            'horizontalrule',
+            'codeblock',
+            'underline',
+            'superscript',
+        ], $fieldset->field('bard_field')->get('buttons'));
     }
 }

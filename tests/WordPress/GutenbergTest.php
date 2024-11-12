@@ -769,10 +769,43 @@ HTML
     }
 
     #[Test]
-    public function it_append_sets_to_bard_field_in_fieldset()
+    public function it_append_sets_to_imported_bard_field()
     {
         Fieldset::make('content_stuff')->setContents(['fields' => [
-            ['handle' => 'bard_basic', 'field' => ['type' => 'bard']],
+            ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
+        ]])->save();
+
+        $this->blueprint->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['handle' => 'bard_field', 'field' => 'content_stuff.bard_field'],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        Gutenberg::toBard(
+            config: [],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('bard_field'),
+            value: <<<'HTML'
+<!-- wp:spacer -->
+<div style="height:100px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+HTML
+        );
+
+        $fieldset = Fieldset::find('content_stuff');
+
+        $this->assertSetExists('spacer', $fieldset->field('bard_field'));
+    }
+
+    #[Test]
+    public function it_append_sets_to_imported_bard_field_with_prefix()
+    {
+        Fieldset::make('content_stuff')->setContents(['fields' => [
+            ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
         ]])->save();
 
         $this->blueprint->setContents([
@@ -788,7 +821,7 @@ HTML
         Gutenberg::toBard(
             config: [],
             blueprint: $this->blueprint,
-            field: $this->blueprint->field('resources_bard_basic'),
+            field: $this->blueprint->field('resources_bard_field'),
             value: <<<'HTML'
 <!-- wp:spacer -->
 <div style="height:100px" aria-hidden="true" class="wp-block-spacer"></div>
@@ -798,7 +831,7 @@ HTML
 
         $fieldset = Fieldset::find('content_stuff');
 
-        $this->assertSetExists('spacer', $fieldset->field('bard_basic'));
+        $this->assertSetExists('spacer', $fieldset->field('bard_field'));
     }
 
     #[Test]
