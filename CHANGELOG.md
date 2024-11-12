@@ -5,7 +5,6 @@
 ### What's new
 * UX Improvements #24 by @duncanmcclean
 * Added "CSV Delimiter" option #29 by @duncanmcclean
-* Add "Folder" option to Assets Transformer #31 by @duncanmcclean
 * You can now import publish states (& toggle fields) #30 by @duncanmcclean
 
 
