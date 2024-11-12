@@ -2,6 +2,8 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Statamic\Statamic;
+
 class ToggleTransformer extends AbstractTransformer
 {
     public function transform(string $value): bool
@@ -29,8 +31,8 @@ class ToggleTransformer extends AbstractTransformer
                 'display' => __('Format'),
                 'instructions' => __('How is the value stored?'),
                 'options' => [
-                    'boolean' => __('Booleans'),
-                    'string' => __('Strings'),
+                    'boolean' => Statamic::trans('Booleans'),
+                    'string' => Statamic::trans('Strings'),
                 ],
                 'validate' => 'required',
             ],
