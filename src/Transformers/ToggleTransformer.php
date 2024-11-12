@@ -29,7 +29,7 @@ class ToggleTransformer extends AbstractTransformer
             'format' => [
                 'type' => 'select',
                 'display' => __('Format'),
-                'instructions' => __('How is the value stored?'),
+                'instructions' => __('importer::messages.toggle_format_instructions'),
                 'options' => [
                     'boolean' => Statamic::trans('Booleans'),
                     'string' => Statamic::trans('Strings'),
@@ -39,7 +39,7 @@ class ToggleTransformer extends AbstractTransformer
             'values' => [
                 'type' => 'array',
                 'display' => __('Values'),
-                'instructions' => __('Specify the values that represent true and false in your data. You may separate multiple values with a pipe (`|`).'),
+                'instructions' => __('importer::messages.toggle_values_instructions'),
                 'mode' => 'keyed',
                 'keys' => [
                     ['key' => 'true', 'value' => __('True')],

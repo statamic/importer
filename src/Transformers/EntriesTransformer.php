@@ -80,7 +80,7 @@ class EntriesTransformer extends AbstractTransformer
             'related_field' => [
                 'type' => 'select',
                 'display' => __('Related Field'),
-                'instructions' => __('Which field does the data reference?'),
+                'instructions' => __('importer::messages.entries_related_field_instructions'),
                 'default' => 'id',
                 'options' => $fields
                     ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
@@ -92,7 +92,7 @@ class EntriesTransformer extends AbstractTransformer
             'create_when_missing' => [
                 'type' => 'toggle',
                 'display' => __('Create entry when missing?'),
-                'instructions' => __("Create the entry if it doesn't exist."),
+                'instructions' => __("importer::messages.entries_create_when_missing_instructions"),
                 'default' => false,
             ],
         ];

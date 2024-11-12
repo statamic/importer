@@ -55,7 +55,7 @@ class AssetsTransformer extends AbstractTransformer
             'related_field' => [
                 'type' => 'select',
                 'display' => __('Related Field'),
-                'instructions' => __('Which field does the data reference?'),
+                'instructions' => __('importer::messages.assets_related_field_instructions'),
                 'default' => 'url',
                 'options' => [
                     ['key' => 'path', 'value' => __('Path')],
@@ -66,13 +66,13 @@ class AssetsTransformer extends AbstractTransformer
             'base_url' => [
                 'type' => 'text',
                 'display' => __('Base URL'),
-                'instructions' => __('The base URL to prepend to the path.'),
+                'instructions' => __('importer::messages.assets_base_url_instructions'),
                 'if' => ['related_field' => 'url'],
             ],
             'download_when_missing' => [
                 'type' => 'toggle',
                 'display' => __('Download when missing?'),
-                'instructions' => __("If the asset can't be found in the asset container, should it be downloaded?"),
+                'instructions' => __("importer::messages.assets_download_when_missing_instructions"),
                 'if' => ['related_field' => 'url'],
             ],
         ];
