@@ -34,7 +34,7 @@ class Blueprint
                                     'field' => [
                                         'type' => 'text',
                                         'display' => __('Name'),
-                                        'instructions' => __('Name this import so you can identify it later.'),
+                                        'instructions' => __('importer::messages.import_name_instructions'),
                                         'validate' => 'required',
                                     ],
                                 ],
@@ -43,7 +43,7 @@ class Blueprint
                                     'field' => [
                                         'type' => 'files',
                                         'display' => __('Upload a new file'),
-                                        'instructions' => __('Upload a CSV or XML file to import. This will replace the current file.'),
+                                        'instructions' => __('importer::messages.import_file_instructions'),
                                         'max_files' => 1,
                                         'allowed_extensions' => ['csv', 'xml'],
                                         'validate' => [
@@ -57,11 +57,11 @@ class Blueprint
                                                 $path = "statamic/file-uploads/{$value[0]}";
 
                                                 if (! Storage::disk('local')->exists($path)) {
-                                                    $fail('The uploaded file could not be found.')->translate();
+                                                    $fail('importer::validation.file_type_not_allowed')->translate();
                                                 }
 
                                                 if (! in_array(Storage::disk('local')->mimeType($path), static::$allowedMimeTypes)) {
-                                                    $fail('Only CSV and XML files can be imported at this time.')->translate();
+                                                    $fail('importer::validation.uploaded_file_not_found')->translate();
                                                 }
                                             },
                                         ],
@@ -80,7 +80,7 @@ class Blueprint
                                                 'field' => [
                                                     'type' => 'button_group',
                                                     'display' => __('Data Type'),
-                                                    'instructions' => __('Choose what type of data are you importing.'),
+                                                    'instructions' => __('importer::messages.destination_type_instructions'),
                                                     'width' => 50,
                                                     'options' => [
                                                         ['key' => 'entries', 'value' => __('Entries')],
@@ -95,7 +95,7 @@ class Blueprint
                                                 'field' => [
                                                     'type' => 'collections',
                                                     'display' => __('Collection'),
-                                                    'instructions' => __('Select the collection to import entries into.'),
+                                                    'instructions' => __('importer::messages.destination_collection_instructions'),
                                                     'width' => 50,
                                                     'max_items' => 1,
                                                     'mode' => 'select',
@@ -108,7 +108,7 @@ class Blueprint
                                                 'field' => [
                                                     'type' => 'taxonomies',
                                                     'display' => __('Taxonomy'),
-                                                    'instructions' => __('Select the taxonomy to import terms into.'),
+                                                    'instructions' => __('importer::messages.destination_taxonomy_instructions'),
                                                     'width' => 50,
                                                     'max_items' => 1,
                                                     'mode' => 'select',
@@ -121,7 +121,7 @@ class Blueprint
                                                 'field' => [
                                                     'type' => 'sites',
                                                     'display' => __('Site'),
-                                                    'instructions' => __('Which site should the entries be imported into?'),
+                                                    'instructions' => __('importer::messages.destination_site_instructions'),
                                                     'width' => 50,
                                                     'max_items' => 1,
                                                     'mode' => 'select',
@@ -132,7 +132,7 @@ class Blueprint
                                                             $collection = Collection::find(Arr::get(request()->destination, 'collection.0'));
 
                                                             if (count($value) && ! $collection->sites()->contains($value[0])) {
-                                                                $fail('The chosen collection is not available on this site.')->translate();
+                                                                $fail('importer::validation.site_not_configured_in_collection')->translate();
                                                             }
                                                         },
                                                     ],
@@ -146,7 +146,7 @@ class Blueprint
                                     'field' => [
                                         'type' => 'checkboxes',
                                         'display' => __('Import Strategy'),
-                                        'instructions' => __('Choose what should happen when importing.'),
+                                        'instructions' => __('importer::messages.strategy_instructions'),
                                         'options' => [
                                             ['key' => 'create', 'value' => __('Create new items')],
                                             ['key' => 'update', 'value' => __('Update existing items')],
@@ -173,7 +173,7 @@ class Blueprint
                                             'array',
                                             function (string $attribute, mixed $value, Closure $fail) {
                                                 if (collect($value)->reject(fn (array $mapping) => empty($mapping['key']))->isEmpty()) {
-                                                    $fail('You must map at least one field.')->translate();
+                                                    $fail('importer::validation.mappings_not_provided')->translate();
                                                 }
                                             },
                                         ],
@@ -194,7 +194,7 @@ class Blueprint
                                             'required',
                                             function (string $attribute, mixed $value, Closure $fail) {
                                                 if (! collect(request()->mappings)->reject(fn ($mapping) => empty($mapping['key']))->has($value)) {
-                                                    $fail('Please configure a mapping for this field.')->translate();
+                                                    $fail('importer::validation.unique_field_without_mapping')->translate();
                                                 }
                                             },
                                         ],

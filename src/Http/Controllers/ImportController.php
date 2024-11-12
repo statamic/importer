@@ -213,7 +213,7 @@ class ImportController extends CpController
 
         $blueprint->ensureFieldHasConfig('file', [
             'display' => __('File'),
-            'instructions' => __('Upload a CSV or XML file to import.'),
+            'instructions' => __('importer::messages.import_file_instructions_create'),
             'required' => true,
         ]);
 
