@@ -92,7 +92,7 @@ class EntriesTransformer extends AbstractTransformer
             'create_when_missing' => [
                 'type' => 'toggle',
                 'display' => __('Create entry when missing?'),
-                'instructions' => __("importer::messages.entries_create_when_missing_instructions"),
+                'instructions' => __('importer::messages.entries_create_when_missing_instructions'),
                 'default' => false,
             ],
         ];

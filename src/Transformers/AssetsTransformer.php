@@ -72,7 +72,7 @@ class AssetsTransformer extends AbstractTransformer
             'download_when_missing' => [
                 'type' => 'toggle',
                 'display' => __('Download when missing?'),
-                'instructions' => __("importer::messages.assets_download_when_missing_instructions"),
+                'instructions' => __('importer::messages.assets_download_when_missing_instructions'),
                 'if' => ['related_field' => 'url'],
             ],
         ];

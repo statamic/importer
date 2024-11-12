@@ -67,7 +67,7 @@ class TermsTransformer extends AbstractTransformer
             'create_when_missing' => [
                 'type' => 'toggle',
                 'display' => __('Create term when missing?'),
-                'instructions' => __("importer::messages.terms_create_when_missing_instructions"),
+                'instructions' => __('importer::messages.terms_create_when_missing_instructions'),
                 'default' => false,
             ],
         ];

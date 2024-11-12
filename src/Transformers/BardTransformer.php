@@ -101,7 +101,7 @@ class BardTransformer extends AbstractTransformer
                 'assets_download_when_missing' => [
                     'type' => 'toggle',
                     'display' => __('Download assets when missing?'),
-                    'instructions' => __("importer::messages.assets_download_when_missing_instructions"),
+                    'instructions' => __('importer::messages.assets_download_when_missing_instructions'),
                 ],
             ];
         }

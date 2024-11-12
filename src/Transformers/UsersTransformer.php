@@ -71,7 +71,7 @@ class UsersTransformer extends AbstractTransformer
             'create_when_missing' => [
                 'type' => 'toggle',
                 'display' => __('Create user when missing?'),
-                'instructions' => __("importer::messages.users_create_when_missing_instructions"),
+                'instructions' => __('importer::messages.users_create_when_missing_instructions'),
                 'default' => false,
                 'unless' => ['related_field' => 'name'],
             ],
