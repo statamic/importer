@@ -6,6 +6,7 @@ use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Fieldset;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
+use Facades\Statamic\Importer\Support\FieldUpdater;
 use Statamic\Importer\WordPress\Gutenberg;
 use Statamic\Support\Str;
 
@@ -76,72 +77,9 @@ class BardTransformer extends AbstractTransformer
             'superscript',
         ];
 
-        $importedField = $this->blueprint->fields()->items()
-            ->where('handle', $this->field->handle())
-            ->filter(fn (array $field) => isset($field['field']) && is_string($field['field']))
-            ->first();
-
-        if ($importedField) {
-            /** @var \Statamic\Fields\Fieldset $fieldset */
-            $fieldHandle = Str::after($importedField['field'], '.');
-            $fieldset = Fieldset::find(Str::before($importedField['field'], '.'));
-
-            $fieldset->setContents([
-                ...$fieldset->contents(),
-                'fields' => collect($fieldset->contents()['fields'])
-                    ->map(function (array $field) use ($buttons, $fieldHandle) {
-                        if ($field['handle'] === $fieldHandle) {
-                            return [
-                                'handle' => $field['handle'],
-                                'field' => array_merge($field['field'], ['buttons' => $buttons]),
-                            ];
-                        }
-
-                        return $field;
-                    })
-                    ->all(),
-            ])->save();
-
-            return;
-        }
-
-        if ($prefix = $this->field->prefix()) {
-            /** @var \Statamic\Fields\Fieldset $fieldset */
-            $fieldset = $this->blueprint->fields()->items()
-                ->filter(fn (array $field) => isset($field['import']))
-                ->map(fn (array $field) => Fieldset::find($field['import']))
-                ->filter(function ($fieldset) use ($prefix) {
-                    return collect($fieldset->fields()->items())
-                        ->where('handle', Str::after($this->field->handle(), $prefix))
-                        ->isNotEmpty();
-                })
-                ->first();
-
-            $fieldset->setContents([
-                ...$fieldset->contents(),
-                'fields' => collect($fieldset->contents()['fields'])
-                    ->map(function (array $field) use ($buttons, $prefix) {
-                        if ($field['handle'] === Str::after($this->field->handle(), $prefix)) {
-                            return [
-                                'handle' => $field['handle'],
-                                'field' => array_merge($field['field'], ['buttons' => $buttons]),
-                            ];
-                        }
-
-                        return $field;
-                    })
-                    ->all(),
-            ])->save();
-
-            return;
-        }
-
-        $this->blueprint->ensureFieldHasConfig(
-            handle: $this->field->handle(),
-            config: array_merge($this->field->config(), ['buttons' => $buttons])
-        );
-
-        $this->blueprint->save();
+        FieldUpdater::field($this->field)
+            ->blueprint($this->blueprint)
+            ->updateFieldConfig(array_merge($this->field->config(), ['buttons' => $buttons]));
     }
 
     private function isGutenbergValue(string $value): bool
