@@ -31,11 +31,13 @@ class FieldUpdater
     {
         if ($prefix = $this->field->prefix()) {
             $this->updatePrefixedField($prefix, $config);
+
             return;
         }
 
         if ($importedField = $this->getImportedField()) {
             $this->updateImportedField($importedField, $config);
+
             return;
         }
 
