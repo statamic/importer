@@ -11,10 +11,11 @@ use Statamic\Providers\AddonServiceProvider;
 
 class ServiceProvider extends AddonServiceProvider
 {
-    public array $transformers = [
+    protected array $transformers = [
         'assets' => Transformers\AssetsTransformer::class,
         'bard' => Transformers\BardTransformer::class,
         'date' => Transformers\DateTransformer::class,
+        'dictionary' => Transformers\DictionaryTransformer::class,
         'entries' => Transformers\EntriesTransformer::class,
         'terms' => Transformers\TermsTransformer::class,
         'toggle' => Transformers\ToggleTransformer::class,
