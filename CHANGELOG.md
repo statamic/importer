@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0 (2024-11-18)
+
+### What's new
+* Added support for Dictionary fields #37 by @duncanmcclean
+
+
+
 ## 1.3.0 (2024-11-12)
 
 ### What's new
