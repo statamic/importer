@@ -4,11 +4,9 @@ namespace Statamic\Importer\Tests\Transformers;
 
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
-use Statamic\Facades\User;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\DictionaryTransformer;
-use Statamic\Importer\Transformers\UsersTransformer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
 
 class DictionaryTransformerTest extends TestCase
