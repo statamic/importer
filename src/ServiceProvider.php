@@ -38,7 +38,6 @@ class ServiceProvider extends AddonServiceProvider
 
         Utility::extend(function () {
 
-            
             Utility::register('importer')
                 ->title(__('Importer'))
                 ->description(__('importer::messages.utility_description'))

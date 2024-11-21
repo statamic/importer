@@ -20,7 +20,7 @@ class GutenbergTest extends TestCase
 
     public $blueprint;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
