@@ -16,7 +16,6 @@
         "spatie/simple-excel": "^3.7",
         "symfony/dom-crawler": "^7.1",
         "pixelfear/composer-dist-plugin": "^0.1.5",
-        "laravel/framework": "11.*",
         "symfony/css-selector": "^7.1"
     },
     "require-dev": {
