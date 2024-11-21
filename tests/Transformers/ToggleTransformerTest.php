@@ -17,7 +17,7 @@ class ToggleTransformerTest extends TestCase
     public $blueprint;
     public $import;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

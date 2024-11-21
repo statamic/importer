@@ -18,7 +18,7 @@ class DictionaryTransformerTest extends TestCase
     public $field;
     public $import;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
