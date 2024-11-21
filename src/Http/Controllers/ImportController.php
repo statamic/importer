@@ -172,7 +172,7 @@ class ImportController extends CpController
                 'path' => $path,
                 'destination' => collect($values['destination'])->filter()->all(),
                 'strategy' => $values['strategy'],
-                'source' => $values['source'],
+                'source' => $values['source'] ?? null,
                 'mappings' => $values['mappings'],
                 'unique_field' => $values['unique_field'],
             ]));
