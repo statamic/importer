@@ -15,7 +15,8 @@
         "statamic/cms": "^5.38",
         "spatie/simple-excel": "^3.7",
         "symfony/dom-crawler": "^7.1",
-        "pixelfear/composer-dist-plugin": "^0.1.5"
+        "pixelfear/composer-dist-plugin": "^0.1.5",
+        "symfony/css-selector": "^7.1"
     },
     "require-dev": {
         "laravel/pint": "^1.18",
