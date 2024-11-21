@@ -19,7 +19,7 @@ class UsersTransformerTest extends TestCase
     public $field;
     public $import;
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
 

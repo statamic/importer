@@ -17,7 +17,7 @@ class DateTransformerTest extends TestCase
     public $blueprint;
     public $import;
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
 

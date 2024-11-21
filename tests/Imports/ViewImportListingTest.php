@@ -14,7 +14,7 @@ class ViewImportListingTest extends TestCase
 {
     use PreventsSavingStacheItemsToDisk;
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
 

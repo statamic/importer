@@ -17,7 +17,7 @@ class UpdateImportTest extends TestCase
 
     protected $import;
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
 
