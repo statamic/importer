@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1 (2024-11-21)
+
+### What's fixed
+* Fixed error when saving XML import #39 by @duncanmcclean
+
+
+
 ## 1.4.0 (2024-11-18)
 
 ### What's new
