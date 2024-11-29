@@ -45,7 +45,6 @@ class Blueprint
                                         'display' => __('File'),
                                         'instructions' => __('importer::messages.import_file_instructions'),
                                         'max_files' => 1,
-                                        'max_items' => 1,
                                         'allowed_extensions' => ['csv', 'xml'],
                                         'validate' => [
                                             'required',
