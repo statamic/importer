@@ -41,7 +41,7 @@ class ImportItemJob implements ShouldQueue
                 }
 
                 if ($transformer = Importer::getTransformer($field->type())) {
-                    $value = (new $transformer($this->import, $blueprint, $field, $mapping))->transform($value);
+                    $value = (new $transformer($this->import, $blueprint, $field, $mapping, $this->item))->transform($value);
                 }
 
                 return [$fieldHandle => $value];

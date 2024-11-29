@@ -199,7 +199,7 @@ HTML
             field: $this->blueprint->field('content'),
             value: <<<'HTML'
 <!-- wp:image {"id":41,"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/10/image.png" alt="" class="wp-image-41"/></figure>
+<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/10/image.png" alt="A cool photo of a thing." class="wp-image-41"/></figure>
 <!-- /wp:image -->
 HTML
         );
@@ -212,7 +212,7 @@ HTML
                         'type' => 'image',
                         'attrs' => [
                             'src' => 'assets::2024/10/image.png',
-                            'alt' => null,
+                            'alt' => 'A cool photo of a thing.',
                         ],
                     ],
                 ],
