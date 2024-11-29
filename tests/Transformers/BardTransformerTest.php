@@ -2,6 +2,8 @@
 
 namespace Statamic\Importer\Tests\Transformers;
 
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\AssetContainer;
@@ -21,7 +23,7 @@ class BardTransformerTest extends TestCase
     public $field;
     public $import;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -155,6 +157,101 @@ HTML);
                 ],
             ],
         ], $output);
+    }
+
+    #[Test]
+    public function it_downloads_images()
+    {
+        AssetContainer::make('assets')->disk('public')->save();
+
+        Http::fake([
+            'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
+        ]);
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'assets_base_url' => 'https://example.com/wp-content/uploads',
+                'assets_download_when_missing' => true,
+            ]
+        );
+
+        $output = $transformer->transform(<<<'HTML'
+<p>Nam voluptatem rem molestiae cumque doloremque. <strong>Saepe animi deserunt</strong> Maxime iam et inventore. ipsam in dignissimos qui occaecati.</p>
+<img src="https://example.com/wp-content/uploads/2024/10/image.png" />
+HTML);
+
+        $this->assertEquals([
+            [
+                'type' => 'paragraph',
+                'attrs' => ['textAlign' => 'left'],
+                'content' => [
+                    ['type' => 'text', 'text' => 'Nam voluptatem rem molestiae cumque doloremque. '],
+                    ['type' => 'text', 'text' => 'Saepe animi deserunt', 'marks' => [['type' => 'bold']]],
+                    ['type' => 'text', 'text' => ' Maxime iam et inventore. ipsam in dignissimos qui occaecati.'],
+                ],
+            ],
+            [
+                'type' => 'image',
+                'attrs' => [
+                    'src' => 'assets::2024/10/image.png',
+                ],
+            ],
+        ], $output);
+
+        Storage::disk('public')->assertExists('2024/10/image.png');
+    }
+
+    #[Test]
+    public function it_downloads_images_and_stores_them_in_configured_folder()
+    {
+        AssetContainer::make('assets')->disk('public')->save();
+
+        Http::fake([
+            'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
+        ]);
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'assets_base_url' => 'https://example.com/wp-content/uploads',
+                'assets_download_when_missing' => true,
+                'assets_folder' => 'custom-folder',
+            ]
+        );
+
+        $output = $transformer->transform(<<<'HTML'
+<p>Nam voluptatem rem molestiae cumque doloremque. <strong>Saepe animi deserunt</strong> Maxime iam et inventore. ipsam in dignissimos qui occaecati.</p>
+<img src="https://example.com/wp-content/uploads/2024/10/image.png" />
+HTML);
+
+        $this->assertEquals([
+            [
+                'type' => 'paragraph',
+                'attrs' => ['textAlign' => 'left'],
+                'content' => [
+                    ['type' => 'text', 'text' => 'Nam voluptatem rem molestiae cumque doloremque. '],
+                    ['type' => 'text', 'text' => 'Saepe animi deserunt', 'marks' => [['type' => 'bold']]],
+                    ['type' => 'text', 'text' => ' Maxime iam et inventore. ipsam in dignissimos qui occaecati.'],
+                ],
+            ],
+            [
+                'type' => 'image',
+                'attrs' => [
+                    'src' => 'assets::custom-folder/image.png',
+                ],
+            ],
+        ], $output);
+
+        Storage::disk('public')->assertExists('custom-folder/image.png');
     }
 
     #[Test]

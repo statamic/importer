@@ -19,7 +19,7 @@ class Csv extends AbstractSource
         return [
             'csv_delimiter' => [
                 'display' => __('CSV Delimiter'),
-                'instructions' => __('Specify the delimiter to be used when reading the CSV file. You will need to save the import for the options to be updated.'),
+                'instructions' => __('importer::messages.csv_delimiter_instructions'),
                 'type' => 'text',
                 'default' => ',',
             ],

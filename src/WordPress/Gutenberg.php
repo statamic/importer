@@ -74,8 +74,9 @@ class Gutenberg
                         field: new Field('image', ['container' => $field->get('container'), 'max_files' => 1]),
                         config: [
                             'related_field' => 'url',
-                            'base_url' => $config['assets_base_url'] ?? null,
+                            'base_url' => $config['assets_base_url'],
                             'download_when_missing' => $config['assets_download_when_missing'] ?? false,
+                            'folder' => $config['assets_folder'] ?? null,
                         ]
                     );
 
@@ -130,6 +131,7 @@ class Gutenberg
                                                 'related_field' => 'url',
                                                 'base_url' => $config['assets_base_url'] ?? null,
                                                 'download_when_missing' => $config['assets_download_when_missing'] ?? false,
+                                                'folder' => $config['assets_folder'] ?? null,
                                             ]
                                         );
 

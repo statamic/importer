@@ -172,7 +172,7 @@ class ImportController extends CpController
                 'path' => $path,
                 'destination' => collect($values['destination'])->filter()->all(),
                 'strategy' => $values['strategy'],
-                'source' => $values['source'],
+                'source' => $values['source'] ?? null,
                 'mappings' => $values['mappings'],
                 'unique_field' => $values['unique_field'],
             ]));
@@ -213,7 +213,7 @@ class ImportController extends CpController
 
         $blueprint->ensureFieldHasConfig('file', [
             'display' => __('File'),
-            'instructions' => __('Upload a CSV or XML file to import.'),
+            'instructions' => __('importer::messages.import_file_instructions_create'),
             'required' => true,
         ]);
 
