@@ -3,11 +3,17 @@
 namespace Statamic\Importer\Transformers;
 
 use Statamic\Facades\User;
+use Statamic\Support\Str;
 
 class UsersTransformer extends AbstractTransformer
 {
     public function transform(string $value): null|string|array
     {
+        // When $value is a JSON string, decode it.
+        if (Str::startsWith($value, ['{', '[']) || Str::startsWith($value, ['[', ']'])) {
+            $value = collect(json_decode($value, true))->join('|');
+        }
+
         if ($this->config('related_field') === 'id') {
             if (is_string($value)) {
                 return explode('|', $value);
@@ -51,7 +57,7 @@ class UsersTransformer extends AbstractTransformer
             'related_field' => [
                 'type' => 'select',
                 'display' => __('Related Field'),
-                'instructions' => __('Which field does the data reference?'),
+                'instructions' => __('importer::messages.users_related_field_instructions'),
                 'default' => 'id',
                 'options' => User::blueprint()
                     ->fields()
@@ -65,7 +71,7 @@ class UsersTransformer extends AbstractTransformer
             'create_when_missing' => [
                 'type' => 'toggle',
                 'display' => __('Create user when missing?'),
-                'instructions' => __("Create the user if it doesn't exist."),
+                'instructions' => __('importer::messages.users_create_when_missing_instructions'),
                 'default' => false,
                 'unless' => ['related_field' => 'name'],
             ],

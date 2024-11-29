@@ -37,6 +37,7 @@ class BardTransformer extends AbstractTransformer
                             'related_field' => 'url',
                             'base_url' => $this->config['assets_base_url'] ?? null,
                             'download_when_missing' => $this->config['assets_download_when_missing'] ?? false,
+                            'folder' => $this->config['assets_folder'] ?? null,
                         ]
                     );
 
@@ -93,12 +94,20 @@ class BardTransformer extends AbstractTransformer
                 'assets_base_url' => [
                     'type' => 'text',
                     'display' => __('Assets Base URL'),
-                    'instructions' => __('The base URL to prepend to the path.'),
+                    'instructions' => __('importer::messages.assets_base_url_instructions'),
                 ],
                 'assets_download_when_missing' => [
                     'type' => 'toggle',
                     'display' => __('Download assets when missing?'),
-                    'instructions' => __("If the asset can't be found in the asset container, should it be downloaded?"),
+                    'instructions' => __('importer::messages.assets_download_when_missing_instructions'),
+                ],
+                'assets_folder' => [
+                    'type' => 'asset_folder',
+                    'display' => __('Folder'),
+                    'instructions' => __('importer::messages.assets_folder_instructions'),
+                    'if' => ['assets_download_when_missing' => true],
+                    'container' => $this->field->get('container'),
+                    'max_items' => 1,
                 ],
             ];
         }

@@ -21,7 +21,7 @@ class GutenbergTest extends TestCase
 
     public $blueprint;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -307,6 +307,50 @@ HTML
         ], $output);
 
         Storage::disk('public')->assertExists('2024/10/image.png');
+    }
+
+    #[Test]
+    public function it_transforms_image_blocks_and_downloads_images_that_dont_exist_in_asset_container_and_stores_them_in_the_configured_folder()
+    {
+        Http::fake([
+            'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
+        ]);
+
+        AssetContainer::make('assets')->disk('public')->save();
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
+
+        $output = Gutenberg::toBard(
+            config: [
+                'assets_base_url' => 'https://example.com/wp-content/uploads',
+                'assets_download_when_missing' => true,
+                'assets_folder' => 'custom-folder',
+            ],
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('content'),
+            value: <<<'HTML'
+<!-- wp:image {"id":41,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://example.com/wp-content/uploads/2024/10/image.png" alt="" class="wp-image-41"/></figure>
+<!-- /wp:image -->
+HTML
+        );
+
+        $this->assertEquals([
+            [
+                'type' => 'paragraph',
+                'content' => [
+                    [
+                        'type' => 'image',
+                        'attrs' => [
+                            'src' => 'assets::custom-folder/image.png',
+                            'alt' => null,
+                        ],
+                    ],
+                ],
+            ],
+        ], $output);
+
+        Storage::disk('public')->assertExists('custom-folder/image.png');
     }
 
     #[Test]

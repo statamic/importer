@@ -11,6 +11,11 @@ class TermsTransformer extends AbstractTransformer
 {
     public function transform(string $value): null|string|array
     {
+        // When $value is a JSON string, decode it.
+        if (Str::startsWith($value, ['{', '[']) || Str::startsWith($value, ['[', ']'])) {
+            $value = collect(json_decode($value, true))->join('|');
+        }
+
         $terms = collect(explode('|', $value))->map(function ($value) {
             $term = Term::query()
                 ->whereIn('taxonomy', Arr::wrap($this->field->get('taxonomies')))
@@ -50,7 +55,7 @@ class TermsTransformer extends AbstractTransformer
             'related_field' => [
                 'type' => 'select',
                 'display' => __('Related Field'),
-                'instructions' => __('Which field does the data reference?'),
+                'instructions' => __('importer::messages.terms_related_field_instructions'),
                 'default' => 'id',
                 'options' => $fields
                     ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
@@ -62,7 +67,7 @@ class TermsTransformer extends AbstractTransformer
             'create_when_missing' => [
                 'type' => 'toggle',
                 'display' => __('Create term when missing?'),
-                'instructions' => __("Create the term if it doesn't exist."),
+                'instructions' => __('importer::messages.terms_create_when_missing_instructions'),
                 'default' => false,
             ],
         ];

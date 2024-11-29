@@ -22,7 +22,7 @@ class AssetsTransformerTest extends TestCase
     public $field;
     public $import;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -106,6 +106,34 @@ class AssetsTransformerTest extends TestCase
         $this->assertEquals('2024/10/image.png', $output);
 
         Storage::disk('public')->assertExists('2024/10/image.png');
+    }
+
+    #[Test]
+    public function it_downloads_new_asset_using_url_and_stores_it_in_configured_folder()
+    {
+        Http::fake([
+            'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
+        ]);
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
+
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'download_when_missing' => true,
+                'folder' => 'custom-folder',
+            ]
+        );
+
+        $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
+
+        $this->assertEquals('custom-folder/image.png', $output);
+
+        Storage::disk('public')->assertExists('custom-folder/image.png');
     }
 
     #[Test]
