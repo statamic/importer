@@ -11,6 +11,7 @@ trait ExtractFromImportFields
             ->setParent($import)
             ->addValues($import->config()->merge([
                 'name' => $import->name(),
+                'file' => [basename($import->get('path'))],
             ])->all())
             ->preProcess();
 
