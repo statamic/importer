@@ -22,6 +22,8 @@ class StoreImportTest extends TestCase
 
         File::deleteDirectory(storage_path('statamic/importer'));
         Storage::disk('local')->deleteDirectory('statamic/file-uploads');
+
+        $this->travelTo(now());
     }
 
     #[Test]
