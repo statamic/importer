@@ -42,15 +42,19 @@ class Blueprint
                                     'handle' => 'file',
                                     'field' => [
                                         'type' => 'files',
-                                        'display' => __('Upload a new file'),
+                                        'display' => __('File'),
                                         'instructions' => __('importer::messages.import_file_instructions'),
                                         'max_files' => 1,
                                         'allowed_extensions' => ['csv', 'xml'],
                                         'validate' => [
-                                            'nullable',
+                                            'required',
                                             'max:1',
-                                            function (string $attribute, mixed $value, Closure $fail) {
+                                            function (string $attribute, mixed $value, Closure $fail) use ($import) {
                                                 if (! $value) {
+                                                    return;
+                                                }
+
+                                                if ($value[0] === basename($import?->get('path'))) {
                                                     return;
                                                 }
 
@@ -239,7 +243,7 @@ class Blueprint
     private static function buildFieldConditions(Import $import): array
     {
         $conditions = [
-            'file' => 'empty',
+            'file' => 'contains '.basename($import->get('path')),
             'destination.type' => $import->get('destination.type'),
         ];
 
