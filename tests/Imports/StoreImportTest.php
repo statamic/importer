@@ -22,8 +22,6 @@ class StoreImportTest extends TestCase
 
         File::deleteDirectory(storage_path('statamic/importer'));
         Storage::disk('local')->deleteDirectory('statamic/file-uploads');
-
-        $this->travelTo(now());
     }
 
     #[Test]
@@ -33,6 +31,8 @@ class StoreImportTest extends TestCase
 
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
+
+        sleep(1);
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
@@ -68,6 +68,8 @@ class StoreImportTest extends TestCase
 
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
+
+        sleep(1);
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
@@ -107,6 +109,8 @@ class StoreImportTest extends TestCase
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
 
+        sleep(1);
+
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
@@ -137,6 +141,8 @@ class StoreImportTest extends TestCase
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
 
+        sleep(1);
+
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
@@ -160,6 +166,8 @@ class StoreImportTest extends TestCase
 
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
+
+        sleep(1);
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
@@ -188,6 +196,8 @@ class StoreImportTest extends TestCase
     {
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
+
+        sleep(1);
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
@@ -231,6 +241,8 @@ class StoreImportTest extends TestCase
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.pdf', '');
 
+        sleep(1);
+
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
@@ -249,6 +261,8 @@ class StoreImportTest extends TestCase
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
 
+        sleep(1);
+
         $this
             ->actingAs(User::make()->makeSuper()->save())
             ->post('/cp/utilities/importer', [
@@ -264,6 +278,8 @@ class StoreImportTest extends TestCase
     {
         // The Files fieldtype will upload this before the form gets submitted.
         Storage::disk('local')->put('statamic/file-uploads/123456789/import.csv', '');
+
+        sleep(1);
 
         $this
             ->actingAs(User::make()->makeSuper()->save())
