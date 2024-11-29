@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0 (2024-11-29)
+
+### What's new
+* You can now import asset alt text #50 by @duncanmcclean
+* The current file is now shown in the edit form #47 by @duncanmcclean
+* PHP 8.4 Support #41 by @duncanmcclean
+
+### What's fixed
+* Null values are now filtered out when saving mappings #48 by @duncanmcclean
+* Bumped `cross-spawn` from 7.0.3 to 7.0.6 #46 by @dependabot[bot]
+* Fixed error when updating Bard configs inside fieldsets #22 by @duncanmcclean
+
+
+
 ## 1.4.1 (2024-11-21)
 
 ### What's fixed
