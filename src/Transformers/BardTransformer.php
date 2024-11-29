@@ -2,11 +2,10 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Facades\Statamic\Importer\Support\FieldUpdater;
 use Statamic\Facades\AssetContainer;
-use Statamic\Facades\Fieldset;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
-use Facades\Statamic\Importer\Support\FieldUpdater;
 use Statamic\Importer\WordPress\Gutenberg;
 use Statamic\Support\Str;
 
