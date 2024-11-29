@@ -57,7 +57,7 @@ class AssetsTransformer extends AbstractTransformer
             }
 
             if ($alt = $this->config('alt')) {
-                $asset?->set('alt', Arr::get($this->item, $alt))->save();
+                $asset?->set('alt', Arr::get($this->values, $alt))->save();
             }
 
             return $asset?->path();

@@ -178,7 +178,7 @@ class AssetsTransformerTest extends TestCase
                 'base_url' => 'https://example.com/wp-content/uploads',
                 'alt' => 'Image Alt Text',
             ],
-            item: [
+            values: [
                 'Image Alt Text' => 'A photo taken by someone.',
             ],
         );
@@ -212,7 +212,7 @@ class AssetsTransformerTest extends TestCase
                 'download_when_missing' => true,
                 'alt' => 'Image Alt Text',
             ],
-            item: [
+            values: [
                 'Image Alt Text' => 'A photo taken by someone.',
             ],
         );
