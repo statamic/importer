@@ -15,6 +15,7 @@ return [
     'strategy_instructions' => 'Choose what should happen when importing.',
     'unique_field_instructions' => 'Select a "unique field" to determine if an item already exists.',
 
+    'assets_alt_instructions' => 'Which field should be used for the alt text?',
     'assets_base_url_instructions' => 'The base URL to prepend to the path.',
     'assets_download_when_missing_instructions' => 'If the asset can\'t be found in the asset container, should it be downloaded?',
     'assets_folder_instructions' => 'By default, downloaded assets will use same folder structure as the original URL. You can specify a different folder here.',

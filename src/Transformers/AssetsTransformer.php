@@ -9,6 +9,9 @@ use Statamic\Contracts\Assets\AssetContainer as AssetContainerContract;
 use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Path;
+use Statamic\Importer\Sources\Csv;
+use Statamic\Importer\Sources\Xml;
+use Statamic\Support\Arr;
 use Statamic\Support\Str;
 
 class AssetsTransformer extends AbstractTransformer
@@ -53,6 +56,10 @@ class AssetsTransformer extends AbstractTransformer
                 $asset->save();
             }
 
+            if ($alt = $this->config('alt')) {
+                $asset?->set('alt', Arr::get($this->item, $alt))->save();
+            }
+
             return $asset?->path();
         })->filter();
 
@@ -86,7 +93,7 @@ class AssetsTransformer extends AbstractTransformer
 
     public function fieldItems(): array
     {
-        return [
+        $fieldItems = [
             'related_field' => [
                 'type' => 'select',
                 'display' => __('Related Field'),
@@ -119,5 +126,24 @@ class AssetsTransformer extends AbstractTransformer
                 'max_items' => 1,
             ],
         ];
+
+        if (AssetContainer::find($this->field->get('container'))->blueprint()->hasField('alt')) {
+            $row = match ($this->import?->get('type')) {
+                'csv' => (new Csv($this->import))->getItems($this->import->get('path'))->first(),
+                'xml' => (new Xml($this->import))->getItems($this->import->get('path'))->first(),
+            };
+
+            $fieldItems['alt'] = [
+                'type' => 'select',
+                'display' => __('Alt Text'),
+                'instructions' => __('importer::messages.assets_alt_instructions'),
+                'options' => collect($row)->map(fn ($value, $key) => [
+                    'key' => $key,
+                    'value' => "<{$key}>: ".Str::truncate($value, 200),
+                ])->values()->all(),
+            ];
+        }
+
+        return $fieldItems;
     }
 }

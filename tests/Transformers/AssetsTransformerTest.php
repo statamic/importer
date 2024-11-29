@@ -6,6 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Collection;
 use Statamic\Importer\Facades\Import;
@@ -17,6 +18,7 @@ class AssetsTransformerTest extends TestCase
 {
     use PreventsSavingStacheItemsToDisk;
 
+    public $assetContainer;
     public $collection;
     public $blueprint;
     public $field;
@@ -26,7 +28,7 @@ class AssetsTransformerTest extends TestCase
     {
         parent::setUp();
 
-        AssetContainer::make('assets')->disk('public')->save();
+        $this->assetContainer = tap(AssetContainer::make('assets')->disk('public'))->save();
 
         $this->collection = tap(Collection::make('pages'))->save();
 
@@ -159,5 +161,72 @@ class AssetsTransformerTest extends TestCase
         $this->assertNull($output);
 
         Storage::disk('public')->assertMissing('2024/10/image.png');
+    }
+
+    #[Test]
+    public function it_sets_alt_text_on_existing_asset()
+    {
+        Http::preventStrayRequests();
+
+        Storage::disk('public')->put('2024/10/image.png', 'original');
+
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'alt' => 'Image Alt Text',
+            ],
+            item: [
+                'Image Alt Text' => 'A photo taken by someone.',
+            ],
+        );
+
+        $asset = $this->assetContainer->asset('2024/10/image.png');
+        $this->assertNull($asset->get('alt'));
+
+        $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
+        $this->assertEquals('2024/10/image.png', $output);
+
+        $asset = $this->assetContainer->asset('2024/10/image.png');
+        $this->assertEquals('A photo taken by someone.', $asset->get('alt'));
+    }
+
+    #[Test]
+    public function it_sets_alt_text_on_downloaded_asset()
+    {
+        Http::fake([
+            'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
+        ]);
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
+
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'download_when_missing' => true,
+                'alt' => 'Image Alt Text',
+            ],
+            item: [
+                'Image Alt Text' => 'A photo taken by someone.',
+            ],
+        );
+
+        $this->assertNull($this->assetContainer->asset('2024/10/image.png'));
+
+        $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
+
+        $this->assertEquals('2024/10/image.png', $output);
+
+        Storage::disk('public')->assertExists('2024/10/image.png');
+
+        $asset = $this->assetContainer->asset('2024/10/image.png');
+        $this->assertEquals('A photo taken by someone.', $asset->get('alt'));
     }
 }
