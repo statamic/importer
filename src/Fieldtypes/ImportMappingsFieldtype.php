@@ -53,7 +53,7 @@ class ImportMappingsFieldtype extends Fieldtype
                     return null;
                 }
 
-                return $fields->addValues($values)->process()->values()->all();
+                return $fields->addValues($values)->process()->values()->filter()->all();
             })
             ->filter()
             ->all();
