@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Fieldset;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\BardTransformer;
@@ -251,5 +252,139 @@ HTML);
         ], $output);
 
         Storage::disk('public')->assertExists('custom-folder/image.png');
+    }
+
+    #[Test]
+    public function it_enables_buttons_on_bard_field()
+    {
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: []
+        );
+
+        $transformer->transform('<p>Hello world!</p>');
+
+        $blueprint = $this->collection->entryBlueprint();
+
+        $this->assertEquals([
+            'h1',
+            'h2',
+            'h3',
+            'bold',
+            'italic',
+            'unorderedlist',
+            'orderedlist',
+            'removeformat',
+            'quote',
+            'anchor',
+            'image',
+            'table',
+            'horizontalrule',
+            'codeblock',
+            'underline',
+            'superscript',
+        ], $blueprint->field('content')->get('buttons'));
+    }
+
+    #[Test]
+    public function it_enables_buttons_on_imported_bard_field()
+    {
+        Fieldset::make('content_stuff')->setContents(['fields' => [
+            ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
+        ]])->save();
+
+        $blueprint = $this->collection->entryBlueprint();
+
+        $this->blueprint->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['handle' => 'bard_field', 'field' => 'content_stuff.bard_field'],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $blueprint,
+            field: $blueprint->field('bard_field'),
+            config: []
+        );
+
+        $transformer->transform('<p>Hello world!</p>');
+
+        $fieldset = Fieldset::find('content_stuff');
+
+        $this->assertEquals([
+            'h1',
+            'h2',
+            'h3',
+            'bold',
+            'italic',
+            'unorderedlist',
+            'orderedlist',
+            'removeformat',
+            'quote',
+            'anchor',
+            'image',
+            'table',
+            'horizontalrule',
+            'codeblock',
+            'underline',
+            'superscript',
+        ], $fieldset->field('bard_field')->get('buttons'));
+    }
+
+    #[Test]
+    public function it_enables_buttons_on_imported_bard_field_with_prefix()
+    {
+        Fieldset::make('content_stuff')->setContents(['fields' => [
+            ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
+        ]])->save();
+
+        $blueprint = $this->collection->entryBlueprint();
+
+        $this->blueprint->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['import' => 'content_stuff', 'prefix' => 'resources_'],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $blueprint,
+            field: $blueprint->field('resources_bard_field'),
+            config: []
+        );
+
+        $transformer->transform('<p>Hello world!</p>');
+
+        $fieldset = Fieldset::find('content_stuff');
+
+        $this->assertEquals([
+            'h1',
+            'h2',
+            'h3',
+            'bold',
+            'italic',
+            'unorderedlist',
+            'orderedlist',
+            'removeformat',
+            'quote',
+            'anchor',
+            'image',
+            'table',
+            'horizontalrule',
+            'codeblock',
+            'underline',
+            'superscript',
+        ], $fieldset->field('bard_field')->get('buttons'));
     }
 }

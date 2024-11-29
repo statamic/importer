@@ -2,6 +2,7 @@
 
 namespace Statamic\Importer\WordPress;
 
+use Facades\Statamic\Importer\Support\FieldUpdater;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Blueprint as BlueprintFacade;
 use Statamic\Fields\Blueprint;
@@ -400,7 +401,7 @@ class Gutenberg
 
     protected static function ensureBardSet(Blueprint $blueprint, Field $field, string $handle, array $config): void
     {
-        $blueprint = BlueprintFacade::find("{$blueprint->namespace()}.{$blueprint->handle()}");
+        $blueprint = BlueprintFacade::find($blueprint->fullyQualifiedHandle());
         $field = $blueprint->field($field->handle());
 
         $setExists = collect($field->get('sets', []))->contains(
@@ -411,8 +412,9 @@ class Gutenberg
             return;
         }
 
-        $blueprint
-            ->ensureFieldHasConfig($field->handle(), [
+        FieldUpdater::field($field)
+            ->blueprint($blueprint)
+            ->updateFieldConfig([
                 ...$field->config(),
                 'sets' => array_merge($field->get('sets', []), [
                     'main' => array_merge($field->get('sets.main', []), [
@@ -421,7 +423,6 @@ class Gutenberg
                         ]),
                     ]),
                 ]),
-            ])
-            ->save();
+            ]);
     }
 }

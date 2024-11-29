@@ -2,6 +2,7 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Facades\Statamic\Importer\Support\FieldUpdater;
 use Statamic\Facades\AssetContainer;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
@@ -57,32 +58,28 @@ class BardTransformer extends AbstractTransformer
 
     private function enableBardButtons(): void
     {
-        $this->blueprint->ensureFieldHasConfig(
-            handle: $this->field->handle(),
-            config: array_merge($this->field->config(), [
-                'container' => $this->field->get('container') ?? AssetContainer::all()->first()?->handle(),
-                'buttons' => [
-                    'h1',
-                    'h2',
-                    'h3',
-                    'bold',
-                    'italic',
-                    'unorderedlist',
-                    'orderedlist',
-                    'removeformat',
-                    'quote',
-                    'anchor',
-                    'image',
-                    'table',
-                    'horizontalrule',
-                    'codeblock',
-                    'underline',
-                    'superscript',
-                ],
-            ])
-        );
+        $buttons = [
+            'h1',
+            'h2',
+            'h3',
+            'bold',
+            'italic',
+            'unorderedlist',
+            'orderedlist',
+            'removeformat',
+            'quote',
+            'anchor',
+            'image',
+            'table',
+            'horizontalrule',
+            'codeblock',
+            'underline',
+            'superscript',
+        ];
 
-        $this->blueprint->save();
+        FieldUpdater::field($this->field)
+            ->blueprint($this->blueprint)
+            ->updateFieldConfig(array_merge($this->field->config(), ['buttons' => $buttons]));
     }
 
     private function isGutenbergValue(string $value): bool
