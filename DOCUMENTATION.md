@@ -1,5 +1,8 @@
 ## Installation
 
+> **Note:**
+> Before installing the importer addon, please ensure your project has a database setup. If you created your site using the [Statamic CLI](https://github.com/statamic/cli), a SQLite database will have been configured. You can confirm by running `php artisan migrate`.
+
 1. You can install the Importer addon via Composer:
 
    ```bash
