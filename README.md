@@ -19,6 +19,9 @@ composer require statamic/importer
 
 You can find the Importer addon in the Control Panel under `Utilities > Importer`.
 
+> **Note:**
+> Before installing the importer addon, please ensure your project has a database setup. If you created your site using the [Statamic CLI](https://github.com/statamic/cli), a SQLite database will have been configured. You can confirm by running `php artisan migrate`.
+
 <!-- statamic:hide -->
 ## Documentation
 
