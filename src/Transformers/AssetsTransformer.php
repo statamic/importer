@@ -2,6 +2,7 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Facades\Statamic\Imaging\ImageValidator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -12,7 +13,6 @@ use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Glide;
 use Statamic\Facades\Path;
-use Facades\Statamic\Imaging\ImageValidator;
 use Statamic\Importer\Sources\Csv;
 use Statamic\Importer\Sources\Xml;
 use Statamic\Support\Arr;
@@ -139,7 +139,6 @@ class AssetsTransformer extends AbstractTransformer
             return $file->getRealPath();
         }
     }
-
 
     public function fieldItems(): array
     {
