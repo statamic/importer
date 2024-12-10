@@ -2,6 +2,7 @@
 
 namespace Statamic\Importer\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
@@ -215,8 +216,12 @@ class ImportController extends CpController
 
     private function ensureJobBatchesTableExists(): bool
     {
-        if (Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
-            return true;
+        try {
+            if (Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
+                return true;
+            }
+        } catch (QueryException $e) {
+            return false;
         }
 
         if (app()->runningUnitTests() || app()->isProduction()) {

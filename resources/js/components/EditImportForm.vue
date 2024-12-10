@@ -11,7 +11,7 @@
             </div>
         </div>
 
-        <div v-if="batchesTableMissing" class="text-xs border border-yellow-dark rounded p-4 bg-yellow dark:bg-dark-blue-100 dark:border-none">
+        <div v-if="batchesTableMissing" class="text-xs border border-yellow-dark rounded p-4 bg-yellow dark:bg-dark-blue-100 dark:border-none mb-6">
             <div class="font-bold mb-2">{{ __('Please run your migrations.') }}</div>
             <p v-html="__('importer::messages.migrations_needed')"></p>
         </div>
