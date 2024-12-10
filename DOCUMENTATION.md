@@ -38,7 +38,7 @@ Before importing, you will need to do some preparation:
 You can run the importer as many times as you like as you tweak the mappings. It'll update existing content and create new content as needed.
 
 #### Queueing
-If you're importing a lot of content, you may want to consider running a queue worker to handle the import in the background.
+If you're importing a lot of content or downloading a lot of assets, you may want to consider running a queue worker to handle the import in the background.
 
 Assuming you have Redis installed, you can update the `QUEUE_CONNECTION` in your `.env` file to `redis` and then run:
 
