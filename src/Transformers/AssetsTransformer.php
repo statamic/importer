@@ -2,13 +2,17 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Statamic\Assets\AssetUploader;
 use Statamic\Contracts\Assets\AssetContainer as AssetContainerContract;
 use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
+use Statamic\Facades\Glide;
 use Statamic\Facades\Path;
+use Facades\Statamic\Imaging\ImageValidator;
 use Statamic\Importer\Sources\Csv;
 use Statamic\Importer\Sources\Xml;
 use Statamic\Support\Arr;
@@ -51,7 +55,20 @@ class AssetsTransformer extends AbstractTransformer
                     ->container($assetContainer)
                     ->path($this->assetPath($assetContainer, $path));
 
-                $assetContainer->disk()->put($asset->path(), $request->body());
+                Storage::disk('local')->put($tempPath = 'statamic/temp-assets/'.uniqid().'.'.Str::afterLast($path, '.'), $request->body());
+
+                $uploadedFile = new UploadedFile(Storage::disk('local')->path($tempPath), $asset->basename(), Storage::mimeType($tempPath));
+
+                $source = $this->processSourceFile($uploadedFile);
+
+                $assetContainer->disk()->put($asset->path(), $stream = fopen($source, 'r'));
+
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+
+                app('files')->delete($source);
+                Storage::disk('local')->delete($tempPath);
 
                 $asset->save();
             }
@@ -90,6 +107,39 @@ class AssetsTransformer extends AbstractTransformer
 
         return $path;
     }
+
+    protected function preset()
+    {
+        return AssetContainer::all()->first()->sourcePreset(); // todo
+    }
+
+    private function processSourceFile(UploadedFile $file): string
+    {
+        if ($file->getMimeType() === 'image/gif') {
+            return $file->getRealPath();
+        }
+
+        if (! $preset = $this->preset()) {
+            return $file->getRealPath();
+        }
+
+        if (! ImageValidator::isValidImage($file->getClientOriginalExtension(), $file->getClientMimeType())) {
+            return $file->getRealPath();
+        }
+
+        $server = Glide::server([
+            'source' => $file->getPath(),
+            'cache' => $cache = storage_path('statamic/glide/tmp'),
+            'cache_with_file_extensions' => false,
+        ]);
+
+        try {
+            return $cache.'/'.$server->makeImage($file->getFilename(), ['p' => $preset]);
+        } catch (\Exception $exception) {
+            return $file->getRealPath();
+        }
+    }
+
 
     public function fieldItems(): array
     {
