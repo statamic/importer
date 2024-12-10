@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.1 (2024-12-10)
+
+### What's fixed
+* Fixed error when importing structured collection without mapping "Parent" field #58 by @duncanmcclean
+* A banner will now be displayed when a database hasn't been configured #56 by @duncanmcclean
+
+
+
 ## 1.5.0 (2024-11-29)
 
 ### What's new
