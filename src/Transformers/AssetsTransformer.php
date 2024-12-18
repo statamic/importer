@@ -99,7 +99,7 @@ class AssetsTransformer extends AbstractTransformer
 
     private function processAssetUsingSourcePreset($asset, string $path, string $contents): void
     {
-        Storage::disk('local')->put($tempPath = 'statamic/temp-assets/'.uniqid().'.'.Str::afterLast($path, '.'), $contents);
+        Storage::disk('local')->put($tempPath = 'statamic/temp-assets/'.Str::random().'.'.Str::afterLast($path, '.'), $contents);
 
         $uploadedFile = new UploadedFile(
             path: Storage::disk('local')->path($tempPath),
