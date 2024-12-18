@@ -122,9 +122,6 @@ class AssetsTransformer extends AbstractTransformer
     /**
      * This method has been copied from Core's Uploader class. We don't need the rest of the
      * Uploader, just this method so copying it was the easiest solution.
-     *
-     * @param  UploadedFile  $file
-     * @return string
      */
     private function processSourceFile(UploadedFile $file): string
     {
