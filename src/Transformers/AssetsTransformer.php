@@ -171,6 +171,14 @@ class AssetsTransformer extends AbstractTransformer
                 'display' => __('Download when missing?'),
                 'instructions' => __('importer::messages.assets_download_when_missing_instructions'),
                 'if' => ['related_field' => 'url'],
+                'width' => $assetContainer->sourcePreset() ? 50 : 100,
+            ],
+            'process_downloaded_images' => [
+                'type' => 'toggle',
+                'display' => __('Process downloaded images?'),
+                'instructions' => __('importer::messages.assets_process_downloaded_images_instructions'),
+                'if' => ['related_field' => 'url', 'download_when_missing' => true],
+                'width' => 50,
             ],
             'folder' => [
                 'type' => 'asset_folder',
@@ -199,13 +207,8 @@ class AssetsTransformer extends AbstractTransformer
             ];
         }
 
-        if ($assetContainer->sourcePreset()) {
-            $fieldItems['process_downloaded_images'] = [
-                'type' => 'toggle',
-                'display' => __('Process downloaded images?'),
-                'instructions' => __('importer::messages.assets_process_downloaded_images_instructions'),
-                'if' => ['download_when_missing' => true],
-            ];
+        if (! $assetContainer->sourcePreset()) {
+            unset($fieldItems['process_downloaded_images']);
         }
 
         return $fieldItems;

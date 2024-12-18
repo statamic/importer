@@ -105,6 +105,14 @@ class BardTransformer extends AbstractTransformer
                     'type' => 'toggle',
                     'display' => __('Download assets when missing?'),
                     'instructions' => __('importer::messages.assets_download_when_missing_instructions'),
+                    'width' => $assetContainer->sourcePreset() ? 50 : 100,
+                ],
+                'assets_process_downloaded_images' => [
+                    'type' => 'toggle',
+                    'display' => __('Process downloaded images?'),
+                    'instructions' => __('importer::messages.assets_process_downloaded_images_instructions'),
+                    'if' => ['assets_download_when_missing' => true],
+                    'width' => 50,
                 ],
                 'assets_folder' => [
                     'type' => 'asset_folder',
@@ -116,13 +124,8 @@ class BardTransformer extends AbstractTransformer
                 ],
             ];
 
-            if ($assetContainer->sourcePreset()) {
-                $fieldItems['assets_process_downloaded_images'] = [
-                    'type' => 'toggle',
-                    'display' => __('Process downloaded images?'),
-                    'instructions' => __('importer::messages.assets_process_downloaded_images_instructions'),
-                    'if' => ['assets_download_when_missing' => true],
-                ];
+            if (! $assetContainer->sourcePreset()) {
+                unset($fieldItems['assets_process_downloaded_images']);
             }
         }
 
