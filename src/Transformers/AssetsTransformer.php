@@ -55,20 +55,24 @@ class AssetsTransformer extends AbstractTransformer
                     ->container($assetContainer)
                     ->path($this->assetPath($assetContainer, $path));
 
-                Storage::disk('local')->put($tempPath = 'statamic/temp-assets/'.uniqid().'.'.Str::afterLast($path, '.'), $request->body());
+                if ($this->config('process_downloaded_images')) {
+                    Storage::disk('local')->put($tempPath = 'statamic/temp-assets/'.uniqid().'.'.Str::afterLast($path, '.'), $request->body());
 
-                $uploadedFile = new UploadedFile(Storage::disk('local')->path($tempPath), $asset->basename(), Storage::mimeType($tempPath));
+                    $uploadedFile = new UploadedFile(Storage::disk('local')->path($tempPath), $asset->basename(), Storage::mimeType($tempPath));
 
-                $source = $this->processSourceFile($uploadedFile);
+                    $source = $this->processSourceFile($uploadedFile);
 
-                $assetContainer->disk()->put($asset->path(), $stream = fopen($source, 'r'));
+                    $assetContainer->disk()->put($asset->path(), $stream = fopen($source, 'r'));
 
-                if (is_resource($stream)) {
-                    fclose($stream);
+                    if (is_resource($stream)) {
+                        fclose($stream);
+                    }
+
+                    app('files')->delete($source);
+                    Storage::disk('local')->delete($tempPath);
+                } else {
+                    $assetContainer->disk()->put($asset->path(), $request->body());
                 }
-
-                app('files')->delete($source);
-                Storage::disk('local')->delete($tempPath);
 
                 $asset->save();
             }
@@ -110,7 +114,7 @@ class AssetsTransformer extends AbstractTransformer
 
     protected function preset()
     {
-        return AssetContainer::all()->first()->sourcePreset(); // todo
+        return AssetContainer::find($this->field->get('container'))->sourcePreset();
     }
 
     private function processSourceFile(UploadedFile $file): string
@@ -142,6 +146,8 @@ class AssetsTransformer extends AbstractTransformer
 
     public function fieldItems(): array
     {
+        $assetContainer = AssetContainer::find($this->field->get('container'));
+
         $fieldItems = [
             'related_field' => [
                 'type' => 'select',
@@ -171,12 +177,12 @@ class AssetsTransformer extends AbstractTransformer
                 'display' => __('Folder'),
                 'instructions' => __('importer::messages.assets_folder_instructions'),
                 'if' => ['download_when_missing' => true],
-                'container' => $this->field->get('container'),
+                'container' => $assetContainer->handle(),
                 'max_items' => 1,
             ],
         ];
 
-        if (AssetContainer::find($this->field->get('container'))->blueprint()->hasField('alt')) {
+        if ($assetContainer->blueprint()->hasField('alt')) {
             $row = match ($this->import?->get('type')) {
                 'csv' => (new Csv($this->import))->getItems($this->import->get('path'))->first(),
                 'xml' => (new Xml($this->import))->getItems($this->import->get('path'))->first(),
@@ -190,6 +196,15 @@ class AssetsTransformer extends AbstractTransformer
                     'key' => $key,
                     'value' => "<{$key}>: ".Str::truncate($value, 200),
                 ])->values()->all(),
+            ];
+        }
+
+        if ($assetContainer->sourcePreset()) {
+            $fieldItems['process_downloaded_images'] = [
+                'type' => 'toggle',
+                'display' => __('Process downloaded images?'),
+                'instructions' => __('importer::messages.assets_process_downloaded_images_instructions'),
+                'if' => ['download_when_missing' => true],
             ];
         }
 
