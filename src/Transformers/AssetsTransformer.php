@@ -55,24 +55,9 @@ class AssetsTransformer extends AbstractTransformer
                     ->container($assetContainer)
                     ->path($this->assetPath($assetContainer, $path));
 
-                if ($this->config('process_downloaded_images')) {
-                    Storage::disk('local')->put($tempPath = 'statamic/temp-assets/'.uniqid().'.'.Str::afterLast($path, '.'), $request->body());
-
-                    $uploadedFile = new UploadedFile(Storage::disk('local')->path($tempPath), $asset->basename(), Storage::mimeType($tempPath));
-
-                    $source = $this->processSourceFile($uploadedFile);
-
-                    $assetContainer->disk()->put($asset->path(), $stream = fopen($source, 'r'));
-
-                    if (is_resource($stream)) {
-                        fclose($stream);
-                    }
-
-                    app('files')->delete($source);
-                    Storage::disk('local')->delete($tempPath);
-                } else {
-                    $assetContainer->disk()->put($asset->path(), $request->body());
-                }
+                $this->config('process_downloaded_images')
+                    ? $this->processAssetUsingSourcePreset($asset, $path, $request->body())
+                    : $assetContainer->disk()->put($asset->path(), $request->body());
 
                 $asset->save();
             }
@@ -112,11 +97,35 @@ class AssetsTransformer extends AbstractTransformer
         return $path;
     }
 
-    protected function preset()
+    private function processAssetUsingSourcePreset($asset, string $path, string $contents): void
     {
-        return AssetContainer::find($this->field->get('container'))->sourcePreset();
+        Storage::disk('local')->put($tempPath = 'statamic/temp-assets/'.uniqid().'.'.Str::afterLast($path, '.'), $contents);
+
+        $uploadedFile = new UploadedFile(
+            path: Storage::disk('local')->path($tempPath),
+            originalName: $asset->basename(),
+            mimeType: Storage::mimeType($tempPath)
+        );
+
+        $source = $this->processSourceFile($uploadedFile);
+
+        $asset->container()->disk()->put($asset->path(), $stream = fopen($source, 'r'));
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        app('files')->delete($source);
+        Storage::disk('local')->delete($tempPath);
     }
 
+    /**
+     * This method has been copied from Core's Uploader class. We don't need the rest of the
+     * Uploader, just this method so copying it was the easiest solution.
+     *
+     * @param  UploadedFile  $file
+     * @return string
+     */
     private function processSourceFile(UploadedFile $file): string
     {
         if ($file->getMimeType() === 'image/gif') {
@@ -142,6 +151,11 @@ class AssetsTransformer extends AbstractTransformer
         } catch (\Exception $exception) {
             return $file->getRealPath();
         }
+    }
+
+    private function preset()
+    {
+        return AssetContainer::find($this->field->get('container'))->sourcePreset();
     }
 
     public function fieldItems(): array
