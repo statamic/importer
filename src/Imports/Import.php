@@ -137,8 +137,12 @@ class Import
     public function destinationBlueprint(): StatamicBlueprint
     {
         return match ($this->get('destination.type')) {
-            'entries' => Collection::find($this->get('destination.collection'))->entryBlueprint(),
-            'terms' => Taxonomy::find($this->get('destination.taxonomy'))->termBlueprint(),
+            'entries' => Collection::find($this->get('destination.collection'))
+                ->entryBlueprints()
+                ->first(fn ($blueprint) => $blueprint->handle() === $this->get('destination.blueprint')),
+            'terms' => Taxonomy::find($this->get('destination.taxonomy'))
+                ->termBlueprints()
+                ->first(fn ($blueprint) => $blueprint->handle() === $this->get('destination.blueprint')),
             'users' => User::blueprint(),
         };
     }
