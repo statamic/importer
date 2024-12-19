@@ -54,6 +54,7 @@ class BardTransformer extends AbstractTransformer
                 return $node;
             })
             ->filter()
+            ->values()
             ->all();
     }
 
