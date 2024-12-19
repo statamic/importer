@@ -241,7 +241,7 @@ class AssetsTransformerTest extends TestCase
 
         Str::createRandomStringsUsing(fn () => 'temp');
 
-        File::ensureDirectoryExists(storage_path('statamic/glide/tmp'));
+        File::ensureDirectoryExists(storage_path('statamic/glide/tmp/temp.png/random'));
         File::put(storage_path('statamic/glide/tmp/temp.png/random/temp.png'), 'Transformed Image');
 
         Glide::shouldReceive('server')->once()->andReturnSelf();
