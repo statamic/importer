@@ -218,12 +218,14 @@ class Blueprint
                                         'validate' => [
                                             'required_if:destination.type,entries',
                                             function (string $attribute, mixed $value, Closure $fail) {
-                                                if (! collect(request()->mappings)->reject(fn ($mapping) => empty($mapping['key']))->has($value)) {
+                                                if ($value && ! collect(request()->mappings)->reject(fn ($mapping) => empty($mapping['key']))->has($value)) {
                                                     $fail('importer::validation.unique_field_without_mapping')->translate();
                                                 }
                                             },
                                         ],
-                                        'if' => $import ? array_merge(static::buildFieldConditions($import), ['destination.type' => 'entries']) : null,
+                                        'if' => $import
+                                            ? array_merge(static::buildFieldConditions($import), ['destination.type' => 'entries'])
+                                            : null,
                                     ],
                                 ],
                             ],
