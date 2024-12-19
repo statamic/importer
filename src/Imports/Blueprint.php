@@ -140,26 +140,14 @@ class Blueprint
                                                     'width' => 50,
                                                     'max_items' => 1,
                                                     'mode' => 'select',
-                                                    'unless' => ['type' => 'users'],
+                                                    'if' => ['type' => 'entries'],
                                                     'validate' => [
-                                                        'required_unless:destination.type,users',
+                                                        'required_if:destination.type,entries',
                                                         function (string $attribute, mixed $value, Closure $fail) {
-                                                            $type = Arr::get(request()->destination, 'type');
+                                                            $collection = Collection::find(Arr::get(request()->destination, 'collection.0'));
 
-                                                            if ($type === 'entries') {
-                                                                $collection = Collection::find(Arr::get(request()->destination, 'collection.0'));
-
-                                                                if (count($value) && ! $collection->sites()->contains($value[0])) {
-                                                                    $fail('importer::validation.site_not_configured_in_collection')->translate();
-                                                                }
-                                                            }
-
-                                                            if ($type === 'terms') {
-                                                                $taxonomy = Facades\Taxonomy::findByHandle(Arr::get(request()->destination, 'taxonomy.0'));
-
-                                                                if (count($value) && ! $taxonomy->sites()->contains($value[0])) {
-                                                                    $fail('importer::validation.site_not_configured_in_taxonomy')->translate();
-                                                                }
+                                                            if (count($value) && ! $collection->sites()->contains($value[0])) {
+                                                                $fail('importer::validation.site_not_configured_in_collection')->translate();
                                                             }
                                                         },
                                                     ],
