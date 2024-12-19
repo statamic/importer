@@ -16,6 +16,12 @@ export default {
 
     inject: ['storeName'],
 
+    mounted() {
+        if (! this.value && this.type && (this.collection || this.taxonomy)) {
+            this.$emit('input', this.options[0].handle);
+        }
+    },
+
     computed: {
         type() {
             return this.$store.state.publish[this.storeName].values.destination.type;

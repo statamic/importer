@@ -139,10 +139,18 @@ class Import
         return match ($this->get('destination.type')) {
             'entries' => Collection::find($this->get('destination.collection'))
                 ->entryBlueprints()
-                ->first(fn ($blueprint) => $blueprint->handle() === $this->get('destination.blueprint')),
+                ->when(
+                    $this->get('destination.blueprint'),
+                    fn ($collection) => $collection->filter(fn ($blueprint) => $blueprint->handle() === $this->get('destination.blueprint'))
+                )
+                ->first(),
             'terms' => Taxonomy::find($this->get('destination.taxonomy'))
                 ->termBlueprints()
-                ->first(fn ($blueprint) => $blueprint->handle() === $this->get('destination.blueprint')),
+                ->when(
+                    $this->get('destination.blueprint'),
+                    fn ($taxonomy) => $taxonomy->filter(fn ($blueprint) => $blueprint->handle() === $this->get('destination.blueprint'))
+                )
+                ->first(),
             'users' => User::blueprint(),
         };
     }
