@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Tests\Jobs;
 
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\Blink;
 use Statamic\Facades\Blueprint;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
@@ -150,6 +151,8 @@ class ImportItemJobTest extends TestCase
                 ],
             ],
         ])->save();
+
+        Blink::forget('collection-entry-blueprints-team');
 
         $this->assertNull(Entry::query()->where('email', 'John')->first());
 
