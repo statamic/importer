@@ -121,7 +121,7 @@ class ImportItemJob implements ShouldQueue
     {
         $term = Term::query()
             ->where('taxonomy', $this->import->get('destination.taxonomy'))
-            ->where('id', $this->import->get('destination.taxonomy') . '::' . Arr::get($data, 'default_slug', $data['slug']))
+            ->where('id', $this->import->get('destination.taxonomy').'::'.Arr::get($data, 'default_slug', $data['slug']))
             ->first()
             ?->term();
 
