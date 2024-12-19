@@ -69,7 +69,6 @@ class ImportMappingsFieldtype extends Fieldtype
 
         return collect($this->field->value())
             ->reject(fn ($row) => empty($row['key']))
-            ->filter(fn ($row) => $fields->has($row['key']))
             ->flatMap(function (array $row, string $field) use ($fields) {
                 $rules = $fields
                     ->get($field)

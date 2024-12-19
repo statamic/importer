@@ -5,6 +5,7 @@ namespace Statamic\Importer\Tests\Imports;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\Blink;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
@@ -229,9 +230,19 @@ class UpdateImportTest extends TestCase
     {
         Taxonomy::make('tags')->save();
 
+        Storage::disk('local')->put('statamic/imports/tags/tags.csv', '');
+
+        $import = Import::make()->name('Users')->config([
+            'type' => 'csv',
+            'path' => Storage::disk('local')->path('statamic/imports/tags/tags.csv'),
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
+        ]);
+
+        $import->save();
+
         $this
             ->actingAs(User::make()->makeSuper()->save())
-            ->patch("/cp/utilities/importer/{$this->import->id()}", [
+            ->patch("/cp/utilities/importer/{$import->id()}", [
                 'name' => 'Posts',
                 'file' => ['posts.csv'],
                 'destination' => ['type' => 'terms', 'taxonomy' => ['tags'], 'blueprint' => 'tag'],
@@ -258,9 +269,19 @@ class UpdateImportTest extends TestCase
             ],
         ]);
 
+        Storage::disk('local')->put('statamic/imports/users/users.csv', '');
+
+        $import = Import::make()->name('Users')->config([
+            'type' => 'csv',
+            'path' => Storage::disk('local')->path('statamic/imports/users/users.csv'),
+            'destination' => ['type' => 'users'],
+        ]);
+
+        $import->save();
+
         $this
             ->actingAs(User::make()->makeSuper()->save())
-            ->patch("/cp/utilities/importer/{$this->import->id()}", [
+            ->patch("/cp/utilities/importer/{$import->id()}", [
                 'name' => 'Posts',
                 'file' => ['posts.csv'],
                 'destination' => ['type' => 'users'],

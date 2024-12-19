@@ -211,7 +211,7 @@ class Blueprint
                                         'type' => 'radio',
                                         'display' => __('Unique Field'),
                                         'instructions' => __('importer::messages.unique_field_instructions'),
-                                        'options' => $import?->mappingFields()->all()
+                                        'options' => $import?->destinationBlueprint()->fields()->all()
                                             ->filter(fn ($field) => in_array($field->type(), ['text', 'integer', 'slug']))
                                             ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
                                             ->values(),
