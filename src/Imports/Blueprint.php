@@ -128,6 +128,7 @@ class Blueprint
                                                     'display' => __('Blueprint'),
                                                     'width' => 50,
                                                     'unless' => ['destination.type' => 'users'],
+                                                    'validate' => 'required_unless:destination.type,users',
                                                 ],
                                             ],
                                             Site::hasMultiple() ? [
