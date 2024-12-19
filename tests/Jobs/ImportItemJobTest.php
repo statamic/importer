@@ -68,7 +68,7 @@ class ImportItemJobTest extends TestCase
         $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -108,7 +108,7 @@ class ImportItemJobTest extends TestCase
         $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team', 'site' => 'fr'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -142,7 +142,7 @@ class ImportItemJobTest extends TestCase
         $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -172,7 +172,7 @@ class ImportItemJobTest extends TestCase
         $entry->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -213,7 +213,7 @@ class ImportItemJobTest extends TestCase
         $entry->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team', 'site' => 'fr'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -255,7 +255,7 @@ class ImportItemJobTest extends TestCase
         $entry->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team', 'site' => 'fr'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -301,7 +301,7 @@ class ImportItemJobTest extends TestCase
         $entry->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -334,7 +334,7 @@ class ImportItemJobTest extends TestCase
         $this->assertNull(Term::query()->where('title', 'Statamic')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
@@ -359,7 +359,7 @@ class ImportItemJobTest extends TestCase
         $this->assertNull(Term::query()->where('title', 'Statamic')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
@@ -381,7 +381,7 @@ class ImportItemJobTest extends TestCase
         $term->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
@@ -410,7 +410,7 @@ class ImportItemJobTest extends TestCase
         $term->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],

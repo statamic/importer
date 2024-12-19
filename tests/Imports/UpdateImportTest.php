@@ -63,7 +63,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Old Posts',
                 'file' => ['posts.csv'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => ['create', 'update'],
                 'source' => ['csv_delimiter' => ','],
                 'mappings' => [
@@ -95,7 +95,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
                 'file' => ['123456789/latest-posts.csv'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => ['create', 'update'],
                 'source' => ['csv_delimiter' => ','],
                 'mappings' => [
@@ -124,7 +124,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
                 'file' => ['123456789/latest-posts.pdf'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
                     'title' => ['key' => 'Title'],
@@ -155,7 +155,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
                 'file' => ['123456789/latest-posts.pdf'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
                     'title' => ['key' => 'Title'],
@@ -183,7 +183,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
                 'file' => ['posts.csv'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => [],
                 'mappings' => [
                     'title' => ['key' => 'Title'],
@@ -209,7 +209,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
                 'file' => ['posts.csv'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
                     'title' => ['key' => null],
@@ -231,7 +231,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
                 'file' => ['posts.csv'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
                     'author' => ['key' => 'Author Email', 'related_field' => null],
@@ -249,7 +249,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
                 'file' => ['posts.csv'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
                     'title' => ['key' => 'Title'],
@@ -271,7 +271,7 @@ class UpdateImportTest extends TestCase
             ->patch("/cp/utilities/importer/{$this->import->id()}", [
                 'name' => 'Posts',
                 'file' => ['posts.csv'],
-                'destination' => ['type' => 'entries', 'collection' => ['posts']],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
                 'strategy' => ['create', 'update'],
                 'mappings' => [
                     'title' => ['key' => 'Title'],
