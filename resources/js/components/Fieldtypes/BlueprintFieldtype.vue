@@ -1,10 +1,10 @@
 <template>
     <v-select
+        searchable
         :options="options"
         :get-option-label="(option) => option.title"
         :get-option-key="(option) => option.handle"
         :value="value"
-        :searchable="false"
         :reduce="opt => opt.handle"
         @input="update($event)"
     />
