@@ -20,4 +20,3 @@ class BlueprintFieldtype extends Fieldtype
         ];
     }
 }
-
