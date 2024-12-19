@@ -226,7 +226,7 @@ class Blueprint
                                         'if' => [
                                             'destination.type' => 'entries',
                                         ],
-//                                        'if' => $import ? static::buildFieldConditions($import) : null,
+                                        //                                        'if' => $import ? static::buildFieldConditions($import) : null,
                                     ],
                                 ],
                             ],
