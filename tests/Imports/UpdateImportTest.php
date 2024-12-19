@@ -292,7 +292,7 @@ class UpdateImportTest extends TestCase
     }
 
     #[Test]
-    public function validation_error_is_thrown_without_unique_field()
+    public function unique_field_is_required_for_entry_imports()
     {
         $this
             ->actingAs(User::make()->makeSuper()->save())
@@ -314,7 +314,7 @@ class UpdateImportTest extends TestCase
     }
 
     #[Test]
-    public function unique_field_is_required_for_entry_imports()
+    public function ensure_unique_field_has_a_mapping()
     {
         $this
             ->actingAs(User::make()->makeSuper()->save())
