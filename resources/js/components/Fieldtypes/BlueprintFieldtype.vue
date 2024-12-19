@@ -46,11 +46,11 @@ export default {
         },
 
         collection() {
-            this.$emit('input', null);
+            this.$emit('input', this.options[0].handle);
         },
 
         taxonomy() {
-            this.$emit('input', null);
+            this.$emit('input', this.options[0].handle);
         },
     }
 }
