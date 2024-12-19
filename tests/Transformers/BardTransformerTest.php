@@ -84,6 +84,29 @@ HTML);
     }
 
     #[Test]
+    public function it_handles_text_without_paragraph_tags()
+    {
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: []
+        );
+
+        $output = $transformer->transform(<<<'HTML'
+<h2>Blah blah</h2>
+Nam voluptatem rem molestiae cumque doloremque. Saepe animi deserunt Maxime iam et inventore. ipsam in dignissimos qui occaecati.
+HTML);
+
+        $this->assertEquals([
+            ['type' => 'heading', 'attrs' => ['level' => 2, 'textAlign' => 'left'], 'content' => [['type' => 'text', 'text' => 'Blah blah']]],
+            ['type' => 'paragraph', 'content' => [
+                ['type' => 'text', 'text' => 'Nam voluptatem rem molestiae cumque doloremque. Saepe animi deserunt Maxime iam et inventore. ipsam in dignissimos qui occaecati.'],
+            ]],
+        ], $output);
+    }
+
+    #[Test]
     public function it_handles_images()
     {
         AssetContainer::make('assets')->disk('public')->save();
