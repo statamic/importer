@@ -138,13 +138,7 @@ class ImportItemJob implements ShouldQueue
             return;
         }
 
-        if (isset($data['slug'])) {
-            $term->slug(Arr::pull($data, 'slug'));
-        }
-
-        if (! $term->slug()) {
-            $term->slug(Str::slug($data[$this->import->get('unique_field')]));
-        }
+        $term->slug(Arr::pull($data, 'slug'));
 
         $term->merge($data);
 
