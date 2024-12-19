@@ -223,10 +223,7 @@ class Blueprint
                                                 }
                                             },
                                         ],
-                                        'if' => [
-                                            'destination.type' => 'entries',
-                                        ],
-                                        //                                        'if' => $import ? static::buildFieldConditions($import) : null,
+                                        'if' => $import ? array_merge(static::buildFieldConditions($import), ['destination.type' => 'entries']) : null,
                                     ],
                                 ],
                             ],
