@@ -75,6 +75,7 @@ class Gutenberg
                             'base_url' => $config['assets_base_url'],
                             'download_when_missing' => $config['assets_download_when_missing'] ?? false,
                             'folder' => $config['assets_folder'] ?? null,
+                            'process_downloaded_images' => $config['assets_process_downloaded_images'] ?? false,
                         ]
                     );
 
@@ -130,6 +131,7 @@ class Gutenberg
                                                 'base_url' => $config['assets_base_url'] ?? null,
                                                 'download_when_missing' => $config['assets_download_when_missing'] ?? false,
                                                 'folder' => $config['assets_folder'] ?? null,
+                                                'process_downloaded_images' => $config['assets_process_downloaded_images'] ?? false,
                                             ]
                                         );
 

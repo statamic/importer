@@ -2,12 +2,16 @@
 
 namespace Statamic\Importer\Transformers;
 
+use Facades\Statamic\Imaging\ImageValidator;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Statamic\Assets\AssetUploader;
 use Statamic\Contracts\Assets\AssetContainer as AssetContainerContract;
 use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
+use Statamic\Facades\Glide;
 use Statamic\Facades\Path;
 use Statamic\Importer\Sources\Csv;
 use Statamic\Importer\Sources\Xml;
@@ -51,7 +55,9 @@ class AssetsTransformer extends AbstractTransformer
                     ->container($assetContainer)
                     ->path($this->assetPath($assetContainer, $path));
 
-                $assetContainer->disk()->put($asset->path(), $request->body());
+                $this->config('process_downloaded_images')
+                    ? $this->processAssetUsingSourcePreset($asset, $path, $request->body())
+                    : $assetContainer->disk()->put($asset->path(), $request->body());
 
                 $asset->save();
             }
@@ -91,8 +97,68 @@ class AssetsTransformer extends AbstractTransformer
         return $path;
     }
 
+    private function processAssetUsingSourcePreset($asset, string $path, string $contents): void
+    {
+        Storage::disk('local')->put($tempPath = 'statamic/temp-assets/'.Str::random().'.'.Str::afterLast($path, '.'), $contents);
+
+        $uploadedFile = new UploadedFile(
+            path: Storage::disk('local')->path($tempPath),
+            originalName: $asset->basename(),
+            mimeType: Storage::mimeType($tempPath)
+        );
+
+        $source = $this->processSourceFile($uploadedFile);
+
+        $asset->container()->disk()->put($asset->path(), $stream = fopen($source, 'r'));
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        app('files')->delete($source);
+        Storage::disk('local')->delete($tempPath);
+    }
+
+    /**
+     * This method has been copied from Core's Uploader class. We don't need the rest of the
+     * Uploader, just this method so copying it was the easiest solution.
+     */
+    private function processSourceFile(UploadedFile $file): string
+    {
+        if ($file->getMimeType() === 'image/gif') {
+            return $file->getRealPath();
+        }
+
+        if (! $preset = $this->preset()) {
+            return $file->getRealPath();
+        }
+
+        if (! ImageValidator::isValidImage($file->getClientOriginalExtension(), $file->getClientMimeType())) {
+            return $file->getRealPath();
+        }
+
+        $server = Glide::server([
+            'source' => $file->getPath(),
+            'cache' => $cache = storage_path('statamic/glide/tmp'),
+            'cache_with_file_extensions' => false,
+        ]);
+
+        try {
+            return $cache.'/'.$server->makeImage($file->getFilename(), ['p' => $preset]);
+        } catch (\Exception $exception) {
+            return $file->getRealPath();
+        }
+    }
+
+    private function preset()
+    {
+        return AssetContainer::find($this->field->get('container'))->sourcePreset();
+    }
+
     public function fieldItems(): array
     {
+        $assetContainer = AssetContainer::find($this->field->get('container'));
+
         $fieldItems = [
             'related_field' => [
                 'type' => 'select',
@@ -116,18 +182,26 @@ class AssetsTransformer extends AbstractTransformer
                 'display' => __('Download when missing?'),
                 'instructions' => __('importer::messages.assets_download_when_missing_instructions'),
                 'if' => ['related_field' => 'url'],
+                'width' => $assetContainer->sourcePreset() ? 50 : 100,
+            ],
+            'process_downloaded_images' => [
+                'type' => 'toggle',
+                'display' => __('Process downloaded images?'),
+                'instructions' => __('importer::messages.assets_process_downloaded_images_instructions'),
+                'if' => ['related_field' => 'url', 'download_when_missing' => true],
+                'width' => 50,
             ],
             'folder' => [
                 'type' => 'asset_folder',
                 'display' => __('Folder'),
                 'instructions' => __('importer::messages.assets_folder_instructions'),
                 'if' => ['download_when_missing' => true],
-                'container' => $this->field->get('container'),
+                'container' => $assetContainer->handle(),
                 'max_items' => 1,
             ],
         ];
 
-        if (AssetContainer::find($this->field->get('container'))->blueprint()->hasField('alt')) {
+        if ($assetContainer->blueprint()->hasField('alt')) {
             $row = match ($this->import?->get('type')) {
                 'csv' => (new Csv($this->import))->getItems($this->import->get('path'))->first(),
                 'xml' => (new Xml($this->import))->getItems($this->import->get('path'))->first(),
@@ -142,6 +216,10 @@ class AssetsTransformer extends AbstractTransformer
                     'value' => "<{$key}>: ".Str::truncate($value, 200),
                 ])->values()->all(),
             ];
+        }
+
+        if (! $assetContainer->sourcePreset()) {
+            unset($fieldItems['process_downloaded_images']);
         }
 
         return $fieldItems;

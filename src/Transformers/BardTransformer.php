@@ -38,6 +38,7 @@ class BardTransformer extends AbstractTransformer
                             'base_url' => $this->config['assets_base_url'] ?? null,
                             'download_when_missing' => $this->config['assets_download_when_missing'] ?? false,
                             'folder' => $this->config['assets_folder'] ?? null,
+                            'process_downloaded_images' => $this->config['assets_process_downloaded_images'] ?? false,
                         ]
                     );
 
@@ -89,8 +90,12 @@ class BardTransformer extends AbstractTransformer
 
     public function fieldItems(): array
     {
-        if ($this->field->get('container')) {
-            return [
+        $fieldItems = [];
+
+        if ($assetContainer = $this->field->get('container')) {
+            $assetContainer = AssetContainer::find($assetContainer);
+
+            $fieldItems = [
                 'assets_base_url' => [
                     'type' => 'text',
                     'display' => __('Assets Base URL'),
@@ -100,18 +105,30 @@ class BardTransformer extends AbstractTransformer
                     'type' => 'toggle',
                     'display' => __('Download assets when missing?'),
                     'instructions' => __('importer::messages.assets_download_when_missing_instructions'),
+                    'width' => $assetContainer->sourcePreset() ? 50 : 100,
+                ],
+                'assets_process_downloaded_images' => [
+                    'type' => 'toggle',
+                    'display' => __('Process downloaded images?'),
+                    'instructions' => __('importer::messages.assets_process_downloaded_images_instructions'),
+                    'if' => ['assets_download_when_missing' => true],
+                    'width' => 50,
                 ],
                 'assets_folder' => [
                     'type' => 'asset_folder',
                     'display' => __('Folder'),
                     'instructions' => __('importer::messages.assets_folder_instructions'),
                     'if' => ['assets_download_when_missing' => true],
-                    'container' => $this->field->get('container'),
+                    'container' => $assetContainer->handle(),
                     'max_items' => 1,
                 ],
             ];
+
+            if (! $assetContainer->sourcePreset()) {
+                unset($fieldItems['assets_process_downloaded_images']);
+            }
         }
 
-        return [];
+        return $fieldItems;
     }
 }
