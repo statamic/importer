@@ -120,6 +120,16 @@ class Blueprint
                                                     'validate' => 'required_if:destination.type,terms',
                                                 ],
                                             ],
+                                            // todo: think about a way to make this only show when the collection/taxonomy has more than one blueprint
+                                            [
+                                                'handle' => 'blueprint',
+                                                'field' => [
+                                                    'type' => 'blueprint',
+                                                    'display' => __('Blueprint'),
+                                                    'width' => 50,
+                                                    'unless' => ['destination.type' => 'users'],
+                                                ],
+                                            ],
                                             Site::hasMultiple() ? [
                                                 'handle' => 'site',
                                                 'field' => [
