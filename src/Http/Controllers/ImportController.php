@@ -176,7 +176,7 @@ class ImportController extends CpController
                 'strategy' => $values['strategy'],
                 'source' => $values['source'] ?? null,
                 'mappings' => $values['mappings'],
-                'unique_field' => $values['unique_field'],
+                'unique_field' => $values['unique_field'] ?? null,
             ]));
 
         $saved = $import->save();
