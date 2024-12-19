@@ -140,14 +140,26 @@ class Blueprint
                                                     'width' => 50,
                                                     'max_items' => 1,
                                                     'mode' => 'select',
-                                                    'if' => ['type' => 'entries'],
+                                                    'unless' => ['type' => 'users'],
                                                     'validate' => [
-                                                        'required_if:destination.type,entries',
+                                                        'required_unless:destination.type,users',
                                                         function (string $attribute, mixed $value, Closure $fail) {
-                                                            $collection = Collection::find(Arr::get(request()->destination, 'collection.0'));
+                                                            $type = Arr::get(request()->destination, 'type');
 
-                                                            if (count($value) && ! $collection->sites()->contains($value[0])) {
-                                                                $fail('importer::validation.site_not_configured_in_collection')->translate();
+                                                            if ($type === 'entries') {
+                                                                $collection = Collection::find(Arr::get(request()->destination, 'collection.0'));
+
+                                                                if (count($value) && ! $collection->sites()->contains($value[0])) {
+                                                                    $fail('importer::validation.site_not_configured_in_collection')->translate();
+                                                                }
+                                                            }
+
+                                                            if ($type === 'terms') {
+                                                                $taxonomy = Facades\Taxonomy::findByHandle(Arr::get(request()->destination, 'taxonomy.0'));
+
+                                                                if (count($value) && ! $taxonomy->sites()->contains($value[0])) {
+                                                                    $fail('importer::validation.site_not_configured_in_taxonomy')->translate();
+                                                                }
                                                             }
                                                         },
                                                     ],
