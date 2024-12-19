@@ -120,6 +120,17 @@ class Blueprint
                                                     'validate' => 'required_if:destination.type,terms',
                                                 ],
                                             ],
+                                            [
+                                                'handle' => 'blueprint',
+                                                'field' => [
+                                                    'type' => 'blueprint',
+                                                    'display' => __('Blueprint'),
+                                                    'instructions' => __('importer::messages.destination_blueprint_instructions'),
+                                                    'width' => 50,
+                                                    'unless' => ['destination.type' => 'users'],
+                                                    'validate' => 'required_unless:destination.type,users',
+                                                ],
+                                            ],
                                             Site::hasMultiple() ? [
                                                 'handle' => 'site',
                                                 'field' => [
@@ -253,6 +264,10 @@ class Blueprint
 
         if ($import->get('destination.taxonomy')) {
             $conditions['destination.taxonomy'] = 'contains '.$import->get('destination.taxonomy');
+        }
+
+        if ($import->get('destination.blueprint')) {
+            $conditions['destination.blueprint'] = 'equals '.$import->get('destination.blueprint');
         }
 
         if ($import->get('destination.site')) {

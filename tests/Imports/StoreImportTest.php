@@ -40,6 +40,7 @@ class StoreImportTest extends TestCase
                 'destination' => [
                     'type' => 'entries',
                     'collection' => ['posts'],
+                    'blueprint' => 'post',
                 ],
                 'strategy' => ['create', 'update'],
             ])
@@ -75,6 +76,7 @@ class StoreImportTest extends TestCase
                 'destination' => [
                     'type' => 'entries',
                     'collection' => ['posts'],
+                    'blueprint' => 'post',
                     'site' => ['en'],
                 ],
                 'strategy' => ['create', 'update'],
@@ -113,6 +115,7 @@ class StoreImportTest extends TestCase
                 'destination' => [
                     'type' => 'entries',
                     'collection' => ['posts'],
+                    'blueprint' => 'post',
                     'site' => ['fr'],
                 ],
                 'strategy' => ['create', 'update'],
@@ -143,6 +146,7 @@ class StoreImportTest extends TestCase
                 'destination' => [
                     'type' => 'entries',
                     'collection' => ['posts'],
+                    'blueprint' => 'post',
                 ],
                 'strategy' => ['create', 'update'],
             ])
@@ -167,6 +171,7 @@ class StoreImportTest extends TestCase
                 'destination' => [
                     'type' => 'terms',
                     'taxonomy' => ['categories'],
+                    'blueprint' => 'post',
                 ],
                 'strategy' => ['create', 'update'],
             ])
