@@ -265,6 +265,11 @@ class Blueprint
             $conditions['destination.taxonomy'] = 'contains '.$import->get('destination.taxonomy');
         }
 
+        // todo: when current blueprint is called "post", but the new one is called "external_post", this will not work because it's a contains match
+        if ($import->get('destination.blueprint')) {
+            $conditions['destination.blueprint'] = 'contains '.$import->get('destination.blueprint');
+        }
+
         if ($import->get('destination.site')) {
             $conditions['destination.site'] = 'contains '.$import->get('destination.site');
         }
