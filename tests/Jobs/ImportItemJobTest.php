@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Tests\Jobs;
 
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\Blueprint;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Taxonomy;
@@ -134,6 +135,45 @@ class ImportItemJobTest extends TestCase
         $this->assertEquals('john.doe@example.com', $entry->get('email'));
         $this->assertEquals('CEO', $entry->get('role'));
         $this->assertEquals('fr', $entry->site());
+    }
+
+    #[Test]
+    public function it_imports_a_new_entry_with_a_specific_blueprint()
+    {
+        Blueprint::make('volunteers')->setNamespace('collections/team')->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['handle' => 'first_name', 'field' => ['type' => 'text']],
+                        ['handle' => 'last_name', 'field' => ['type' => 'text']],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $this->assertNull(Entry::query()->where('email', 'John')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'volunteers'],
+            'unique_field' => 'last_name',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+            ],
+            'strategy' => ['create'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+        ]);
+
+        $entry = Entry::query()->where('first_name', 'John')->first();
+
+        $this->assertNotNull($entry);
+        $this->assertEquals('John', $entry->get('first_name'));
+        $this->assertEquals('Doe', $entry->get('last_name'));
+        $this->assertEquals('volunteers', $entry->blueprint()->handle());
     }
 
     #[Test]
@@ -351,6 +391,42 @@ class ImportItemJobTest extends TestCase
         $this->assertNotNull($term);
         $this->assertEquals('statamic', $term->slug());
         $this->assertEquals('Statamic', $term->get('title'));
+    }
+
+    #[Test]
+    public function it_imports_a_new_term_with_a_specific_blueprint()
+    {
+        Blueprint::make('special_tag')->setNamespace('taxonomies/tags')->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['handle' => 'title', 'field' => ['type' => 'text']],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $this->assertNull(Term::query()->where('title', 'Statamic')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'special_tag'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+            ],
+            'strategy' => ['create'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+        ]);
+
+        $term = Term::query()->where('title', 'Statamic')->first();
+
+        $this->assertNotNull($term);
+        $this->assertEquals('statamic', $term->slug());
+        $this->assertEquals('Statamic', $term->get('title'));
+        $this->assertEquals('special_tag', $term->blueprint()->handle());
     }
 
     #[Test]
