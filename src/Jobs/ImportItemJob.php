@@ -120,8 +120,8 @@ class ImportItemJob implements ShouldQueue
     protected function findOrCreateTerm(array $data): void
     {
         $term = Term::query()
-            ->where('slug', $data['slug'])
             ->where('taxonomy', $this->import->get('destination.taxonomy'))
+            ->where('slug', $data['slug'])
             ->first();
 
         if (! $term) {
