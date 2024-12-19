@@ -120,8 +120,8 @@ class ImportItemJob implements ShouldQueue
     protected function findOrCreateTerm(array $data): void
     {
         $term = Term::query()
+            ->where('slug', $data['slug'])
             ->where('taxonomy', $this->import->get('destination.taxonomy'))
-            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
             ->first();
 
         if (! $term) {
@@ -153,9 +153,7 @@ class ImportItemJob implements ShouldQueue
 
     protected function findOrCreateUser(array $data): void
     {
-        $user = User::query()
-            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
-            ->first();
+        $user = User::findByEmail($data['email']);
 
         if (! $user) {
             if (! in_array('create', $this->import->get('strategy'))) {
