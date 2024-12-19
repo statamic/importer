@@ -314,7 +314,7 @@ class UpdateImportTest extends TestCase
     }
 
     #[Test]
-    public function validation_error_is_thrown_when_no_mapping_is_configured_for_unique_field()
+    public function unique_field_is_required_for_entry_imports()
     {
         $this
             ->actingAs(User::make()->makeSuper()->save())
