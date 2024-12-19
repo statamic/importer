@@ -381,12 +381,14 @@ class ImportItemJobTest extends TestCase
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
             ],
             'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
         ]);
 
         $term = Term::query()->where('title', 'Statamic')->first();
@@ -416,12 +418,14 @@ class ImportItemJobTest extends TestCase
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
             ],
             'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
         ]);
 
         $term = Term::query()->where('title', 'Statamic')->first();
@@ -442,12 +446,14 @@ class ImportItemJobTest extends TestCase
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
             ],
             'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
         ]);
 
         $this->assertNull(Term::query()->where('title', 'Statamic')->first());
@@ -464,6 +470,7 @@ class ImportItemJobTest extends TestCase
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
                 'foo' => ['key' => 'Foo'],
             ],
             'strategy' => ['update'],
@@ -471,6 +478,7 @@ class ImportItemJobTest extends TestCase
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
             'Foo' => 'Baz',
         ]);
 
@@ -493,6 +501,7 @@ class ImportItemJobTest extends TestCase
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
                 'foo' => ['key' => 'Foo'],
             ],
             'strategy' => ['create'],
@@ -500,6 +509,7 @@ class ImportItemJobTest extends TestCase
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
             'Foo' => 'Baz',
         ]);
 
