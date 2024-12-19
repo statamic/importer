@@ -72,7 +72,10 @@ class ImportItemJob implements ShouldQueue
                 return;
             }
 
-            $entry = Entry::make()->collection($collection)->locale($site);
+            $entry = Entry::make()
+                ->collection($collection)
+                ->blueprint($this->import->get('destination.blueprint'))
+                ->locale($site);
         }
 
         if ($entry->id() && ! in_array('update', $this->import->get('strategy'))) {
@@ -126,7 +129,9 @@ class ImportItemJob implements ShouldQueue
                 return;
             }
 
-            $term = Term::make()->taxonomy($this->import->get('destination.taxonomy'));
+            $term = Term::make()
+                ->taxonomy($this->import->get('destination.taxonomy'))
+                ->blueprint($this->import->get('destination.blueprint'));
         }
 
         if (Term::find($term->id()) && ! in_array('update', $this->import->get('strategy'))) {
