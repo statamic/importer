@@ -5,6 +5,7 @@ return [
     'utility_description' => 'Import entries, taxonomies, and users from XML and CSV files.',
 
     'configuration_instructions' => 'You can add or modify your Blueprint fields to customize what data is imported and what fieldtype it will be stored in. You can save, refresh, and come back to this import config later until it\'s ready to run.',
+    'destination_blueprint_instructions' => 'Select which blueprint should be used for imported content.',
     'destination_collection_instructions' => 'Select the collection to import entries into.',
     'destination_site_instructions' => 'Which site should the entries be imported into?',
     'destination_taxonomy_instructions' => 'Select the taxonomy to import terms into.',

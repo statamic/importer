@@ -126,6 +126,7 @@ class Blueprint
                                                 'field' => [
                                                     'type' => 'blueprint',
                                                     'display' => __('Blueprint'),
+                                                    'instructions' => __('importer::messages.destination_blueprint_instructions'),
                                                     'width' => 50,
                                                     'unless' => ['destination.type' => 'users'],
                                                     'validate' => 'required_unless:destination.type,users',
