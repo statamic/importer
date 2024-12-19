@@ -10,10 +10,10 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Site;
+use Statamic\Facades\Taxonomy;
 use Statamic\Facades\Term;
 use Statamic\Facades\User;
 use Statamic\Importer\Importer;
@@ -121,8 +121,9 @@ class ImportItemJob implements ShouldQueue
     {
         $term = Term::query()
             ->where('taxonomy', $this->import->get('destination.taxonomy'))
-            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
-            ->first();
+            ->where('id', $this->import->get('destination.taxonomy').'::'.Arr::get($data, 'default_slug', $data['slug']))
+            ->first()
+            ?->term();
 
         if (! $term) {
             if (! in_array('create', $this->import->get('strategy'))) {
@@ -134,28 +135,37 @@ class ImportItemJob implements ShouldQueue
                 ->blueprint($this->import->get('destination.blueprint'));
         }
 
-        if (Term::find($term->id()) && ! in_array('update', $this->import->get('strategy'))) {
+        if (
+            Term::find($term->id())?->in($this->import->get('destination.site') ?? Site::default()->handle())
+            && ! in_array('update', $this->import->get('strategy'))
+        ) {
             return;
         }
 
-        if (isset($data['slug'])) {
-            $term->slug(Arr::pull($data, 'slug'));
-        }
+        $term = $term->in($this->import->get('destination.site') ?? Site::default()->handle());
 
-        if (! $term->slug()) {
-            $term->slug(Str::slug($data[$this->import->get('unique_field')]));
-        }
+        $term->slug(Arr::pull($data, 'slug'));
 
         $term->merge($data);
+
+        $site = $this->import->get('destination.site') ?? Site::default()->handle();
+        $defaultSite = Taxonomy::find($this->import->get('destination.taxonomy'))->sites()->first();
+
+        // If the term is *not* being created in the default site, we'll copy all the
+        // appropriate values into the default localization since it needs to exist.
+        if (! Term::find($term->id()) && $site !== $defaultSite) {
+            $term
+                ->in($defaultSite)
+                ->data($data)
+                ->slug($data['default_slug'] ?? $term->slug());
+        }
 
         $term->save();
     }
 
     protected function findOrCreateUser(array $data): void
     {
-        $user = User::query()
-            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
-            ->first();
+        $user = User::findByEmail($data['email']);
 
         if (! $user) {
             if (! in_array('create', $this->import->get('strategy'))) {

@@ -140,14 +140,26 @@ class Blueprint
                                                     'width' => 50,
                                                     'max_items' => 1,
                                                     'mode' => 'select',
-                                                    'if' => ['type' => 'entries'],
+                                                    'unless' => ['type' => 'users'],
                                                     'validate' => [
-                                                        'required_if:destination.type,entries',
+                                                        'required_unless:destination.type,users',
                                                         function (string $attribute, mixed $value, Closure $fail) {
-                                                            $collection = Collection::find(Arr::get(request()->destination, 'collection.0'));
+                                                            $type = Arr::get(request()->destination, 'type');
 
-                                                            if (count($value) && ! $collection->sites()->contains($value[0])) {
-                                                                $fail('importer::validation.site_not_configured_in_collection')->translate();
+                                                            if ($type === 'entries') {
+                                                                $collection = Collection::find(Arr::get(request()->destination, 'collection.0'));
+
+                                                                if (count($value) && ! $collection->sites()->contains($value[0])) {
+                                                                    $fail('importer::validation.site_not_configured_in_collection')->translate();
+                                                                }
+                                                            }
+
+                                                            if ($type === 'terms') {
+                                                                $taxonomy = Facades\Taxonomy::findByHandle(Arr::get(request()->destination, 'taxonomy.0'));
+
+                                                                if (count($value) && ! $taxonomy->sites()->contains($value[0])) {
+                                                                    $fail('importer::validation.site_not_configured_in_taxonomy')->translate();
+                                                                }
                                                             }
                                                         },
                                                     ],
@@ -187,8 +199,18 @@ class Blueprint
                                             'required',
                                             'array',
                                             function (string $attribute, mixed $value, Closure $fail) {
+                                                $type = Arr::get(request()->destination, 'type');
+
                                                 if (collect($value)->reject(fn (array $mapping) => empty($mapping['key']))->isEmpty()) {
                                                     $fail('importer::validation.mappings_not_provided')->translate();
+                                                }
+
+                                                if ($type === 'terms' && Arr::get($value, 'slug.key') === null) {
+                                                    $fail('importer::validation.mappings_slug_missing')->translate();
+                                                }
+
+                                                if ($type === 'users' && Arr::get($value, 'email.key') === null) {
+                                                    $fail('importer::validation.mappings_email_missing')->translate();
                                                 }
                                             },
                                         ],
@@ -206,14 +228,16 @@ class Blueprint
                                             ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
                                             ->values(),
                                         'validate' => [
-                                            'required',
+                                            'required_if:destination.type,entries',
                                             function (string $attribute, mixed $value, Closure $fail) {
-                                                if (! collect(request()->mappings)->reject(fn ($mapping) => empty($mapping['key']))->has($value)) {
+                                                if ($value && ! collect(request()->mappings)->reject(fn ($mapping) => empty($mapping['key']))->has($value)) {
                                                     $fail('importer::validation.unique_field_without_mapping')->translate();
                                                 }
                                             },
                                         ],
-                                        'if' => $import ? static::buildFieldConditions($import) : null,
+                                        'if' => $import
+                                            ? array_merge(static::buildFieldConditions($import), ['destination.type' => 'entries'])
+                                            : null,
                                     ],
                                 ],
                             ],
