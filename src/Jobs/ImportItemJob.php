@@ -10,7 +10,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Site;
@@ -121,7 +120,7 @@ class ImportItemJob implements ShouldQueue
     {
         $term = Term::query()
             ->where('taxonomy', $this->import->get('destination.taxonomy'))
-            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
+            ->where('slug', $data['slug'])
             ->first();
 
         if (! $term) {
@@ -138,13 +137,7 @@ class ImportItemJob implements ShouldQueue
             return;
         }
 
-        if (isset($data['slug'])) {
-            $term->slug(Arr::pull($data, 'slug'));
-        }
-
-        if (! $term->slug()) {
-            $term->slug(Str::slug($data[$this->import->get('unique_field')]));
-        }
+        $term->slug(Arr::pull($data, 'slug'));
 
         $term->merge($data);
 
@@ -153,9 +146,7 @@ class ImportItemJob implements ShouldQueue
 
     protected function findOrCreateUser(array $data): void
     {
-        $user = User::query()
-            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
-            ->first();
+        $user = User::findByEmail($data['email']);
 
         if (! $user) {
             if (! in_array('create', $this->import->get('strategy'))) {
