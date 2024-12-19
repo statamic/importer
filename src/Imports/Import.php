@@ -177,7 +177,7 @@ class Import
             if ($this->get('destination.site') !== $taxonomy->sites()->first()) {
                 $blueprint->ensureField('default_slug', [
                     'type' => 'slug',
-                    'display' => __('Default Slug'),
+                    'display' => __('Slug in Default Site'),
                 ]);
             }
         }
