@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Site;
+use Statamic\Facades\Taxonomy;
 use Statamic\Facades\Term;
 use Statamic\Facades\User;
 use Statamic\Importer\Importer;
@@ -120,8 +121,9 @@ class ImportItemJob implements ShouldQueue
     {
         $term = Term::query()
             ->where('taxonomy', $this->import->get('destination.taxonomy'))
-            ->where('slug', $data['slug'])
-            ->first();
+            ->where('id', $this->import->get('destination.taxonomy').'::'.Arr::get($data, 'default_slug', $data['slug']))
+            ->first()
+            ?->term();
 
         if (! $term) {
             if (! in_array('create', $this->import->get('strategy'))) {
@@ -133,13 +135,30 @@ class ImportItemJob implements ShouldQueue
                 ->blueprint($this->import->get('destination.blueprint'));
         }
 
-        if (Term::find($term->id()) && ! in_array('update', $this->import->get('strategy'))) {
+        if (
+            Term::find($term->id())?->in($this->import->get('destination.site') ?? Site::default()->handle())
+            && ! in_array('update', $this->import->get('strategy'))
+        ) {
             return;
         }
+
+        $term = $term->in($this->import->get('destination.site') ?? Site::default()->handle());
 
         $term->slug(Arr::pull($data, 'slug'));
 
         $term->merge($data);
+
+        $site = $this->import->get('destination.site') ?? Site::default()->handle();
+        $defaultSite = Taxonomy::find($this->import->get('destination.taxonomy'))->sites()->first();
+
+        // If the term is *not* being created in the default site, we'll copy all the
+        // appropriate values into the default localization since it needs to exist.
+        if (! Term::find($term->id()) && $site !== $defaultSite) {
+            $term
+                ->in($defaultSite)
+                ->data($data)
+                ->slug($data['default_slug'] ?? $term->slug());
+        }
 
         $term->save();
     }

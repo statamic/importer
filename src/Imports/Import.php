@@ -171,6 +171,17 @@ class Import
             ]);
         }
 
+        if ($this->get('destination.type') === 'terms') {
+            $taxonomy = Taxonomy::find($this->get('destination.taxonomy'));
+
+            if ($this->get('destination.site') !== $taxonomy->sites()->first()) {
+                $blueprint->ensureField('default_slug', [
+                    'type' => 'slug',
+                    'display' => __('Slug in Default Site'),
+                ]);
+            }
+        }
+
         return $blueprint->fields();
     }
 }
