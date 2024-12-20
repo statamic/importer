@@ -399,6 +399,91 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
+    public function it_imports_a_new_term_in_a_multisite_into_the_default_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        Taxonomy::find('tags')->sites(['en', 'fr']);
+
+        $this->assertNull(Term::query()->where('title', 'Statamic')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag', 'site' => 'en'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+            ],
+            'strategy' => ['create'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Slug' => 'statamic',
+        ]);
+
+        $term = Term::query()
+            ->where('site', 'en')
+            ->where('title', 'Statamic')
+            ->first();
+
+        $this->assertNotNull($term);
+        $this->assertEquals('statamic', $term->slug());
+        $this->assertEquals('Statamic', $term->get('title'));
+        $this->assertEquals('en', $term->site());
+    }
+
+    #[Test]
+    public function it_imports_a_new_term_in_a_multisite_into_a_specific_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        Taxonomy::find('tags')->sites(['en', 'fr']);
+
+        $this->assertNull(Term::query()->where('title', 'Statamic')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag', 'site' => 'fr'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+            ],
+            'strategy' => ['create'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Slug' => 'statamic',
+        ]);
+
+        $term = Term::query()
+            ->where('site', 'fr')
+            ->where('title', 'Statamic')
+            ->first();
+
+        $this->assertNotNull($term);
+
+        // Both the default site and the chosen site should have the same data
+        // (because of the way taxonomies work).
+        $en = $term->in('en');
+        $this->assertEquals('statamic', $en->slug());
+        $this->assertEquals('Statamic', $en->get('title'));
+        $this->assertEquals('en', $en->site());
+
+        $fr = $term->in('fr');
+        $this->assertEquals('statamic', $fr->slug());
+        $this->assertEquals('Statamic', $fr->get('title'));
+        $this->assertEquals('fr', $fr->site());
+    }
+
+    #[Test]
     public function it_imports_a_new_term_with_a_specific_blueprint()
     {
         Blueprint::make('special_tag')->setNamespace('taxonomies/tags')->setContents([
@@ -488,6 +573,98 @@ class ImportItemJobTest extends TestCase
         $this->assertEquals('statamic', $term->slug());
         $this->assertEquals('Statamic', $term->get('title'));
         $this->assertEquals('Baz', $term->get('foo'));
+    }
+
+    #[Test]
+    public function it_updates_an_existing_term_in_a_multisite_with_the_same_slug()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic')->set('foo', 'bar');
+        $term->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag', 'site' => 'fr'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+                'foo' => ['key' => 'Foo'],
+            ],
+            'strategy' => ['update'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Slug' => 'statamic',
+            'Foo' => 'Baz',
+        ]);
+
+        $term->fresh();
+
+        // The importer is updating the French localization of the term, so the English
+        // localization should stay the same.
+        $en = $term->in('en');
+        $this->assertEquals('statamic', $en->slug());
+        $this->assertEquals('Statamic', $en->get('title'));
+        $this->assertEquals('bar', $en->get('foo'));
+        $this->assertEquals('en', $en->site());
+
+        $fr = $term->in('fr');
+        $this->assertEquals('statamic', $fr->slug());
+        $this->assertEquals('Statamic', $fr->get('title'));
+        $this->assertEquals('Baz', $fr->get('foo'));
+        $this->assertEquals('fr', $fr->site());
+    }
+
+    #[Test]
+    public function it_updates_an_existing_term_in_a_multisite_with_the_default_slug_mapping()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic')->set('foo', 'bar');
+        $term->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag', 'site' => 'fr'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+                'default_slug' => ['key' => 'Default Slug'],
+                'foo' => ['key' => 'Foo'],
+            ],
+            'strategy' => ['update'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statique Dynamique',
+            'Slug' => 'statique-dynamique',
+            'Default Slug' => 'statamic',
+            'Foo' => 'Baz',
+        ]);
+
+        $term->fresh();
+
+        // The importer is updating the French localization of the term, so the English
+        // localization should stay the same.
+        $en = $term->in('en');
+        $this->assertEquals('statamic', $en->slug());
+        $this->assertEquals('Statamic', $en->get('title'));
+        $this->assertEquals('bar', $en->get('foo'));
+        $this->assertEquals('en', $en->site());
+
+        $fr = $term->in('fr');
+        $this->assertEquals('statique-dynamique', $fr->slug());
+        $this->assertEquals('Statique Dynamique', $fr->get('title'));
+        $this->assertEquals('Baz', $fr->get('foo'));
+        $this->assertEquals('fr', $fr->site());
     }
 
     #[Test]
