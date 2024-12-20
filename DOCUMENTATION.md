@@ -32,7 +32,7 @@ Before importing, you will need to do some preparation:
 3. You can then map fields from your blueprint to fields/columns in your file.
     * Depending on the fieldtype, some fields may have additional options, like "Related Key" or "Create when missing". You can read more about these below.
     * Mapping is disabled for some fieldtypes, like the [Replicator fieldtype](https://statamic.dev/fieldtypes/replicator#content). If you wish to import these fields, you will need to build a [custom transformer](#transformers).
-4. You will also need to specify a "Unique Field". This field will be used to determine if an item already exists in Statamic.
+4. If you're importing entries, you will also need to specify a "Unique Field". This field will be used to determine if an entry already exists in Statamic.
 5. Then, run the import and watch the magic happen! ✨
 
 You can run the importer as many times as you like as you tweak the mappings. It'll update existing content and create new content as needed.

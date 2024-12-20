@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
@@ -224,7 +225,76 @@ class UpdateImportTest extends TestCase
     }
 
     #[Test]
-    public function throws_validation_errors_for_mapping_fields()
+    public function validation_error_is_thrown_for_terms_import_without_slug_mapping()
+    {
+        Taxonomy::make('tags')->save();
+
+        Storage::disk('local')->put('statamic/imports/tags/tags.csv', '');
+
+        $import = Import::make()->name('Users')->config([
+            'type' => 'csv',
+            'path' => Storage::disk('local')->path('statamic/imports/tags/tags.csv'),
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
+        ]);
+
+        $import->save();
+
+        $this
+            ->actingAs(User::make()->makeSuper()->save())
+            ->patch("/cp/utilities/importer/{$import->id()}", [
+                'name' => 'Posts',
+                'file' => ['posts.csv'],
+                'destination' => ['type' => 'terms', 'taxonomy' => ['tags'], 'blueprint' => 'tag'],
+                'strategy' => ['create', 'update'],
+                'mappings' => [
+                    'title' => ['key' => 'Title'],
+                    'slug' => ['key' => null],
+                ],
+            ])
+            ->assertSessionHasErrors('mappings');
+    }
+
+    #[Test]
+    public function validation_error_is_thrown_for_users_import_without_email_mapping()
+    {
+        User::blueprint()->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['handle' => 'name', 'field' => ['type' => 'text']],
+                        ['handle' => 'email', 'field' => ['type' => 'text']],
+                    ],
+                ],
+            ],
+        ]);
+
+        Storage::disk('local')->put('statamic/imports/users/users.csv', '');
+
+        $import = Import::make()->name('Users')->config([
+            'type' => 'csv',
+            'path' => Storage::disk('local')->path('statamic/imports/users/users.csv'),
+            'destination' => ['type' => 'users'],
+        ]);
+
+        $import->save();
+
+        $this
+            ->actingAs(User::make()->makeSuper()->save())
+            ->patch("/cp/utilities/importer/{$import->id()}", [
+                'name' => 'Posts',
+                'file' => ['posts.csv'],
+                'destination' => ['type' => 'users'],
+                'strategy' => ['create', 'update'],
+                'mappings' => [
+                    'name' => ['key' => 'Name'],
+                    'email' => ['key' => null],
+                ],
+            ])
+            ->assertSessionHasErrors('mappings');
+    }
+
+    #[Test]
+    public function validation_errors_are_thrown_for_transformer_fields()
     {
         $this
             ->actingAs(User::make()->makeSuper()->save())
@@ -242,7 +312,7 @@ class UpdateImportTest extends TestCase
     }
 
     #[Test]
-    public function validation_error_is_thrown_without_unique_field()
+    public function unique_field_is_required_for_entry_imports()
     {
         $this
             ->actingAs(User::make()->makeSuper()->save())
@@ -264,7 +334,7 @@ class UpdateImportTest extends TestCase
     }
 
     #[Test]
-    public function validation_error_is_thrown_when_no_mapping_is_configured_for_unique_field()
+    public function ensure_unique_field_has_a_mapping()
     {
         $this
             ->actingAs(User::make()->makeSuper()->save())
