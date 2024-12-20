@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.6.0 (2024-12-20)
+
+### What's new
+- Multi-site taxonomy support #67 by @duncanmcclean
+- Added "Blueprint" option when configuring entry & term imports #64 by @duncanmcclean
+- Downloaded assets can now be processed using your asset container's source preset #59 by @duncanmcclean
+- Added a progress indicator when saving / running an import by @duncanmcclean
+- Added a tooltip when hovering over a field name in the mappings table by @duncanmcclean
+- The "Unique Field" option has been removed from term & user imports. The Slug and Email will be used instead #66 by @duncanmcclean
+
+### What's fixed
+- Fixed import issue with Bard #65 by @duncanmcclean
+
+
+
 ## 1.5.1 (2024-12-10)
 
 ### What's fixed
