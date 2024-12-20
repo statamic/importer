@@ -135,5 +135,11 @@ export default {
             }
         },
     },
+
+    watch: {
+        saving(saving) {
+            this.$progress.loading(`${this.publishContainer}-import-edit-form`, saving);
+        },
+    }
 }
 </script>
