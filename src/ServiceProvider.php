@@ -20,6 +20,7 @@ class ServiceProvider extends AddonServiceProvider
         'terms' => Transformers\TermsTransformer::class,
         'toggle' => Transformers\ToggleTransformer::class,
         'users' => Transformers\UsersTransformer::class,
+        'list' => Transformers\ListTransformer::class,
     ];
 
     protected $vite = [
