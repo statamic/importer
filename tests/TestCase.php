@@ -6,7 +6,6 @@ use Orchestra\Testbench\Attributes\WithMigration;
 use Statamic\Facades\Blueprint;
 use Statamic\Facades\Config;
 use Statamic\Facades\Fieldset;
-use Statamic\Facades\File;
 use Statamic\Facades\Site;
 use Statamic\Importer\ServiceProvider;
 use Statamic\Testing\AddonTestCase;
