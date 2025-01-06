@@ -17,10 +17,10 @@ class ServiceProvider extends AddonServiceProvider
         'date' => Transformers\DateTransformer::class,
         'dictionary' => Transformers\DictionaryTransformer::class,
         'entries' => Transformers\EntriesTransformer::class,
+        'list' => Transformers\ListTransformer::class,
         'terms' => Transformers\TermsTransformer::class,
         'toggle' => Transformers\ToggleTransformer::class,
         'users' => Transformers\UsersTransformer::class,
-        'list' => Transformers\ListTransformer::class,
     ];
 
     protected $vite = [
