@@ -19,10 +19,6 @@ class ListTransformer extends AbstractTransformer
             $value = collect(json_decode($value, true))->join('|');
         }
 
-        $options = collect(explode('|', $value))->map(function ($value) {
-            return $value;
-        });
-
-        return $options->all();
+        return explode('|', $value);
     }
 }
