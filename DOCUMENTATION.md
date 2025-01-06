@@ -20,6 +20,7 @@ Before importing, you will need to do some preparation:
 * Ensure you have either a CSV or XML file to import.
   * You will need to produce separate files for each type of content you wish to import. For example: one file for Page entries, one for Blog entries, another for Users, etc.
   * When you're uploading a CSV, the CSV needs to have a header row.
+  * Some fields allow importing multiple values. In this case, values should be separated by a pipe (`|`).
   * When you're coming from WordPress, please see the [WordPress](#wordpress) section below.
 * Create the necessary collections and taxonomies in Statamic.
 * Configure the necessary blueprints for those collections and taxonomies.
