@@ -287,27 +287,15 @@ HTML);
             config: []
         );
 
-        $transformer->transform('<p>Hello world!</p>');
+        $transformer->transform('<h2 style="text-align: center;"><strong>Hello</strong> <em>world</em>!</h2>');
 
         $blueprint = $this->collection->entryBlueprint();
 
         $this->assertEquals([
-            'h1',
             'h2',
-            'h3',
+            'aligncenter',
             'bold',
             'italic',
-            'unorderedlist',
-            'orderedlist',
-            'removeformat',
-            'quote',
-            'anchor',
-            'image',
-            'table',
-            'horizontalrule',
-            'codeblock',
-            'underline',
-            'superscript',
         ], $blueprint->field('content')->get('buttons'));
     }
 
@@ -337,27 +325,15 @@ HTML);
             config: []
         );
 
-        $transformer->transform('<p>Hello world!</p>');
+        $transformer->transform('<h2 style="text-align: center;"><strong>Hello</strong> <em>world</em>!</h2>');
 
         $fieldset = Fieldset::find('content_stuff');
 
         $this->assertEquals([
-            'h1',
             'h2',
-            'h3',
+            'aligncenter',
             'bold',
             'italic',
-            'unorderedlist',
-            'orderedlist',
-            'removeformat',
-            'quote',
-            'anchor',
-            'image',
-            'table',
-            'horizontalrule',
-            'codeblock',
-            'underline',
-            'superscript',
         ], $fieldset->field('bard_field')->get('buttons'));
     }
 
@@ -387,27 +363,15 @@ HTML);
             config: []
         );
 
-        $transformer->transform('<p>Hello world!</p>');
+        $transformer->transform('<h2 style="text-align: center;"><strong>Hello</strong> <em>world</em>!</h2>');
 
         $fieldset = Fieldset::find('content_stuff');
 
         $this->assertEquals([
-            'h1',
             'h2',
-            'h3',
+            'aligncenter',
             'bold',
             'italic',
-            'unorderedlist',
-            'orderedlist',
-            'removeformat',
-            'quote',
-            'anchor',
-            'image',
-            'table',
-            'horizontalrule',
-            'codeblock',
-            'underline',
-            'superscript',
         ], $fieldset->field('bard_field')->get('buttons'));
     }
 }
