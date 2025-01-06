@@ -2,7 +2,6 @@
 
 namespace Statamic\Importer\Transformers;
 
-use Statamic\Importer\Transformers\AbstractTransformer;
 use Statamic\Support\Str;
 
 class ListTransformer extends AbstractTransformer

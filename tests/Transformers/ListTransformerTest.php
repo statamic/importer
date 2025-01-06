@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
-use Statamic\Importer\Transformers\DictionaryTransformer;
 use Statamic\Importer\Transformers\ListTransformer;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
 
