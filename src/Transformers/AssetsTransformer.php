@@ -46,7 +46,13 @@ class AssetsTransformer extends AbstractTransformer
                 ->trim('/')
                 ->__toString();
 
-            $asset = $assetContainer->asset($path);
+            $assetPath = $path;
+
+            if ($this->config('folder')) {
+                $assetPath = Str::ensureRight($this->config('folder'), '/').Str::afterLast($path, '/');
+            }
+
+            $asset = $assetContainer->asset($assetPath);
 
             if (! $asset && $this->config('download_when_missing') && $relatedField === 'url') {
                 $request = Http::get(Str::removeRight($baseUrl, '/').Str::ensureLeft($path, '/'));
