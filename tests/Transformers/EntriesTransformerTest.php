@@ -106,7 +106,7 @@ class EntriesTransformerTest extends TestCase
 
         $blueprint = Blueprint::find($this->blueprint->fullyQualifiedHandle());
         $blueprint->ensureFieldHasConfig('other_entries', ['type' => 'entries', 'collections' => ['pages'], 'select_across_sites' => true]);
-        
+
         $this->field = $blueprint->field('other_entries');
 
         Entry::make()->collection('pages')->locale('de')->id('ein')->set('title', 'Entry Ein')->save();
