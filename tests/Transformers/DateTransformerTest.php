@@ -81,12 +81,8 @@ class DateTransformerTest extends TestCase
             import: $this->import,
             blueprint: $this->blueprint,
             field: $this->blueprint->field('the_date'),
-            config: [
-                'end' => 'The End Date',
-            ],
-            values: [
-                'The End Date' => '2023-12-20',
-            ]
+            config: ['end' => 'The End Date'],
+            values: ['The End Date' => '2023-12-20']
         );
 
         $this->assertEquals([
