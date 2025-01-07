@@ -71,4 +71,27 @@ class DateTransformerTest extends TestCase
 
         $this->assertEquals('31st October 2024', $transformer->transform('2024-10-31'));
     }
+
+    #[Test]
+    public function it_transforms_date_range()
+    {
+        $this->blueprint->ensureField('the_date', ['type' => 'date', 'mode' => 'range', 'time_enabled' => false]);
+
+        $transformer = new DateTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->blueprint->field('the_date'),
+            config: [
+                'end' => 'The End Date',
+            ],
+            values: [
+                'The End Date' => '2023-12-20',
+            ]
+        );
+
+        $this->assertEquals([
+            'start' => '2023-10-02',
+            'end' => '2023-12-20',
+        ], $transformer->transform('2023-10-02'));
+    }
 }
