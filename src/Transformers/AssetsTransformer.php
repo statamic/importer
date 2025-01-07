@@ -34,12 +34,11 @@ class AssetsTransformer extends AbstractTransformer
             $value = collect(json_decode($value, true))->join('|');
         }
 
-        $alts = false;
-        if ($alt = $this->config('alt')) {
-            $alts = collect(explode('|', Arr::get($this->values, $alt)));
-        }
+        $assetAlts = $this->config('alt')
+            ? collect(explode('|', Arr::get($this->values, $this->config('alt'))))
+            : null;
 
-        $assets = collect(explode('|', $value))->map(function ($path, $key) use ($assetContainer, $relatedField, $baseUrl, $alts) {
+        $assets = collect(explode('|', $value))->map(function ($path, $index) use ($assetContainer, $relatedField, $baseUrl, $assetAlts) {
             $path = Str::of($path)
                 ->when($relatedField === 'url' && $baseUrl, function ($str) use ($baseUrl) {
                     return $str->after($baseUrl);
@@ -67,8 +66,8 @@ class AssetsTransformer extends AbstractTransformer
                 $asset->save();
             }
 
-            if ($alts) {
-                $asset?->set('alt', $alts->get($key))->save();
+            if ($assetAlts) {
+                $asset?->set('alt', $assetAlts->get($index))->save();
             }
 
             return $asset?->path();
