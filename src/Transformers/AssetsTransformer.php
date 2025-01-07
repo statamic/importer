@@ -43,6 +43,7 @@ class AssetsTransformer extends AbstractTransformer
                 ->__toString();
 
             $assetPath = $path;
+
             if ($this->config('folder')) {
                 $assetPath = Str::ensureRight($this->config('folder'), '/').Str::afterLast($path, '/');
             }
