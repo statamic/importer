@@ -3,7 +3,9 @@
 namespace Statamic\Importer\Tests;
 
 use Orchestra\Testbench\Attributes\WithMigration;
+use Statamic\Facades\Blueprint;
 use Statamic\Facades\Config;
+use Statamic\Facades\Fieldset;
 use Statamic\Facades\Site;
 use Statamic\Importer\ServiceProvider;
 use Statamic\Testing\AddonTestCase;
@@ -12,6 +14,14 @@ use Statamic\Testing\AddonTestCase;
 abstract class TestCase extends AddonTestCase
 {
     protected string $addonServiceProvider = ServiceProvider::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->app['files']->deleteDirectory(Blueprint::directory());
+        $this->app['files']->deleteDirectory(Fieldset::directory());
+    }
 
     protected function getEnvironmentSetUp($app)
     {

@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Transformers;
 
 use Facades\Statamic\Importer\Support\FieldUpdater;
+use Illuminate\Support\Collection;
 use Statamic\Facades\AssetContainer;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
@@ -13,20 +14,22 @@ class BardTransformer extends AbstractTransformer
 {
     public function transform(string $value): array
     {
-        $this->enableBardButtons();
-
         if ($this->isGutenbergValue($value)) {
-            return Gutenberg::toBard(
+            $value = Gutenberg::toBard(
                 config: $this->config,
                 blueprint: $this->blueprint,
                 field: $this->field,
                 value: $value
             );
+
+            $this->enableBardButtons($value);
+
+            return $value;
         }
 
         $value = (new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'];
 
-        return collect($value)
+        $value = collect($value)
             ->map(function (array $node): ?array {
                 if ($node['type'] === 'text') {
                     return [
@@ -63,32 +66,88 @@ class BardTransformer extends AbstractTransformer
             ->filter()
             ->values()
             ->all();
+
+        $this->enableBardButtons($value);
+
+        return $value;
     }
 
-    private function enableBardButtons(): void
+    private function enableBardButtons(array $value): void
     {
-        $buttons = [
-            'h1',
-            'h2',
-            'h3',
-            'bold',
-            'italic',
-            'unorderedlist',
-            'orderedlist',
-            'removeformat',
-            'quote',
-            'anchor',
-            'image',
-            'table',
-            'horizontalrule',
-            'codeblock',
-            'underline',
-            'superscript',
-        ];
+        $config = $this->field->config();
+
+        $config['buttons'] = collect($config['buttons'] ?? [])
+            ->merge($this->identifyBardButtons($value))
+            ->unique()
+            ->values()
+            ->all();
 
         FieldUpdater::field($this->field)
             ->blueprint($this->blueprint)
-            ->updateFieldConfig(array_merge($this->field->config(), ['buttons' => $buttons]));
+            ->updateFieldConfig($config);
+    }
+
+    private function identifyBardButtons(array $value): Collection
+    {
+        $buttons = collect();
+
+        collect($value)->each(function ($node) use (&$buttons) {
+            $buttons->push(match ($node['type']) {
+                'codeBlock' => 'codeblock',
+                'horizontalRule' => 'horizontalrule',
+                'image' => 'image',
+                'blockquote' => 'quote',
+                'orderedList' => 'orderedlist',
+                'bulletList' => 'unorderedlist',
+                'table' => 'table',
+                default => null,
+            });
+
+            if ($node['type'] === 'heading' && isset($node['attrs']['level'])) {
+                $buttons->push(match ($node['attrs']['level']) {
+                    1 => 'h1',
+                    2 => 'h2',
+                    3 => 'h3',
+                    4 => 'h4',
+                    5 => 'h5',
+                    6 => 'h6',
+                    default => null,
+                });
+            }
+
+            if (isset($node['attrs']['textAlign'])) {
+                $buttons->push(match ($node['attrs']['textAlign']) {
+                    'left' => 'alignleft',
+                    'center' => 'aligncenter',
+                    'right' => 'alignright',
+                    'justify' => 'alignjustify',
+                    default => null,
+                });
+            }
+
+            if (isset($node['marks'])) {
+                collect($node['marks'])->each(function ($mark) use (&$buttons) {
+                    $buttons->push(match ($mark['type']) {
+                        'link' => 'anchor',
+                        'bold' => 'bold',
+                        'italic' => 'italic',
+                        'code' => 'code',
+                        'underline' => 'underline',
+                        'strike' => 'strikethrough',
+                        'subscript' => 'subscript',
+                        'superscript' => 'superscript',
+                        'small' => 'small',
+                        default => null,
+                    });
+                });
+            }
+
+            if ($node !== 'set' && isset($node['content'])) {
+                $buttons = $buttons->merge($this->identifyBardButtons($node['content']));
+            }
+        });
+
+        return $buttons->filter()->unique()->values();
     }
 
     private function isGutenbergValue(string $value): bool

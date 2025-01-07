@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Tests\Transformers;
 
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\Blueprint;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Importer\Facades\Import;
@@ -103,8 +104,10 @@ class EntriesTransformerTest extends TestCase
 
         $this->import->config(['destination' => ['site' => 'de']]);
 
-        $this->blueprint->ensureFieldHasConfig('other_entries', ['type' => 'entries', 'collections' => ['pages'], 'select_across_sites' => true]);
-        $this->field = $this->blueprint->field('other_entries');
+        $blueprint = Blueprint::find($this->blueprint->fullyQualifiedHandle());
+        $blueprint->ensureFieldHasConfig('other_entries', ['type' => 'entries', 'collections' => ['pages'], 'select_across_sites' => true]);
+
+        $this->field = $blueprint->field('other_entries');
 
         Entry::make()->collection('pages')->locale('de')->id('ein')->set('title', 'Entry Ein')->save();
         Entry::make()->collection('pages')->locale('de')->id('zwei')->set('title', 'Entry Zwei')->save();
@@ -112,7 +115,7 @@ class EntriesTransformerTest extends TestCase
 
         $transformer = new EntriesTransformer(
             import: $this->import,
-            blueprint: $this->blueprint,
+            blueprint: $blueprint,
             field: $this->field,
             config: ['related_field' => 'title']
         );
