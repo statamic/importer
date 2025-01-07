@@ -22,6 +22,8 @@ return [
     'assets_folder_instructions' => 'By default, downloaded assets will use same folder structure as the original URL. You can specify a different folder here.',
     'assets_related_field_instructions' => 'Which field does the data reference?',
     'assets_process_downloaded_images_instructions' => 'Should downloaded images be processed using the asset container\'s source preset?',
+    'date_start_date_instructions' => 'Which field should be used for the start date?',
+    'date_end_date_instructions' => 'Which field should be used for the end date?',
     'entries_create_when_missing_instructions' => 'Create the entry if it doesn\'t exist.',
     'entries_related_field_instructions' => 'Which field does the data reference?',
     'terms_create_when_missing_instructions' => 'Create the term if it doesn\'t exist.',
