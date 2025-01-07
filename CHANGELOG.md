@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.7.0 (2025-01-07)
+
+### What's new
+* Added support for the List fieldtype #75 by @carstenjaksch
+* Added support for importing date ranges #78 by @duncanmcclean
+* Added support for importing alt text for multiple assets at once #74 by @carstenjaksch
+* Now, only the Bard buttons used by your content will be enabled #77 by @duncanmcclean
+* Added note to the docs about importing multiple values #70 by @carstenjaksch
+
+### What's fixed
+* Fixed existing assets check when using the "Folder" option #73 by @carstenjaksch
+
+
+
 ## 1.6.0 (2024-12-20)
 
 ### What's new
