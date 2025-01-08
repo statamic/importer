@@ -31,13 +31,6 @@ class BardTransformer extends AbstractTransformer
 
         $value = collect($value)
             ->map(function (array $node): ?array {
-                if ($node['type'] === 'text') {
-                    return [
-                        'type' => 'paragraph',
-                        'content' => [$node],
-                    ];
-                }
-
                 if ($node['type'] === 'image' && $this->field->get('container') && isset($this->config['assets_base_url'])) {
                     $assetContainer = AssetContainer::find($this->field->get('container'));
 
@@ -64,7 +57,6 @@ class BardTransformer extends AbstractTransformer
                 return $node;
             })
             ->filter()
-            ->values()
             ->all();
 
         $this->enableBardButtons($value);
