@@ -2,7 +2,6 @@
 
 namespace Statamic\Importer\Transformers;
 
-use DOMDocument;
 use Facades\Statamic\Importer\Support\FieldUpdater;
 use Illuminate\Support\Collection;
 use Statamic\Facades\AssetContainer;
@@ -11,7 +10,6 @@ use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
 use Statamic\Importer\Support\WordPress;
 use Statamic\Importer\WordPress\Gutenberg;
 use Statamic\Support\Str;
-use Symfony\Component\DomCrawler\Crawler;
 
 class BardTransformer extends AbstractTransformer
 {

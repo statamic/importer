@@ -126,8 +126,8 @@ HTML);
                 ['type' => 'image', 'attrs' => ['src' => '/images/pizza.jpg']],
             ]],
             ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
-               ['type' => 'text', 'text' => 'Ein.'],
-               ['type' => 'hardBreak'],
+                ['type' => 'text', 'text' => 'Ein.'],
+                ['type' => 'hardBreak'],
                 ['type' => 'text', 'text' => 'Zwei.'],
             ]],
             ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
