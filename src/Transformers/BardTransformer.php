@@ -2,13 +2,16 @@
 
 namespace Statamic\Importer\Transformers;
 
+use DOMDocument;
 use Facades\Statamic\Importer\Support\FieldUpdater;
 use Illuminate\Support\Collection;
 use Statamic\Facades\AssetContainer;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor as BardAugmentor;
+use Statamic\Importer\Support\WordPress;
 use Statamic\Importer\WordPress\Gutenberg;
 use Statamic\Support\Str;
+use Symfony\Component\DomCrawler\Crawler;
 
 class BardTransformer extends AbstractTransformer
 {
@@ -25,6 +28,10 @@ class BardTransformer extends AbstractTransformer
             $this->enableBardButtons($value);
 
             return $value;
+        }
+
+        if ($this->config('wp_auto_p')) {
+            $value = WordPress::wpautop($value);
         }
 
         $value = (new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'];
@@ -149,12 +156,19 @@ class BardTransformer extends AbstractTransformer
 
     public function fieldItems(): array
     {
-        $fieldItems = [];
+        $fieldItems = [
+            'wp_auto_p' => [
+                'type' => 'toggle',
+                'display' => __('WordPress: Run "wpautop"?'),
+                'instructions' => __('importer::messages.bard_wp_auto_p_instructions'),
+            ],
+        ];
 
         if ($assetContainer = $this->field->get('container')) {
             $assetContainer = AssetContainer::find($assetContainer);
 
             $fieldItems = [
+                ...$fieldItems,
                 'assets_base_url' => [
                     'type' => 'text',
                     'display' => __('Assets Base URL'),
