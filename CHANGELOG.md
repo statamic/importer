@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.1 (2025-01-09)
+
+### What's fixed
+* Fixed formatting issues when importing Classic Editor content from WordPress #81 by @duncanmcclean
+* Reverted "Fix import issue with Bard" #79 by @duncanmcclean
+
+
+
 ## 1.7.0 (2025-01-07)
 
 ### What's new
