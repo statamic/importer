@@ -159,7 +159,7 @@ class BardTransformer extends AbstractTransformer
         $fieldItems = [
             'wp_auto_p' => [
                 'type' => 'toggle',
-                'display' => __('WordPress: Run "wpautop"?'),
+                'display' => __('WordPress: Replace double line-breaks with <p> tags'),
                 'instructions' => __('importer::messages.bard_wp_auto_p_instructions'),
             ],
         ];
