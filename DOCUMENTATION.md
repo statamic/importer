@@ -89,6 +89,9 @@ While you *can* use WordPress' built-in export tool, it doesn't contain all the 
 
 Instead, we recommend using a plugin like [WP All Export](https://wordpress.org/plugins/wp-all-export/) to export your content. It allows you to customize the columns included in the export (like ACF fields, featured images, etc.) and it'll give you a CSV.
 
+### Classic Editor
+If you're importing content from the Classic Editor into a [Bard field](https://statamic.dev/fieldtypes/bard#overview), you will likely want to enable the "WordPress: Replace double line-breaks with <p> tags" option, which will wrap any unwrapped text in `<p>` tags before importing it into Bard.
+
 ### Gutenberg
 Statamic's [Bard fieldtype](https://statamic.dev/fieldtypes/bard#overview) is the closest equivalent to WordPress' Gutenberg editor.
 

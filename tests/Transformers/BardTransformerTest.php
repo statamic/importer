@@ -84,6 +84,68 @@ HTML);
     }
 
     #[Test]
+    public function it_passes_value_through_wpautop()
+    {
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'wp_auto_p' => true,
+            ]
+        );
+
+        $output = $transformer->transform(<<<'HTML'
+<strong>Foo <a href="https://example.com">Bar</a> Baz.</strong>
+<h2>Heading</h2>
+One. Two. Three. Four.
+
+<img src="/images/pizza.jpg" alt="Picture of pizza" width="100" height="100" />
+
+Ein.
+Zwei.
+
+Drei.
+
+<a class="btn btn-primary" href="https://statamic.com">Statamic</a>
+<h2>Heading 2</h2>
+Blah. <a href="https://example.com">Link</a> blah.
+HTML);
+
+        $this->assertEquals([
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Foo ', 'marks' => [['type' => 'bold']]],
+                ['type' => 'text', 'text' => 'Bar', 'marks' => [['type' => 'bold'], ['type' => 'link', 'attrs' => ['href' => 'https://example.com']]]],
+                ['type' => 'text', 'text' => ' Baz.', 'marks' => [['type' => 'bold']]],
+            ]],
+            ['type' => 'heading', 'attrs' => ['level' => 2, 'textAlign' => 'left'], 'content' => [['type' => 'text', 'text' => 'Heading']]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'One. Two. Three. Four.'],
+            ]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'image', 'attrs' => ['src' => '/images/pizza.jpg']],
+            ]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Ein.'],
+                ['type' => 'hardBreak'],
+                ['type' => 'text', 'text' => 'Zwei.'],
+            ]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Drei.'],
+            ]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Statamic', 'marks' => [['type' => 'link', 'attrs' => ['href' => 'https://statamic.com']]]],
+            ]],
+            ['type' => 'heading', 'attrs' => ['level' => 2, 'textAlign' => 'left'], 'content' => [['type' => 'text', 'text' => 'Heading 2']]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Blah. '],
+                ['type' => 'text', 'text' => 'Link', 'marks' => [['type' => 'link', 'attrs' => ['href' => 'https://example.com']]]],
+                ['type' => 'text', 'text' => ' blah.'],
+            ]],
+        ], $output);
+    }
+
+    #[Test]
     public function it_handles_images()
     {
         AssetContainer::make('assets')->disk('public')->save();
