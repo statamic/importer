@@ -33,10 +33,10 @@ class TermsTransformer extends AbstractTransformer
 
                 $term->save();
 
-                return $term->id();
+                return count($this->field->get('taxonomies')) > 1 ? $term->id() : $term->slug();
             }
 
-            return $term?->id();
+            return count($this->field->get('taxonomies')) > 1 ? $term?->id() : $term?->slug();
         })->filter();
 
         return $this->field->get('max_items') === 1 ? $terms->first() : $terms->all();

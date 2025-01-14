@@ -3,6 +3,7 @@
 namespace Statamic\Importer\Tests\Transformers;
 
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\Blueprint;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\Term;
@@ -52,7 +53,32 @@ class TermsTransformerTest extends TestCase
 
         $output = $transformer->transform('Category One|Category Two|Category Three');
 
-        $this->assertEquals(['categories::one', 'categories::two', 'categories::three'], $output);
+        $this->assertEquals(['one', 'two', 'three'], $output);
+    }
+
+    #[Test]
+    public function it_finds_existing_terms_across_multiple_taxonomies()
+    {
+        Taxonomy::make('tags')->sites(['default'])->save();
+
+        Term::make()->taxonomy('categories')->slug('one')->set('title', 'Category One')->save();
+        Term::make()->taxonomy('categories')->slug('two')->set('title', 'Category Two')->save();
+        Term::make()->taxonomy('categories')->slug('three')->set('title', 'Category Three')->save();
+        Term::make()->taxonomy('tags')->slug('foo')->set('title', 'Foo')->save();
+
+        $blueprint = Blueprint::find($this->blueprint->fullyQualifiedHandle());
+        $blueprint->ensureField('stuff', ['type' => 'terms', 'taxonomies' => ['categories', 'tags']])->save();
+
+        $transformer = new TermsTransformer(
+            import: $this->import,
+            blueprint: $blueprint,
+            field: $blueprint->field('stuff'),
+            config: ['related_field' => 'title']
+        );
+
+        $output = $transformer->transform('Category One|Category Two|Category Three|Foo');
+
+        $this->assertEquals(['categories::one', 'categories::two', 'categories::three', 'tags::foo'], $output);
     }
 
     #[Test]
