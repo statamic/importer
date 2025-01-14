@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.2 (2025-01-14)
+
+### What's fixed
+* Fixed taxonomy terms not being imported correctly #83 by @duncanmcclean
+
+
+
 ## 1.7.1 (2025-01-09)
 
 ### What's fixed
