@@ -227,7 +227,7 @@ HTML);
                             'src' => 'assets::2024/10/image.png',
                         ],
                     ],
-                ]
+                ],
             ],
         ], $output);
     }

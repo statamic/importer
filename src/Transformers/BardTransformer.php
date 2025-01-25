@@ -35,7 +35,7 @@ class BardTransformer extends AbstractTransformer
         $value = (new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'];
 
         $value = collect($value)
-            ->map(fn($child) => $this->recursiveMap($child))
+            ->map(fn ($child) => $this->recursiveMap($child))
             ->filter()
             ->all();
 
@@ -71,7 +71,7 @@ class BardTransformer extends AbstractTransformer
 
         if (isset($node['content'])) {
             $node['content'] = collect($node['content'])
-                ->map(fn($child) => $this->recursiveMap($child))
+                ->map(fn ($child) => $this->recursiveMap($child))
                 ->filter()
                 ->all();
         }
