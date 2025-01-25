@@ -185,6 +185,54 @@ HTML);
     }
 
     #[Test]
+    public function it_handles_nested_images()
+    {
+        AssetContainer::make('assets')->disk('public')->save();
+        Storage::disk('public')->put('2024/10/image.png', 'original');
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'wp_auto_p' => true,
+                'assets_base_url' => 'https://example.com/wp-content/uploads',
+            ]
+        );
+
+        $output = $transformer->transform(<<<'HTML'
+<p>Nam voluptatem rem molestiae cumque doloremque. <strong>Saepe animi deserunt</strong> Maxime iam et inventore. ipsam in dignissimos qui occaecati.</p>
+
+<img src="https://example.com/wp-content/uploads/2024/10/image.png" />
+
+HTML);
+
+        $this->assertEquals([
+            [
+                'type' => 'paragraph',
+                'attrs' => ['textAlign' => 'left'],
+                'content' => [
+                    ['type' => 'text', 'text' => 'Nam voluptatem rem molestiae cumque doloremque. '],
+                    ['type' => 'text', 'text' => 'Saepe animi deserunt', 'marks' => [['type' => 'bold']]],
+                    ['type' => 'text', 'text' => ' Maxime iam et inventore. ipsam in dignissimos qui occaecati.'],
+                ],
+            ],
+            [
+                'type' => 'paragraph',
+                'attrs' => ['textAlign' => 'left'],
+                'content' => [
+                    [
+                        'type' => 'image',
+                        'attrs' => [
+                            'src' => 'assets::2024/10/image.png',
+                        ],
+                    ],
+                ]
+            ],
+        ], $output);
+    }
+
+    #[Test]
     public function it_doesnt_handles_images_without_base_url()
     {
         AssetContainer::make('assets')->disk('public')->save();
