@@ -32,7 +32,9 @@ class BardTransformer extends AbstractTransformer
             $value = WordPress::wpautop($value);
         }
 
-        $value = collect((new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'])
+        $value = (new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'];
+
+        $value = collect($value)
             ->map(fn ($child) => $this->mapProsemirrorNodes($child))
             ->filter()
             ->all();
