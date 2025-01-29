@@ -35,38 +35,48 @@ class BardTransformer extends AbstractTransformer
         $value = (new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'];
 
         $value = collect($value)
-            ->map(function (array $node): ?array {
-                if ($node['type'] === 'image' && $this->field->get('container') && isset($this->config['assets_base_url'])) {
-                    $assetContainer = AssetContainer::find($this->field->get('container'));
-
-                    $transformer = new AssetsTransformer(
-                        field: new Field('image', ['container' => $assetContainer->handle(), 'max_files' => 1]),
-                        config: [
-                            'related_field' => 'url',
-                            'base_url' => $this->config['assets_base_url'] ?? null,
-                            'download_when_missing' => $this->config['assets_download_when_missing'] ?? false,
-                            'folder' => $this->config['assets_folder'] ?? null,
-                            'process_downloaded_images' => $this->config['assets_process_downloaded_images'] ?? false,
-                        ]
-                    );
-
-                    $asset = $assetContainer->asset(path: $transformer->transform($node['attrs']['src']));
-
-                    if (! $asset) {
-                        return null;
-                    }
-
-                    $node['attrs']['src'] = $asset->id();
-                }
-
-                return $node;
-            })
+            ->map(fn ($child) => $this->mapProsemirrorNodes($child))
             ->filter()
             ->all();
 
         $this->enableBardButtons($value);
 
         return $value;
+    }
+
+    private function mapProsemirrorNodes(array $node): ?array
+    {
+        if ($node['type'] === 'image' && $this->field->get('container') && isset($this->config['assets_base_url'])) {
+            $assetContainer = AssetContainer::find($this->field->get('container'));
+
+            $transformer = new AssetsTransformer(
+                field: new Field('image', ['container' => $assetContainer->handle(), 'max_files' => 1]),
+                config: [
+                    'related_field' => 'url',
+                    'base_url' => $this->config['assets_base_url'] ?? null,
+                    'download_when_missing' => $this->config['assets_download_when_missing'] ?? false,
+                    'folder' => $this->config['assets_folder'] ?? null,
+                    'process_downloaded_images' => $this->config['assets_process_downloaded_images'] ?? false,
+                ]
+            );
+
+            $asset = $assetContainer->asset(path: $transformer->transform($node['attrs']['src']));
+
+            if (! $asset) {
+                return null;
+            }
+
+            $node['attrs']['src'] = $asset->id();
+        }
+
+        if (isset($node['content'])) {
+            $node['content'] = collect($node['content'])
+                ->map(fn ($child) => $this->mapProsemirrorNodes($child))
+                ->filter()
+                ->all();
+        }
+
+        return $node;
     }
 
     private function enableBardButtons(array $value): void
