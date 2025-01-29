@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.3 (2025-01-29)
+
+### What's fixed
+* Fixed issue where deeply nested images in Bard fields were not being imported correctly #85 by @tdondich
+
+
+
 ## 1.7.2 (2025-01-14)
 
 ### What's fixed
