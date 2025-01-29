@@ -1,5 +1,8 @@
 ## Installation
 
+> **Note:**
+> Before installing the importer addon, please ensure your project has a database configured. The importer uses a database to keep track of import progress. If you created your site using the [Statamic CLI](https://github.com/statamic/cli), a SQLite database will have been setup for you. You can confirm by running `php artisan migrate`.
+
 1. You can install the Importer addon via Composer:
 
    ```bash
@@ -17,6 +20,7 @@ Before importing, you will need to do some preparation:
 * Ensure you have either a CSV or XML file to import.
   * You will need to produce separate files for each type of content you wish to import. For example: one file for Page entries, one for Blog entries, another for Users, etc.
   * When you're uploading a CSV, the CSV needs to have a header row.
+  * Some fields allow importing multiple values. In this case, values should be separated by a pipe (`|`).
   * When you're coming from WordPress, please see the [WordPress](#wordpress) section below.
 * Create the necessary collections and taxonomies in Statamic.
 * Configure the necessary blueprints for those collections and taxonomies.
@@ -29,13 +33,14 @@ Before importing, you will need to do some preparation:
 3. You can then map fields from your blueprint to fields/columns in your file.
     * Depending on the fieldtype, some fields may have additional options, like "Related Key" or "Create when missing". You can read more about these below.
     * Mapping is disabled for some fieldtypes, like the [Replicator fieldtype](https://statamic.dev/fieldtypes/replicator#content). If you wish to import these fields, you will need to build a [custom transformer](#transformers).
-4. You will also need to specify a "Unique Field". This field will be used to determine if an item already exists in Statamic.
+    * When you're importing taxonomy terms into a non-default site (eg. not the _first_ site you created) and the slugs differ between sites, you can map the "Slug in Default Site" field to the slug of the term in the default site in order for the importer to match up the terms correctly.
+4. If you're importing entries, you will also need to specify a "Unique Field". This field will be used to determine if an entry already exists in Statamic.
 5. Then, run the import and watch the magic happen! ✨
 
 You can run the importer as many times as you like as you tweak the mappings. It'll update existing content and create new content as needed.
 
 #### Queueing
-If you're importing a lot of content, you may want to consider running a queue worker to handle the import in the background.
+If you're importing a lot of content or downloading a lot of assets, you may want to consider running a queue worker to handle the import in the background.
 
 Assuming you have Redis installed, you can update the `QUEUE_CONNECTION` in your `.env` file to `redis` and then run:
 
@@ -56,8 +61,12 @@ When you're configuring mappings for an Assets field, or a Bard field, a few add
 * **Download when missing?**
     * By default, when the importer comes across an asset it can't find in Statamic, it will skip it.
     * However, if you wish, the importer can download any missing assets for you into the configured asset container.
+* **Process downloaded images?**
+    * Determine whether downloaded images should be processed using the asset container's [source preset](https://statamic.dev/image-manipulation#process-source-images).
 * **Folder**
     * By default, downloaded assets will use same folder structure as the original URL. If you'd like to download them into a specific folder, you can select one here.
+* **Alt Text**
+    * Determine which field in the row contains the alt text for the asset. This option will only be shown when the Asset blueprint has an `alt` field.
 
 When importing a Bard field, assets will only be imported when the "Container" config option has been set in the blueprint.
 
@@ -79,6 +88,9 @@ Although the importer is generic and works for importing content from any system
 While you *can* use WordPress' built-in export tool, it doesn't contain all the fields you might want to import, like ACF fields, at least not in a clean manner.
 
 Instead, we recommend using a plugin like [WP All Export](https://wordpress.org/plugins/wp-all-export/) to export your content. It allows you to customize the columns included in the export (like ACF fields, featured images, etc.) and it'll give you a CSV.
+
+### Classic Editor
+If you're importing content from the Classic Editor into a [Bard field](https://statamic.dev/fieldtypes/bard#overview), you will likely want to enable the "WordPress: Replace double line-breaks with <p> tags" option, which will wrap any unwrapped text in `<p>` tags before importing it into Bard.
 
 ### Gutenberg
 Statamic's [Bard fieldtype](https://statamic.dev/fieldtypes/bard#overview) is the closest equivalent to WordPress' Gutenberg editor.

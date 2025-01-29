@@ -84,6 +84,68 @@ HTML);
     }
 
     #[Test]
+    public function it_passes_value_through_wpautop()
+    {
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'wp_auto_p' => true,
+            ]
+        );
+
+        $output = $transformer->transform(<<<'HTML'
+<strong>Foo <a href="https://example.com">Bar</a> Baz.</strong>
+<h2>Heading</h2>
+One. Two. Three. Four.
+
+<img src="/images/pizza.jpg" alt="Picture of pizza" width="100" height="100" />
+
+Ein.
+Zwei.
+
+Drei.
+
+<a class="btn btn-primary" href="https://statamic.com">Statamic</a>
+<h2>Heading 2</h2>
+Blah. <a href="https://example.com">Link</a> blah.
+HTML);
+
+        $this->assertEquals([
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Foo ', 'marks' => [['type' => 'bold']]],
+                ['type' => 'text', 'text' => 'Bar', 'marks' => [['type' => 'bold'], ['type' => 'link', 'attrs' => ['href' => 'https://example.com']]]],
+                ['type' => 'text', 'text' => ' Baz.', 'marks' => [['type' => 'bold']]],
+            ]],
+            ['type' => 'heading', 'attrs' => ['level' => 2, 'textAlign' => 'left'], 'content' => [['type' => 'text', 'text' => 'Heading']]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'One. Two. Three. Four.'],
+            ]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'image', 'attrs' => ['src' => '/images/pizza.jpg']],
+            ]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Ein.'],
+                ['type' => 'hardBreak'],
+                ['type' => 'text', 'text' => 'Zwei.'],
+            ]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Drei.'],
+            ]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Statamic', 'marks' => [['type' => 'link', 'attrs' => ['href' => 'https://statamic.com']]]],
+            ]],
+            ['type' => 'heading', 'attrs' => ['level' => 2, 'textAlign' => 'left'], 'content' => [['type' => 'text', 'text' => 'Heading 2']]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
+                ['type' => 'text', 'text' => 'Blah. '],
+                ['type' => 'text', 'text' => 'Link', 'marks' => [['type' => 'link', 'attrs' => ['href' => 'https://example.com']]]],
+                ['type' => 'text', 'text' => ' blah.'],
+            ]],
+        ], $output);
+    }
+
+    #[Test]
     public function it_handles_images()
     {
         AssetContainer::make('assets')->disk('public')->save();
@@ -117,6 +179,51 @@ HTML);
                 'type' => 'image',
                 'attrs' => [
                     'src' => 'assets::2024/10/image.png',
+                ],
+            ],
+        ], $output);
+    }
+
+    #[Test]
+    public function it_handles_nested_images()
+    {
+        AssetContainer::make('assets')->disk('public')->save();
+        Storage::disk('public')->put('2024/10/image.png', 'original');
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'assets_base_url' => 'https://example.com/wp-content/uploads',
+            ]
+        );
+
+        $output = $transformer->transform(<<<'HTML'
+<p>Nam voluptatem rem molestiae cumque doloremque. <strong>Saepe animi deserunt</strong> Maxime iam et inventore. ipsam in dignissimos qui occaecati.</p>
+<p><img src="https://example.com/wp-content/uploads/2024/10/image.png" /></p>
+HTML);
+
+        $this->assertEquals([
+            [
+                'type' => 'paragraph',
+                'attrs' => ['textAlign' => 'left'],
+                'content' => [
+                    ['type' => 'text', 'text' => 'Nam voluptatem rem molestiae cumque doloremque. '],
+                    ['type' => 'text', 'text' => 'Saepe animi deserunt', 'marks' => [['type' => 'bold']]],
+                    ['type' => 'text', 'text' => ' Maxime iam et inventore. ipsam in dignissimos qui occaecati.'],
+                ],
+            ],
+            [
+                'type' => 'paragraph',
+                'attrs' => ['textAlign' => 'left'],
+                'content' => [
+                    [
+                        'type' => 'image',
+                        'attrs' => [
+                            'src' => 'assets::2024/10/image.png',
+                        ],
+                    ],
                 ],
             ],
         ], $output);
@@ -264,27 +371,15 @@ HTML);
             config: []
         );
 
-        $transformer->transform('<p>Hello world!</p>');
+        $transformer->transform('<h2 style="text-align: center;"><strong>Hello</strong> <em>world</em>!</h2>');
 
         $blueprint = $this->collection->entryBlueprint();
 
         $this->assertEquals([
-            'h1',
             'h2',
-            'h3',
+            'aligncenter',
             'bold',
             'italic',
-            'unorderedlist',
-            'orderedlist',
-            'removeformat',
-            'quote',
-            'anchor',
-            'image',
-            'table',
-            'horizontalrule',
-            'codeblock',
-            'underline',
-            'superscript',
         ], $blueprint->field('content')->get('buttons'));
     }
 
@@ -314,27 +409,15 @@ HTML);
             config: []
         );
 
-        $transformer->transform('<p>Hello world!</p>');
+        $transformer->transform('<h2 style="text-align: center;"><strong>Hello</strong> <em>world</em>!</h2>');
 
         $fieldset = Fieldset::find('content_stuff');
 
         $this->assertEquals([
-            'h1',
             'h2',
-            'h3',
+            'aligncenter',
             'bold',
             'italic',
-            'unorderedlist',
-            'orderedlist',
-            'removeformat',
-            'quote',
-            'anchor',
-            'image',
-            'table',
-            'horizontalrule',
-            'codeblock',
-            'underline',
-            'superscript',
         ], $fieldset->field('bard_field')->get('buttons'));
     }
 
@@ -364,27 +447,15 @@ HTML);
             config: []
         );
 
-        $transformer->transform('<p>Hello world!</p>');
+        $transformer->transform('<h2 style="text-align: center;"><strong>Hello</strong> <em>world</em>!</h2>');
 
         $fieldset = Fieldset::find('content_stuff');
 
         $this->assertEquals([
-            'h1',
             'h2',
-            'h3',
+            'aligncenter',
             'bold',
             'italic',
-            'unorderedlist',
-            'orderedlist',
-            'removeformat',
-            'quote',
-            'anchor',
-            'image',
-            'table',
-            'horizontalrule',
-            'codeblock',
-            'underline',
-            'superscript',
         ], $fieldset->field('bard_field')->get('buttons'));
     }
 }

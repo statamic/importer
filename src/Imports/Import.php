@@ -137,8 +137,20 @@ class Import
     public function destinationBlueprint(): StatamicBlueprint
     {
         return match ($this->get('destination.type')) {
-            'entries' => Collection::find($this->get('destination.collection'))->entryBlueprint(),
-            'terms' => Taxonomy::find($this->get('destination.taxonomy'))->termBlueprint(),
+            'entries' => Collection::find($this->get('destination.collection'))
+                ->entryBlueprints()
+                ->when(
+                    $this->get('destination.blueprint'),
+                    fn ($collection) => $collection->filter(fn ($blueprint) => $blueprint->handle() === $this->get('destination.blueprint'))
+                )
+                ->first(),
+            'terms' => Taxonomy::find($this->get('destination.taxonomy'))
+                ->termBlueprints()
+                ->when(
+                    $this->get('destination.blueprint'),
+                    fn ($taxonomy) => $taxonomy->filter(fn ($blueprint) => $blueprint->handle() === $this->get('destination.blueprint'))
+                )
+                ->first(),
             'users' => User::blueprint(),
         };
     }
@@ -157,6 +169,17 @@ class Import
                 'type' => 'toggle',
                 'display' => __('Published'),
             ]);
+        }
+
+        if ($this->get('destination.type') === 'terms') {
+            $taxonomy = Taxonomy::find($this->get('destination.taxonomy'));
+
+            if ($this->get('destination.site') !== $taxonomy->sites()->first()) {
+                $blueprint->ensureField('default_slug', [
+                    'type' => 'slug',
+                    'display' => __('Slug in Default Site'),
+                ]);
+            }
         }
 
         return $blueprint->fields();

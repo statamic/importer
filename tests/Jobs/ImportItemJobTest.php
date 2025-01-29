@@ -3,6 +3,8 @@
 namespace Statamic\Importer\Tests\Jobs;
 
 use PHPUnit\Framework\Attributes\Test;
+use Statamic\Facades\Blink;
+use Statamic\Facades\Blueprint;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Taxonomy;
@@ -68,7 +70,7 @@ class ImportItemJobTest extends TestCase
         $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -108,7 +110,7 @@ class ImportItemJobTest extends TestCase
         $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team', 'site' => 'fr'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -137,12 +139,53 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
+    public function it_imports_a_new_entry_with_a_specific_blueprint()
+    {
+        Blueprint::make('volunteers')->setNamespace('collections/team')->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['handle' => 'first_name', 'field' => ['type' => 'text']],
+                        ['handle' => 'last_name', 'field' => ['type' => 'text']],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        Blink::forget('collection-entry-blueprints-team');
+
+        $this->assertNull(Entry::query()->where('email', 'John')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'volunteers'],
+            'unique_field' => 'last_name',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+            ],
+            'strategy' => ['create'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+        ]);
+
+        $entry = Entry::query()->where('first_name', 'John')->first();
+
+        $this->assertNotNull($entry);
+        $this->assertEquals('John', $entry->get('first_name'));
+        $this->assertEquals('Doe', $entry->get('last_name'));
+        $this->assertEquals('volunteers', $entry->blueprint()->handle());
+    }
+
+    #[Test]
     public function it_doesnt_import_a_new_entry_when_creation_is_disabled()
     {
         $this->assertNull(Entry::query()->where('email', 'john.doe@example.com')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -172,7 +215,7 @@ class ImportItemJobTest extends TestCase
         $entry->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -213,7 +256,7 @@ class ImportItemJobTest extends TestCase
         $entry->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team', 'site' => 'fr'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -255,7 +298,7 @@ class ImportItemJobTest extends TestCase
         $entry->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team', 'site' => 'fr'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team', 'site' => 'fr'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -301,7 +344,7 @@ class ImportItemJobTest extends TestCase
         $entry->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'entries', 'collection' => 'team'],
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
             'unique_field' => 'email',
             'mappings' => [
                 'first_name' => ['key' => 'First Name'],
@@ -334,16 +377,18 @@ class ImportItemJobTest extends TestCase
         $this->assertNull(Term::query()->where('title', 'Statamic')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
             ],
             'strategy' => ['create'],
         ]);
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
         ]);
 
         $term = Term::query()->where('title', 'Statamic')->first();
@@ -354,21 +399,146 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
+    public function it_imports_a_new_term_in_a_multisite_into_the_default_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        Taxonomy::find('tags')->sites(['en', 'fr']);
+
+        $this->assertNull(Term::query()->where('title', 'Statamic')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag', 'site' => 'en'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+            ],
+            'strategy' => ['create'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Slug' => 'statamic',
+        ]);
+
+        $term = Term::query()
+            ->where('site', 'en')
+            ->where('title', 'Statamic')
+            ->first();
+
+        $this->assertNotNull($term);
+        $this->assertEquals('statamic', $term->slug());
+        $this->assertEquals('Statamic', $term->get('title'));
+        $this->assertEquals('en', $term->site());
+    }
+
+    #[Test]
+    public function it_imports_a_new_term_in_a_multisite_into_a_specific_site()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        Taxonomy::find('tags')->sites(['en', 'fr']);
+
+        $this->assertNull(Term::query()->where('title', 'Statamic')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag', 'site' => 'fr'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+            ],
+            'strategy' => ['create'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Slug' => 'statamic',
+        ]);
+
+        $term = Term::query()
+            ->where('site', 'fr')
+            ->where('title', 'Statamic')
+            ->first();
+
+        $this->assertNotNull($term);
+
+        // Both the default site and the chosen site should have the same data
+        // (because of the way taxonomies work).
+        $en = $term->in('en');
+        $this->assertEquals('statamic', $en->slug());
+        $this->assertEquals('Statamic', $en->get('title'));
+        $this->assertEquals('en', $en->site());
+
+        $fr = $term->in('fr');
+        $this->assertEquals('statamic', $fr->slug());
+        $this->assertEquals('Statamic', $fr->get('title'));
+        $this->assertEquals('fr', $fr->site());
+    }
+
+    #[Test]
+    public function it_imports_a_new_term_with_a_specific_blueprint()
+    {
+        Blueprint::make('special_tag')->setNamespace('taxonomies/tags')->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['handle' => 'title', 'field' => ['type' => 'text']],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $this->assertNull(Term::query()->where('title', 'Statamic')->first());
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'special_tag'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+            ],
+            'strategy' => ['create'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Slug' => 'statamic',
+        ]);
+
+        $term = Term::query()->where('title', 'Statamic')->first();
+
+        $this->assertNotNull($term);
+        $this->assertEquals('statamic', $term->slug());
+        $this->assertEquals('Statamic', $term->get('title'));
+        $this->assertEquals('special_tag', $term->blueprint()->handle());
+    }
+
+    #[Test]
     public function it_doesnt_import_a_new_term_when_creation_is_disabled()
     {
         $this->assertNull(Term::query()->where('title', 'Statamic')->first());
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
             ],
             'strategy' => ['update'],
         ]);
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
         ]);
 
         $this->assertNull(Term::query()->where('title', 'Statamic')->first());
@@ -381,10 +551,11 @@ class ImportItemJobTest extends TestCase
         $term->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
                 'foo' => ['key' => 'Foo'],
             ],
             'strategy' => ['update'],
@@ -392,6 +563,7 @@ class ImportItemJobTest extends TestCase
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
             'Foo' => 'Baz',
         ]);
 
@@ -404,16 +576,109 @@ class ImportItemJobTest extends TestCase
     }
 
     #[Test]
+    public function it_updates_an_existing_term_in_a_multisite_with_the_same_slug()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic')->set('foo', 'bar');
+        $term->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag', 'site' => 'fr'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+                'foo' => ['key' => 'Foo'],
+            ],
+            'strategy' => ['update'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statamic',
+            'Slug' => 'statamic',
+            'Foo' => 'Baz',
+        ]);
+
+        $term->fresh();
+
+        // The importer is updating the French localization of the term, so the English
+        // localization should stay the same.
+        $en = $term->in('en');
+        $this->assertEquals('statamic', $en->slug());
+        $this->assertEquals('Statamic', $en->get('title'));
+        $this->assertEquals('bar', $en->get('foo'));
+        $this->assertEquals('en', $en->site());
+
+        $fr = $term->in('fr');
+        $this->assertEquals('statamic', $fr->slug());
+        $this->assertEquals('Statamic', $fr->get('title'));
+        $this->assertEquals('Baz', $fr->get('foo'));
+        $this->assertEquals('fr', $fr->site());
+    }
+
+    #[Test]
+    public function it_updates_an_existing_term_in_a_multisite_with_the_default_slug_mapping()
+    {
+        $this->setSites([
+            'en' => ['locale' => 'en', 'url' => '/'],
+            'fr' => ['locale' => 'fr', 'url' => '/fr/'],
+        ]);
+
+        $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic')->set('foo', 'bar');
+        $term->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag', 'site' => 'fr'],
+            'unique_field' => 'title',
+            'mappings' => [
+                'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
+                'default_slug' => ['key' => 'Default Slug'],
+                'foo' => ['key' => 'Foo'],
+            ],
+            'strategy' => ['update'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Title' => 'Statique Dynamique',
+            'Slug' => 'statique-dynamique',
+            'Default Slug' => 'statamic',
+            'Foo' => 'Baz',
+        ]);
+
+        $term->fresh();
+
+        // The importer is updating the French localization of the term, so the English
+        // localization should stay the same.
+        $en = $term->in('en');
+        $this->assertEquals('statamic', $en->slug());
+        $this->assertEquals('Statamic', $en->get('title'));
+        $this->assertEquals('bar', $en->get('foo'));
+        $this->assertEquals('en', $en->site());
+
+        $fr = $term->in('fr');
+        $this->assertEquals('statique-dynamique', $fr->slug());
+        $this->assertEquals('Statique Dynamique', $fr->get('title'));
+        $this->assertEquals('Baz', $fr->get('foo'));
+        $this->assertEquals('fr', $fr->site());
+    }
+
+    #[Test]
     public function it_doesnt_update_an_existing_term_when_updating_is_disabled()
     {
         $term = Term::make()->taxonomy('tags')->slug('statamic')->set('title', 'Statamic')->set('foo', 'bar');
         $term->save();
 
         $import = Import::make()->config([
-            'destination' => ['type' => 'terms', 'taxonomy' => 'tags'],
+            'destination' => ['type' => 'terms', 'taxonomy' => 'tags', 'blueprint' => 'tag'],
             'unique_field' => 'title',
             'mappings' => [
                 'title' => ['key' => 'Title'],
+                'slug' => ['key' => 'Slug'],
                 'foo' => ['key' => 'Foo'],
             ],
             'strategy' => ['create'],
@@ -421,6 +686,7 @@ class ImportItemJobTest extends TestCase
 
         ImportItemJob::dispatch($import, [
             'Title' => 'Statamic',
+            'Slug' => 'statamic',
             'Foo' => 'Baz',
         ]);
 

@@ -30,6 +30,10 @@ class UpdateCollectionTreeJob implements ShouldQueue
             return;
         }
 
+        if (! Cache::has("importer.{$this->import->id}.parents")) {
+            return;
+        }
+
         $parents = (new SortByParent)->sort(Cache::get("importer.{$this->import->id}.parents"));
 
         collect($parents)->each(function (array $item) use ($tree) {

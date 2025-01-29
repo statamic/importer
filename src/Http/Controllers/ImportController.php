@@ -2,6 +2,7 @@
 
 namespace Statamic\Importer\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
@@ -112,6 +113,7 @@ class ImportController extends CpController
             ->setParent($import)
             ->addValues($import->config()->merge([
                 'name' => $import->name(),
+                'file' => [basename($import->get('path'))],
             ])->all())
             ->preProcess();
 
@@ -146,7 +148,7 @@ class ImportController extends CpController
         $type = $import->get('type');
         $path = $import->get('path');
 
-        if ($request->file && $file = $request->file[0]) {
+        if (($request->file && $file = $request->file[0]) && $file !== basename($path)) {
             $type = match (Storage::disk('local')->mimeType("statamic/file-uploads/{$file}")) {
                 'text/csv', 'application/csv', 'text/plain' => 'csv',
                 'application/xml', 'text/xml' => 'xml',
@@ -174,7 +176,7 @@ class ImportController extends CpController
                 'strategy' => $values['strategy'],
                 'source' => $values['source'] ?? null,
                 'mappings' => $values['mappings'],
-                'unique_field' => $values['unique_field'],
+                'unique_field' => $values['unique_field'] ?? null,
             ]));
 
         $saved = $import->save();
@@ -207,23 +209,19 @@ class ImportController extends CpController
 
     private function createBlueprint(): Blueprint
     {
-        $blueprint = Facades\Blueprint::make()->setContents([
+        return Facades\Blueprint::make()->setContents([
             'fields' => Arr::get(ImportBlueprint::getBlueprint()->contents(), 'tabs.main.sections.0.fields'),
         ]);
-
-        $blueprint->ensureFieldHasConfig('file', [
-            'display' => __('File'),
-            'instructions' => __('importer::messages.import_file_instructions_create'),
-            'required' => true,
-        ]);
-
-        return $blueprint;
     }
 
     private function ensureJobBatchesTableExists(): bool
     {
-        if (Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
-            return true;
+        try {
+            if (Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
+                return true;
+            }
+        } catch (QueryException $e) {
+            return false;
         }
 
         if (app()->runningUnitTests() || app()->isProduction()) {

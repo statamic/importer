@@ -11,7 +11,7 @@
                 <tr v-for="field in meta.fields">
                     <td class="w-1/3">
                         <label class="text-sm font-medium" :for="`mappings.${field.handle}.key`">
-                            {{ field.display }}
+                            <span v-tooltip="{content: field.handle, delay: 500, autoHide: false}">{{ field.display }}</span>
                         </label>
                         <span class="badge rounded-sm text-gray-700 dark:text-dark-100 inline-flex items-center p-0 border border-gray-300 dark:border-dark-300">
                             <span class="px-1">{{ __('Type') }}</span>

@@ -3,20 +3,24 @@
 namespace Statamic\Importer\Tests\Transformers;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Glide;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Importer\Transformers\AssetsTransformer;
+use Statamic\Support\Str;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
 
 class AssetsTransformerTest extends TestCase
 {
     use PreventsSavingStacheItemsToDisk;
 
+    public $assetContainer;
     public $collection;
     public $blueprint;
     public $field;
@@ -26,12 +30,12 @@ class AssetsTransformerTest extends TestCase
     {
         parent::setUp();
 
-        AssetContainer::make('assets')->disk('public')->save();
+        $this->assetContainer = tap(AssetContainer::make('assets')->disk('public'))->save();
 
         $this->collection = tap(Collection::make('pages'))->save();
 
         $this->blueprint = $this->collection->entryBlueprint();
-        $this->blueprint->ensureField('featured_image', ['type' => 'assets', 'max_files' => 1])->save();
+        $this->blueprint->ensureField('featured_image', ['type' => 'assets', 'container' => 'assets', 'max_files' => 1])->save();
 
         $this->field = $this->blueprint->field('featured_image');
 
@@ -137,6 +141,30 @@ class AssetsTransformerTest extends TestCase
     }
 
     #[Test]
+    public function it_doesnt_downloads_new_asset_when_it_already_exists_in_the_configured_folder()
+    {
+        Http::preventStrayRequests();
+
+        Storage::disk('public')->put('custom-folder/image.png', 'original');
+
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'download_when_missing' => true,
+                'folder' => 'custom-folder',
+            ]
+        );
+
+        $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
+
+        $this->assertEquals('custom-folder/image.png', $output);
+    }
+
+    #[Test]
     public function it_doesnt_download_new_asset_when_download_when_missing_option_is_disabled()
     {
         Http::preventStrayRequests();
@@ -159,5 +187,110 @@ class AssetsTransformerTest extends TestCase
         $this->assertNull($output);
 
         Storage::disk('public')->assertMissing('2024/10/image.png');
+    }
+
+    #[Test]
+    public function it_sets_alt_text_on_existing_asset()
+    {
+        Http::preventStrayRequests();
+
+        Storage::disk('public')->put('2024/10/image.png', 'original');
+
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'alt' => 'Image Alt Text',
+            ],
+            values: [
+                'Image Alt Text' => 'A photo taken by someone.',
+            ],
+        );
+
+        $asset = $this->assetContainer->asset('2024/10/image.png');
+        $this->assertNull($asset->get('alt'));
+
+        $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
+        $this->assertEquals('2024/10/image.png', $output);
+
+        $asset = $this->assetContainer->asset('2024/10/image.png');
+        $this->assertEquals('A photo taken by someone.', $asset->get('alt'));
+    }
+
+    #[Test]
+    public function it_sets_alt_text_on_downloaded_asset()
+    {
+        Http::fake([
+            'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
+        ]);
+
+        Storage::disk('public')->assertMissing('2024/10/image.png');
+
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'download_when_missing' => true,
+                'alt' => 'Image Alt Text',
+            ],
+            values: [
+                'Image Alt Text' => 'A photo taken by someone.',
+            ],
+        );
+
+        $this->assertNull($this->assetContainer->asset('2024/10/image.png'));
+
+        $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
+
+        $this->assertEquals('2024/10/image.png', $output);
+
+        Storage::disk('public')->assertExists('2024/10/image.png');
+
+        $asset = $this->assetContainer->asset('2024/10/image.png');
+        $this->assertEquals('A photo taken by someone.', $asset->get('alt'));
+    }
+
+    #[Test]
+    public function it_processes_asset_using_source_preset()
+    {
+        Http::fake([
+            'https://example.com/wp-content/uploads/2024/10/image.png' => Http::response(UploadedFile::fake()->image('image.png')->size(100)->get()),
+        ]);
+
+        Str::createRandomStringsUsing(fn () => 'temp');
+
+        File::ensureDirectoryExists(storage_path('statamic/glide/tmp/temp.png/random'));
+        File::put(storage_path('statamic/glide/tmp/temp.png/random/temp.png'), 'Transformed Image');
+
+        Glide::shouldReceive('server')->once()->andReturnSelf();
+        Glide::shouldReceive('makeImage')->once()->with('temp.png', ['p' => 'thumbnail'])->andReturn('temp.png/random/temp.png');
+
+        $this->assetContainer->disk('public')->sourcePreset('thumbnail')->save();
+
+        $transformer = new AssetsTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: [
+                'related_field' => 'url',
+                'base_url' => 'https://example.com/wp-content/uploads',
+                'download_when_missing' => true,
+                'process_downloaded_images' => true,
+            ],
+        );
+
+        $output = $transformer->transform('https://example.com/wp-content/uploads/2024/10/image.png');
+
+        $this->assertEquals('2024/10/image.png', $output);
+
+        Storage::disk('public')->assertExists('2024/10/image.png');
+
+        $this->assertFileDoesNotExist(storage_path('statamic/glide/tmp/temp.png/random/temp.png'));
     }
 }

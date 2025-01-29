@@ -17,7 +17,8 @@ abstract class AbstractTransformer implements Transformer
         protected ?Import $import = null,
         protected ?Blueprint $blueprint = null,
         protected ?Field $field = null,
-        protected ?array $config = null
+        protected ?array $config = null,
+        protected ?array $values = null,
     ) {}
 
     abstract public function transform(string $value);

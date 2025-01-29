@@ -53,7 +53,7 @@ class ImportMappingsFieldtype extends Fieldtype
                     return null;
                 }
 
-                return $fields->addValues($values)->process()->values()->all();
+                return $fields->addValues($values)->process()->values()->filter()->all();
             })
             ->filter()
             ->all();
@@ -102,7 +102,7 @@ class ImportMappingsFieldtype extends Fieldtype
                 $fields = [];
 
                 if ($transformer = Importer::getTransformer($field->type())) {
-                    $fields = (new $transformer(field: $field))->fieldItems();
+                    $fields = (new $transformer(import: $import, field: $field))->fieldItems();
                 }
 
                 $blueprint = Blueprint::makeFromFields([
