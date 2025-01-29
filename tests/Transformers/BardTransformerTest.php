@@ -195,16 +195,13 @@ HTML);
             blueprint: $this->blueprint,
             field: $this->field,
             config: [
-                'wp_auto_p' => true,
                 'assets_base_url' => 'https://example.com/wp-content/uploads',
             ]
         );
 
         $output = $transformer->transform(<<<'HTML'
 <p>Nam voluptatem rem molestiae cumque doloremque. <strong>Saepe animi deserunt</strong> Maxime iam et inventore. ipsam in dignissimos qui occaecati.</p>
-
-<img src="https://example.com/wp-content/uploads/2024/10/image.png" />
-
+<p><img src="https://example.com/wp-content/uploads/2024/10/image.png" /></p>
 HTML);
 
         $this->assertEquals([
