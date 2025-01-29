@@ -32,10 +32,8 @@ class BardTransformer extends AbstractTransformer
             $value = WordPress::wpautop($value);
         }
 
-        $value = (new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'];
-
-        $value = collect($value)
-            ->map(fn ($child) => $this->recursiveMap($child))
+        $value = collect((new BardAugmentor($this->field->fieldtype()))->renderHtmlToProsemirror($value)['content'])
+            ->map(fn ($child) => $this->mapProsemirrorNodes($child))
             ->filter()
             ->all();
 
@@ -44,7 +42,7 @@ class BardTransformer extends AbstractTransformer
         return $value;
     }
 
-    private function recursiveMap(array $node): ?array
+    private function mapProsemirrorNodes(array $node): ?array
     {
         if ($node['type'] === 'image' && $this->field->get('container') && isset($this->config['assets_base_url'])) {
             $assetContainer = AssetContainer::find($this->field->get('container'));
@@ -71,7 +69,7 @@ class BardTransformer extends AbstractTransformer
 
         if (isset($node['content'])) {
             $node['content'] = collect($node['content'])
-                ->map(fn ($child) => $this->recursiveMap($child))
+                ->map(fn ($child) => $this->mapProsemirrorNodes($child))
                 ->filter()
                 ->all();
         }
