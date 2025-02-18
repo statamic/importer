@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.4 (2025-02-19)
+
+### What's fixed
+* Hide blueprint dropdown for user imports #89 by @duncanmcclean
+
+
+
 ## 1.7.3 (2025-01-29)
 
 ### What's fixed
