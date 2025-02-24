@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.5 (2025-02-24)
+
+### What's fixed
+* Added fallback config values when checking job batches database config #91 by @duncanmcclean
+
+
+
 ## 1.7.4 (2025-02-19)
 
 ### What's fixed
