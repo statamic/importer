@@ -217,7 +217,7 @@ class ImportController extends CpController
     private function ensureJobBatchesTableExists(): bool
     {
         try {
-            if (Schema::connection(config('queue.batching.database'))->hasTable(config('queue.batching.table'))) {
+            if (Schema::connection(config('queue.batching.database', env('DB_CONNECTION', 'sqlite')))->hasTable(config('queue.batching.table', 'job_batches'))) {
                 return true;
             }
         } catch (QueryException $e) {
