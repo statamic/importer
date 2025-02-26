@@ -51,7 +51,7 @@ class StoreImportTest extends TestCase
         $this->assertNotNull($import);
         $this->assertEquals('Posts', $import->name());
         $this->assertEquals('csv', $import->get('type'));
-        $this->assertEquals(storage_path('app/statamic/imports/posts/import.csv'), $import->get('path'));
+        $this->assertEquals(Storage::path('statamic/imports/posts/import.csv'), $import->get('path'));
         $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
@@ -88,7 +88,7 @@ class StoreImportTest extends TestCase
         $this->assertNotNull($import);
         $this->assertEquals('Posts', $import->name());
         $this->assertEquals('csv', $import->get('type'));
-        $this->assertEquals(storage_path('app/statamic/imports/posts/import.csv'), $import->get('path'));
+        $this->assertEquals(Storage::path('statamic/imports/posts/import.csv'), $import->get('path'));
         $this->assertEquals(['create', 'update'], $import->get('strategy'));
 
         $this->assertEquals('en', $import->get('destination.site'));
@@ -182,7 +182,7 @@ class StoreImportTest extends TestCase
         $this->assertNotNull($import);
         $this->assertEquals('Categories', $import->name());
         $this->assertEquals('csv', $import->get('type'));
-        $this->assertEquals(storage_path('app/statamic/imports/categories/import.csv'), $import->get('path'));
+        $this->assertEquals(Storage::path('statamic/imports/categories/import.csv'), $import->get('path'));
         $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
@@ -209,7 +209,7 @@ class StoreImportTest extends TestCase
         $this->assertNotNull($import);
         $this->assertEquals('Users', $import->name());
         $this->assertEquals('csv', $import->get('type'));
-        $this->assertEquals(storage_path('app/statamic/imports/users/import.csv'), $import->get('path'));
+        $this->assertEquals(Storage::path('statamic/imports/users/import.csv'), $import->get('path'));
         $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
