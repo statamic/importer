@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
+use Statamic\Http\Middleware\DeleteTemporaryFileUploads;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
@@ -21,6 +22,8 @@ class UpdateImportTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->withoutMiddleware(DeleteTemporaryFileUploads::class);
 
         File::deleteDirectory(storage_path('statamic/importer'));
 
