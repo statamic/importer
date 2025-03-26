@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.8.0 (2025-03-26)
+
+### What's new
+* Supports Laravel 12 #92 by @duncanmcclean
+
+### What's fixed
+* Fixed field value of "0" not being imported #95 by @duncanmcclean
+* Fixed flaky tests #93 by @duncanmcclean
+* Bump axios from 0.28.0 to 1.8.2 #94 by @dependabot[bot]
+
+
+
 ## 1.7.5 (2025-02-24)
 
 ### What's fixed
