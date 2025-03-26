@@ -36,7 +36,7 @@ class ImportItemJob implements ShouldQueue
                 $field = $fields->get($fieldHandle);
                 $value = Arr::get($this->item, $mapping['key']);
 
-                if (! $value) {
+                if (is_null($value) || $value === '') {
                     return [$fieldHandle => null];
                 }
 
