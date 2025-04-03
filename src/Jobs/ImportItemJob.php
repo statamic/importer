@@ -31,7 +31,7 @@ class ImportItemJob implements ShouldQueue
         $blueprint = $this->import->destinationBlueprint();
 
         $data = collect($this->import->get('mappings'))
-            ->reject(fn (array $mapping) => empty($mapping['key']))
+            ->reject(fn(array $mapping) => empty($mapping['key']))
             ->mapWithKeys(function (array $mapping, string $fieldHandle) use ($fields, $blueprint) {
                 $field = $fields->get($fieldHandle);
                 $value = Arr::get($this->item, $mapping['key']);
@@ -46,7 +46,7 @@ class ImportItemJob implements ShouldQueue
 
                 return [$fieldHandle => $value];
             })
-            ->reject(fn ($value) => is_null($value))
+            ->reject(fn($value) => is_null($value))
             ->all();
 
         match ($this->import->get('destination.type')) {
@@ -62,7 +62,7 @@ class ImportItemJob implements ShouldQueue
         $site = Site::get($this->import->get('destination.site') ?? Site::default()->handle());
 
         $entry = Entry::query()
-            ->where('locale', $site->handle())
+            ->where('site', $site->handle())
             ->where('collection', $collection->handle())
             ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
             ->first();
@@ -121,7 +121,7 @@ class ImportItemJob implements ShouldQueue
     {
         $term = Term::query()
             ->where('taxonomy', $this->import->get('destination.taxonomy'))
-            ->where('id', $this->import->get('destination.taxonomy').'::'.Arr::get($data, 'default_slug', $data['slug']))
+            ->where('id', $this->import->get('destination.taxonomy') . '::' . Arr::get($data, 'default_slug', $data['slug']))
             ->first()
             ?->term();
 
