@@ -2,22 +2,24 @@
 
 namespace Statamic\Importer\Sources;
 
+use DOMDocument;
 use Illuminate\Support\LazyCollection;
+use XMLReader;
 
 class Xml extends AbstractSource
 {
     public function getItems(string $path): LazyCollection
     {
         return LazyCollection::make(function () use ($path) {
-            $reader = new \XMLReader;
+            $reader = new XMLReader;
             $reader->open($path);
 
             while ($reader->read()) {
-                if ($reader->nodeType === \XMLReader::ELEMENT && $reader->name === 'item') {
+                if ($reader->nodeType === XMLReader::ELEMENT && $reader->name === 'item') {
                     $node = $reader->expand();
                     $array = [];
 
-                    $doc = new \DOMDocument;
+                    $doc = new DOMDocument;
                     $node = $doc->importNode($node, true);
                     $doc->appendChild($node);
                     $item = simplexml_import_dom($doc);
