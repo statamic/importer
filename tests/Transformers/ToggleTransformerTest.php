@@ -61,5 +61,6 @@ class ToggleTransformerTest extends TestCase
         $this->assertTrue($transformer->transform('yep'));
 
         $this->assertFalse($transformer->transform('no'));
+        $this->assertFalse($transformer->transform('nope'));  // Not configured, should default to false
     }
 }
