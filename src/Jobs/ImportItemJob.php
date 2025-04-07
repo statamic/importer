@@ -62,7 +62,7 @@ class ImportItemJob implements ShouldQueue
         $site = Site::get($this->import->get('destination.site') ?? Site::default()->handle());
 
         $entry = Entry::query()
-            ->where('locale', $site->handle())
+            ->where('site', $site->handle())
             ->where('collection', $collection->handle())
             ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
             ->first();
