@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.1 (2025-04-07)
+
+### What's fixed
+* Refactored XML parsing to use XMLReader #99 by @pixelastronauts
+* Fixed error when importing Gutenberg `core/embed` block #101 by @duncanmcclean
+* Fixed error when importing toggle fields with no matching value #100 by @duncanmcclean
+* Fixed entry querying in `ImportItemJob` for multi-site installations #98 by @pixelastronauts
+
+
+
 ## 1.8.0 (2025-03-26)
 
 ### What's new
