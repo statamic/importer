@@ -19,6 +19,7 @@ class ToggleTransformer extends AbstractTransformer
             return match (true) {
                 in_array($value, explode('|', $this->config('values.true'))) => true,
                 in_array($value, explode('|', $this->config('values.false'))) => false,
+                default => false,
             };
         }
     }
