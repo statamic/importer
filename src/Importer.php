@@ -30,14 +30,24 @@ class Importer
             'xml' => (new Xml($import))->getItems($import->get('path')),
         };
 
-        Bus::batch($items->map(fn (array $item) => new ImportItemJob($import, $item)))
-            ->before(fn (Batch $batch) => $import->batchId($batch->id)->save())
-            ->finally(function (Batch $batch) use ($import) {
-                if ($import->get('destination.type') === 'entries') {
-                    UpdateCollectionTreeJob::dispatch($import);
-                }
-            })
-            ->dispatch();
+        $chunks = $items->chunk(500);
+        $pendingBatches = [];
+        $totalBatches = $chunks->count();
+        $currentBatch = 0;
+
+        foreach ($chunks as $chunk) {
+            $currentBatch++;
+            $pendingBatch = Bus::batch($chunk->map(fn(array $item) => new ImportItemJob($import, $item)))
+                ->before(fn(Batch $batch) => $import->batchId($batch->id)->save())
+                ->finally(function (Batch $batch) use ($import, $currentBatch, $totalBatches) {
+                    if ($currentBatch === $totalBatches && $import->get('destination.type') === 'entries') {
+                        UpdateCollectionTreeJob::dispatch($import);
+                    }
+                });
+
+            $pendingBatches[] = $pendingBatch;
+            $pendingBatch->dispatch();
+        }
     }
 
     public static function getTransformer(string $fieldtype): ?string
