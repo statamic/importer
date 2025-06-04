@@ -567,7 +567,7 @@ class ImportItemJobTest extends TestCase
             'Foo' => 'Baz',
         ]);
 
-        $term->fresh();
+        $term = $term->fresh();
 
         $this->assertNotNull($term);
         $this->assertEquals('statamic', $term->slug());
@@ -603,7 +603,7 @@ class ImportItemJobTest extends TestCase
             'Foo' => 'Baz',
         ]);
 
-        $term->fresh();
+        $term = $term->fresh();
 
         // The importer is updating the French localization of the term, so the English
         // localization should stay the same.
@@ -650,7 +650,7 @@ class ImportItemJobTest extends TestCase
             'Foo' => 'Baz',
         ]);
 
-        $term->fresh();
+        $term = $term->fresh();
 
         // The importer is updating the French localization of the term, so the English
         // localization should stay the same.
