@@ -10,8 +10,8 @@ class ToggleTransformer extends AbstractTransformer
     {
         if ($this->config('format') === 'boolean') {
             return match ($value) {
-                '1', 'true' => true,
-                '0', 'false' => false,
+                '1', 'true', 'TRUE' => true,
+                '0', 'false', 'FALSE' => false,
             };
         }
 
