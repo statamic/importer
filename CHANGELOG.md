@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.2 (2025-06-04)
+
+### What's fixed
+* Uppercase `TRUE` & `FALSE` values are now supported by the toggle transformer's "boolean" format #107 by @duncanmcclean
+* Fixed failing tests #105 by @duncanmcclean
+
+
+
 ## 1.8.1 (2025-04-07)
 
 ### What's fixed
