@@ -41,9 +41,11 @@ class ToggleTransformerTest extends TestCase
 
         $this->assertTrue($transformer->transform('1'));
         $this->assertTrue($transformer->transform('true'));
+        $this->assertTrue($transformer->transform('TRUE'));
 
         $this->assertFalse($transformer->transform('0'));
         $this->assertFalse($transformer->transform('false'));
+        $this->assertFalse($transformer->transform('FALSE'));
     }
 
     #[Test]
