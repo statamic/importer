@@ -121,7 +121,7 @@ class FieldUpdater
         $fieldset = $this->blueprint->fields()->items()
             ->filter(fn (array $field) => isset($field['import']))
             ->mapWithKeys(fn (array $field) => [
-                $field['prefix'] ?? '' => Fieldset::find($field['import'])
+                $field['prefix'] ?? '' => Fieldset::find($field['import']),
             ])
             ->filter(function (Fieldset $fieldset, string $prefix) use ($config) {
                 // When the field exists in the fieldset, but it's not a top-level field,
