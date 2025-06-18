@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.3 (2025-06-18)
+
+### What's fixed
+* Fix: SQLite "too many SQL variables" error in Importer #97 by @pixelastronauts
+* Handle nested fieldsets in `FieldUpdater` #108 by @duncanmcclean
+* Fix undefined array key error from `FieldUpdater` #107 by @duncanmcclean
+
+
+
 ## 1.8.2 (2025-06-04)
 
 ### What's fixed
