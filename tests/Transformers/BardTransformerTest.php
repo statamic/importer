@@ -496,4 +496,46 @@ HTML);
             'italic',
         ], $fieldset->field('bard_field')->get('buttons'));
     }
+
+    #[Test]
+    public function it_enables_buttons_on_imported_bard_field_in_nested_fieldsets()
+    {
+        Fieldset::make('actual_content_stuff')->setContents(['fields' => [
+            ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
+        ]])->save();
+
+        Fieldset::make('content_stuff')->setContents(['fields' => [
+            ['import' => 'actual_content_stuff', 'prefix' => 'actual_'],
+        ]])->save();
+
+        $blueprint = $this->collection->entryBlueprint();
+
+        $this->blueprint->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['import' => 'content_stuff', 'prefix' => 'resources_'],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $blueprint,
+            field: $blueprint->field('resources_actual_bard_field'),
+            config: []
+        );
+
+        $transformer->transform('<h2 style="text-align: center;"><strong>Hello</strong> <em>world</em>!</h2>');
+
+        $fieldset = Fieldset::find('actual_content_stuff');
+
+        $this->assertEquals([
+            'h2',
+            'aligncenter',
+            'bold',
+            'italic',
+        ], $fieldset->field('bard_field')->get('buttons'));
+    }
 }
