@@ -33,7 +33,7 @@ class Importer
         };
 
         $items
-            ->chunk(250)
+            ->chunk(500)
             ->each(function (LazyCollection $chunk) use ($import) {
                 Bus::batch($chunk->map(fn (array $item) => new ImportItemJob($import, $item)))
                     ->before(fn (Batch $batch) => $import->batchIds([...$import->batchIds(), $batch->id])->save())
