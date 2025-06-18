@@ -20,9 +20,16 @@ class FieldUpdater
         return $this;
     }
 
-    public function blueprint(Blueprint|Fieldset $blueprint): self
+    public function blueprint(Blueprint $blueprint): self
     {
         $this->blueprint = $blueprint;
+
+        return $this;
+    }
+
+    public function fieldset(Fieldset $fieldset): self
+    {
+        $this->blueprint = $fieldset;
 
         return $this;
     }
@@ -113,8 +120,10 @@ class FieldUpdater
         /** @var \Statamic\Fields\Fieldset $fieldset */
         $fieldset = $this->blueprint->fields()->items()
             ->filter(fn (array $field) => isset($field['import']))
-            ->mapWithKeys(fn (array $field) => [$field['prefix'] ?? '' => Fieldset::find($field['import'])])
-            ->filter(function ($fieldset, $prefix) use ($config) {
+            ->mapWithKeys(fn (array $field) => [
+                $field['prefix'] ?? '' => Fieldset::find($field['import'])
+            ])
+            ->filter(function (Fieldset $fieldset, string $prefix) use ($config) {
                 // When the field exists in the fieldset, but it's not a top-level field,
                 // pass the Fieldset to the FieldUpdater (this class) to update the field config.
                 $fieldHandleWithoutBlueprintPrefix = Str::after($this->field->handle(), $prefix);
@@ -125,7 +134,7 @@ class FieldUpdater
                 ) {
                     (new self)
                         ->field($field)
-                        ->blueprint($fieldset)
+                        ->fieldset($fieldset)
                         ->updateFieldConfig($config);
 
                     return false;
