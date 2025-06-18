@@ -6,6 +6,7 @@ use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\LazyCollection;
 use Statamic\Importer\Exceptions\JobBatchesTableMissingException;
 use Statamic\Importer\Imports\Import;
 use Statamic\Importer\Jobs\ImportItemJob;
@@ -19,6 +20,7 @@ class Importer
 
     public static function run(Import $import): void
     {
+        $import->batchIds([])->save();
         Cache::forget("importer.{$import->id}.parents");
 
         if (! Schema::connection(config('queue.batching.database', env('DB_CONNECTION', 'sqlite')))->hasTable(config('queue.batching.table', 'job_batches'))) {
@@ -30,24 +32,18 @@ class Importer
             'xml' => (new Xml($import))->getItems($import->get('path')),
         };
 
-        $chunks = $items->chunk(500);
-        $pendingBatches = [];
-        $totalBatches = $chunks->count();
-        $currentBatch = 0;
-
-        foreach ($chunks as $chunk) {
-            $currentBatch++;
-            $pendingBatch = Bus::batch($chunk->map(fn(array $item) => new ImportItemJob($import, $item)))
-                ->before(fn(Batch $batch) => $import->batchId($batch->id)->save())
-                ->finally(function (Batch $batch) use ($import, $currentBatch, $totalBatches) {
-                    if ($currentBatch === $totalBatches && $import->get('destination.type') === 'entries') {
-                        UpdateCollectionTreeJob::dispatch($import);
-                    }
-                });
-
-            $pendingBatches[] = $pendingBatch;
-            $pendingBatch->dispatch();
-        }
+        $items
+            ->chunk(250)
+            ->each(function (LazyCollection $chunk) use ($import) {
+                Bus::batch($chunk->map(fn (array $item) => new ImportItemJob($import, $item)))
+                    ->before(fn (Batch $batch) => $import->batchIds([...$import->batchIds(), $batch->id])->save())
+                    ->finally(function (Batch $batch) use ($import) {
+                        if ($import->allBatchesHaveFinished() && $import->get('destination.type')=== 'entries') {
+                            UpdateCollectionTreeJob::dispatch($import);
+                        }
+                    })
+                    ->dispatch();
+            });
     }
 
     public static function getTransformer(string $fieldtype): ?string
