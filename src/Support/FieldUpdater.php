@@ -2,12 +2,12 @@
 
 namespace Statamic\Importer\Support;
 
+use Facades\Statamic\Importer\Support\FieldUpdater as FieldUpdaterFacade;
 use Statamic\Facades\Blink;
-use Statamic\Fields\Fieldset;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
+use Statamic\Fields\Fieldset;
 use Statamic\Support\Str;
-use Facades\Statamic\Importer\Support\FieldUpdater as FieldUpdaterFacade;
 
 class FieldUpdater
 {
@@ -54,7 +54,7 @@ class FieldUpdater
     {
         return $this->blueprint->fields()->items()
             ->where('handle', $this->field->handle())
-            ->filter(fn(array $field) => isset($field['field']) && is_string($field['field']))
+            ->filter(fn (array $field) => isset($field['field']) && is_string($field['field']))
             ->first();
     }
 
@@ -94,8 +94,6 @@ class FieldUpdater
 
     /**
      * Determines if a field is imported from a fieldset by checking if it exists in the blueprint's top-level fields.
-     *
-     * @return bool
      */
     private function isImportedField(): bool
     {
