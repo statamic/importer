@@ -217,7 +217,7 @@ class Gutenberg
                 }
 
                 if ($block['blockName'] === 'core/embed') {
-                    if (in_array($block['attrs']['providerNameSlug'], ['youtube', 'vimeo'])) {
+                    if (isset($block['attrs']['providerNameSlug']) && in_array($block['attrs']['providerNameSlug'], ['youtube', 'vimeo'])) {
                         static::ensureBardSet($blueprint, $field, 'video', [
                             'display' => __('Video'),
                             'icon' => 'media-webcam-video',

@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.8.2 (2025-06-04)
+
+### What's fixed
+* Uppercase `TRUE` & `FALSE` values are now supported by the toggle transformer's "boolean" format #107 by @duncanmcclean
+* Fixed failing tests #105 by @duncanmcclean
+
+
+
+## 1.8.1 (2025-04-07)
+
+### What's fixed
+* Refactored XML parsing to use XMLReader #99 by @pixelastronauts
+* Fixed error when importing Gutenberg `core/embed` block #101 by @duncanmcclean
+* Fixed error when importing toggle fields with no matching value #100 by @duncanmcclean
+* Fixed entry querying in `ImportItemJob` for multi-site installations #98 by @pixelastronauts
+
+
+
 ## 1.8.0 (2025-03-26)
 
 ### What's new
