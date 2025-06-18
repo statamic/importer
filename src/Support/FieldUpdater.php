@@ -3,9 +3,9 @@
 namespace Statamic\Importer\Support;
 
 use Statamic\Facades\Blink;
-use Statamic\Facades\Fieldset;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
+use Statamic\Fields\Fieldset;
 use Statamic\Support\Str;
 
 class FieldUpdater
@@ -23,6 +23,13 @@ class FieldUpdater
     public function blueprint(Blueprint $blueprint): self
     {
         $this->blueprint = $blueprint;
+
+        return $this;
+    }
+
+    public function fieldset(Fieldset $fieldset): self
+    {
+        $this->blueprint = $fieldset;
 
         return $this;
     }
@@ -96,12 +103,9 @@ class FieldUpdater
      */
     private function isImportedField(): bool
     {
-        $topLevelFieldHandles = $this->blueprint->tabs()
-            ->flatMap(fn ($tab) => $tab->sections()->flatMap(fn ($section) => $section->fields()->items()))
-            ->pluck('handle')
-            ->filter();
+        $topLevelFieldHandles = $this->blueprint->fields()->items()->pluck('handle')->filter();
 
-        return $this->blueprint->hasField($this->field->handle()) && ! $topLevelFieldHandles->contains($this->field->handle());
+        return $this->blueprint->field($this->field->handle()) && ! $topLevelFieldHandles->contains($this->field->handle());
     }
 
     /**
@@ -116,13 +120,35 @@ class FieldUpdater
         /** @var \Statamic\Fields\Fieldset $fieldset */
         $fieldset = $this->blueprint->fields()->items()
             ->filter(fn (array $field) => isset($field['import']))
-            ->map(fn (array $field) => Fieldset::find($field['import']))
-            ->filter(function ($fieldset) use ($prefix) {
+            ->mapWithKeys(fn (array $field) => [
+                $field['prefix'] ?? '' => Fieldset::find($field['import']),
+            ])
+            ->filter(function (Fieldset $fieldset, string $prefix) use ($config) {
+                // When the field exists in the fieldset, but it's not a top-level field,
+                // pass the Fieldset to the FieldUpdater (this class) to update the field config.
+                $fieldHandleWithoutBlueprintPrefix = Str::after($this->field->handle(), $prefix);
+
+                if (
+                    ($field = $fieldset->field($fieldHandleWithoutBlueprintPrefix))
+                    && ! $fieldset->fields()->items()->pluck('handle')->filter()->contains($fieldHandleWithoutBlueprintPrefix)
+                ) {
+                    (new self)
+                        ->field($field)
+                        ->fieldset($fieldset)
+                        ->updateFieldConfig($config);
+
+                    return false;
+                }
+
                 return collect($fieldset->fields()->items())
-                    ->where('handle', Str::after($this->field->handle(), $prefix ?? ''))
+                    ->where('handle', Str::after($this->field->handle(), $prefix))
                     ->isNotEmpty();
             })
             ->first();
+
+        if (! $fieldset) {
+            return;
+        }
 
         $fieldset->setContents([
             ...$fieldset->contents(),
