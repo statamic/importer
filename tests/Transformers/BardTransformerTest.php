@@ -384,7 +384,7 @@ HTML);
     }
 
     #[Test]
-    public function it_enables_buttons_on_imported_bard_field()
+    public function it_enables_buttons_on_linked_bard_field()
     {
         Fieldset::make('content_stuff')->setContents(['fields' => [
             ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
@@ -422,7 +422,7 @@ HTML);
     }
 
     #[Test]
-    public function it_enables_buttons_on_imported_bard_field_without_prefix()
+    public function it_enables_buttons_on_imported_bard_field()
     {
         Fieldset::make('content_stuff')->setContents(['fields' => [
             ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
