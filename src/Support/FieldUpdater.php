@@ -2,7 +2,6 @@
 
 namespace Statamic\Importer\Support;
 
-use Facades\Statamic\Importer\Support\FieldUpdater as FieldUpdaterFacade;
 use Statamic\Facades\Blink;
 use Statamic\Fields\Blueprint;
 use Statamic\Fields\Field;
@@ -124,7 +123,8 @@ class FieldUpdater
                     ($field = $fieldset->field($fieldHandleWithoutBlueprintPrefix))
                     && ! $fieldset->fields()->items()->pluck('handle')->filter()->contains($fieldHandleWithoutBlueprintPrefix)
                 ) {
-                    FieldUpdaterFacade::field($field)
+                    (new self)
+                        ->field($field)
                         ->blueprint($fieldset)
                         ->updateFieldConfig($config);
 
