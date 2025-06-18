@@ -53,7 +53,7 @@ class FieldUpdater
     {
         return $this->blueprint->fields()->items()
             ->where('handle', $this->field->handle())
-            ->filter(fn(array $field) => isset($field['field']) && is_string($field['field']))
+            ->filter(fn (array $field) => isset($field['field']) && is_string($field['field']))
             ->first();
     }
 
@@ -93,13 +93,11 @@ class FieldUpdater
 
     /**
      * Determines if a field is imported from a fieldset by checking if it exists in the blueprint's top-level fields.
-     *
-     * @return bool
      */
     private function isImportedField(): bool
     {
         $topLevelFieldHandles = $this->blueprint->tabs()
-            ->flatMap(fn($tab) => $tab->sections()->flatMap(fn($section) => $section->fields()->items()))
+            ->flatMap(fn ($tab) => $tab->sections()->flatMap(fn ($section) => $section->fields()->items()))
             ->pluck('handle')
             ->filter();
 
@@ -117,8 +115,8 @@ class FieldUpdater
     {
         /** @var \Statamic\Fields\Fieldset $fieldset */
         $fieldset = $this->blueprint->fields()->items()
-            ->filter(fn(array $field) => isset($field['import']))
-            ->map(fn(array $field) => Fieldset::find($field['import']))
+            ->filter(fn (array $field) => isset($field['import']))
+            ->map(fn (array $field) => Fieldset::find($field['import']))
             ->filter(function ($fieldset) use ($prefix) {
                 return collect($fieldset->fields()->items())
                     ->where('handle', Str::after($this->field->handle(), $prefix ?? ''))
