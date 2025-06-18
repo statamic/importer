@@ -23,7 +23,7 @@ class ImportRepository
                 return $this->make()
                     ->id($id)
                     ->name(Arr::pull($data, 'name'))
-                    ->batchId(Arr::pull($data, 'batch_id'))
+                    ->batchIds(Arr::pull($data, 'batch_ids'))
                     ->config(Arr::pull($data, 'config'));
             })
             ->sortBy->name()
