@@ -29,14 +29,14 @@ class FieldUpdater
 
     public function updateFieldConfig(array $config): void
     {
-        if ($prefix = $this->field->prefix()) {
-            $this->updatePrefixedField($prefix, $config);
+        if ($linkedField = $this->getLinkedField()) {
+            $this->updateLinkedField($linkedField, $config);
 
             return;
         }
 
-        if ($importedField = $this->getImportedField()) {
-            $this->updateImportedField($importedField, $config);
+        if ($this->isImportedField()) {
+            $this->updateImportedField($config, $this->field->prefix());
 
             return;
         }
@@ -49,7 +49,7 @@ class FieldUpdater
         $this->blueprint->save();
     }
 
-    private function getImportedField(): ?array
+    private function getLinkedField(): ?array
     {
         return $this->blueprint->fields()->items()
             ->where('handle', $this->field->handle())
@@ -58,13 +58,13 @@ class FieldUpdater
     }
 
     /**
-     * This method handles updating imported fields from fieldsets.
+     * This method handles updating linked fields from fieldsets.
      *
      * -
      *   handle: foo
      *   field: fieldset.foo
      */
-    private function updateImportedField(array $importedField, array $config): void
+    private function updateLinkedField(array $importedField, array $config): void
     {
         /** @var \Statamic\Fields\Fieldset $fieldset */
         $fieldHandle = Str::after($importedField['field'], '.');
@@ -92,13 +92,26 @@ class FieldUpdater
     }
 
     /**
-     * This method handles updating imported fields from fieldsets, which use a prefix.
+     * Determines if a field is imported from a fieldset by checking if it exists in the blueprint's top-level fields.
+     */
+    private function isImportedField(): bool
+    {
+        $topLevelFieldHandles = $this->blueprint->tabs()
+            ->flatMap(fn ($tab) => $tab->sections()->flatMap(fn ($section) => $section->fields()->items()))
+            ->pluck('handle')
+            ->filter();
+
+        return $this->blueprint->hasField($this->field->handle()) && ! $topLevelFieldHandles->contains($this->field->handle());
+    }
+
+    /**
+     * This method handles updating imported fields from fieldsets, either with or without prefixes.
      *
      * -
      *   import: fieldset
      *   prefix: foo_
      */
-    private function updatePrefixedField(string $prefix, array $config): void
+    private function updateImportedField(array $config, ?string $prefix = null): void
     {
         /** @var \Statamic\Fields\Fieldset $fieldset */
         $fieldset = $this->blueprint->fields()->items()
@@ -106,7 +119,7 @@ class FieldUpdater
             ->map(fn (array $field) => Fieldset::find($field['import']))
             ->filter(function ($fieldset) use ($prefix) {
                 return collect($fieldset->fields()->items())
-                    ->where('handle', Str::after($this->field->handle(), $prefix))
+                    ->where('handle', Str::after($this->field->handle(), $prefix ?? ''))
                     ->isNotEmpty();
             })
             ->first();
@@ -115,7 +128,7 @@ class FieldUpdater
             ...$fieldset->contents(),
             'fields' => collect($fieldset->contents()['fields'])
                 ->map(function (array $field) use ($config, $prefix) {
-                    if ($field['handle'] === Str::after($this->field->handle(), $prefix)) {
+                    if ($field['handle'] === Str::after($this->field->handle(), $prefix ?? '')) {
                         return [
                             'handle' => $field['handle'],
                             'field' => $config,
