@@ -422,6 +422,44 @@ HTML);
     }
 
     #[Test]
+    public function it_enables_buttons_on_imported_bard_field_without_prefix()
+    {
+        Fieldset::make('content_stuff')->setContents(['fields' => [
+            ['handle' => 'bard_field', 'field' => ['type' => 'bard']],
+        ]])->save();
+
+        $blueprint = $this->collection->entryBlueprint();
+
+        $this->blueprint->setContents([
+            'sections' => [
+                'main' => [
+                    'fields' => [
+                        ['import' => 'content_stuff'],
+                    ],
+                ],
+            ],
+        ])->save();
+
+        $transformer = new BardTransformer(
+            import: $this->import,
+            blueprint: $blueprint,
+            field: $blueprint->field('bard_field'),
+            config: []
+        );
+
+        $transformer->transform('<h2 style="text-align: center;"><strong>Hello</strong> <em>world</em>!</h2>');
+
+        $fieldset = Fieldset::find('content_stuff');
+
+        $this->assertEquals([
+            'h2',
+            'aligncenter',
+            'bold',
+            'italic',
+        ], $fieldset->field('bard_field')->get('buttons'));
+    }
+
+    #[Test]
     public function it_enables_buttons_on_imported_bard_field_with_prefix()
     {
         Fieldset::make('content_stuff')->setContents(['fields' => [
