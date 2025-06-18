@@ -3,7 +3,6 @@
 namespace Statamic\Importer\Imports;
 
 use Illuminate\Bus\Batch;
-use Illuminate\Bus\PendingBatch;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Bus;
 use Statamic\Facades\Collection;

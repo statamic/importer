@@ -38,7 +38,7 @@ class Importer
                 Bus::batch($chunk->map(fn (array $item) => new ImportItemJob($import, $item)))
                     ->before(fn (Batch $batch) => $import->batchIds([...$import->batchIds(), $batch->id])->save())
                     ->finally(function (Batch $batch) use ($import) {
-                        if ($import->allBatchesHaveFinished() && $import->get('destination.type')=== 'entries') {
+                        if ($import->allBatchesHaveFinished() && $import->get('destination.type') === 'entries') {
                             UpdateCollectionTreeJob::dispatch($import);
                         }
                     })
