@@ -2,7 +2,9 @@
 
 namespace Statamic\Importer\Imports;
 
+use Illuminate\Bus\Batch;
 use Illuminate\Bus\PendingBatch;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Bus;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
@@ -20,7 +22,7 @@ class Import
     public $id;
     public $name;
     public $config;
-    public $batchId;
+    public $batchIds;
 
     public function __construct()
     {
@@ -59,18 +61,19 @@ class Import
         return data_get($this->config, $key, $default);
     }
 
-    public function batchId($batchId = null)
+    public function batchIds($batchIds = null)
     {
-        return $this->fluentlyGetOrSet('batchId')->args(func_get_args());
+        return $this->fluentlyGetOrSet('batchIds')->args(func_get_args());
     }
 
-    public function batch(): ?PendingBatch
+    public function batches(): SupportCollection
     {
-        if (! $this->batchId()) {
-            return null;
-        }
+        return collect($this->batchIds())->map(fn ($id): Batch => Bus::findBatch($id));
+    }
 
-        return Bus::batch($this->batchId());
+    public function allBatchesHaveFinished(): bool
+    {
+        return $this->batches()->every(fn (Batch $batch) => $batch->finished());
     }
 
     public function fileData(): array
@@ -78,7 +81,7 @@ class Import
         return collect([
             'name' => $this->name(),
             'config' => $this->config()->all(),
-            'batch_id' => $this->batchId(),
+            'batch_ids' => $this->batchIds(),
         ])->filter()->all();
     }
 
