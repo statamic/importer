@@ -60,7 +60,12 @@ class BardTransformer extends AbstractTransformer
                 ]
             );
 
-            $asset = $assetContainer->asset(path: $transformer->transform($node['attrs']['src']));
+            $path = $transformer->transform($node['attrs']['src']);
+            if (! $path) {
+                return null;
+            }
+
+            $asset = $assetContainer->asset(path: $path);
 
             if (! $asset) {
                 return null;
