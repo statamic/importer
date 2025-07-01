@@ -71,7 +71,7 @@ class BardTransformer extends AbstractTransformer
                 return null;
             }
 
-            $node['attrs']['src'] = $asset->id();
+            $node['attrs']['src'] = 'asset::'.$asset->id();
         }
 
         if (isset($node['content'])) {
