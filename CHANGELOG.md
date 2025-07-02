@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.4 (2025-07-02)
+
+### What's fixed
+* Fixed error when importing file dictionary field #111 by @duncanmcclean
+* Fixed importing bard assets #109 by @jacksleight
+
+
+
 ## 1.8.3 (2025-06-18)
 
 ### What's fixed
