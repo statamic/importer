@@ -30,6 +30,6 @@ class DictionaryTransformer extends AbstractTransformer
             return Facades\Dictionary::find($dictionary);
         }
 
-        return Facades\Dictionary::find($dictionary['type']);
+        return Facades\Dictionary::find($dictionary['type'], $dictionary);
     }
 }
