@@ -61,6 +61,7 @@ class BardTransformer extends AbstractTransformer
             );
 
             $path = $transformer->transform($node['attrs']['src']);
+
             if (! $path) {
                 return null;
             }
