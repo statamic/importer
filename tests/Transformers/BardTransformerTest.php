@@ -178,7 +178,7 @@ HTML);
             [
                 'type' => 'image',
                 'attrs' => [
-                    'src' => 'assets::2024/10/image.png',
+                    'src' => 'asset::assets::2024/10/image.png',
                 ],
             ],
         ], $output);
@@ -221,7 +221,7 @@ HTML);
                     [
                         'type' => 'image',
                         'attrs' => [
-                            'src' => 'assets::2024/10/image.png',
+                            'src' => 'asset::assets::2024/10/image.png',
                         ],
                     ],
                 ],
@@ -305,7 +305,7 @@ HTML);
             [
                 'type' => 'image',
                 'attrs' => [
-                    'src' => 'assets::2024/10/image.png',
+                    'src' => 'asset::assets::2024/10/image.png',
                 ],
             ],
         ], $output);
@@ -353,7 +353,7 @@ HTML);
             [
                 'type' => 'image',
                 'attrs' => [
-                    'src' => 'assets::custom-folder/image.png',
+                    'src' => 'asset::assets::custom-folder/image.png',
                 ],
             ],
         ], $output);
