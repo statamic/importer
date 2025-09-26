@@ -61,11 +61,13 @@ class ImportItemJob implements ShouldQueue
         $collection = Collection::find($this->import->get('destination.collection'));
         $site = Site::get($this->import->get('destination.site') ?? Site::default()->handle());
 
-        $entry = Entry::query()
-            ->where('site', $site->handle())
-            ->where('collection', $collection->handle())
-            ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
-            ->first();
+        $entry = isset($data[$this->import->get('unique_field')])
+            ? Entry::query()
+                ->where('site', $site->handle())
+                ->where('collection', $collection->handle())
+                ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
+                ->first()
+            : null;
 
         if (! $entry) {
             if (! in_array('create', $this->import->get('strategy'))) {
