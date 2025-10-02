@@ -58,16 +58,17 @@ class ImportItemJob implements ShouldQueue
 
     protected function findOrCreateEntry(array $data): void
     {
+        $entry = null;
         $collection = Collection::find($this->import->get('destination.collection'));
         $site = Site::get($this->import->get('destination.site') ?? Site::default()->handle());
 
-        $entry = isset($data[$this->import->get('unique_field')])
-            ? Entry::query()
+        if ($uniqueFieldValue = Arr::get($data, $this->import->get('unique_field'))) {
+            $entry = Entry::query()
                 ->where('site', $site->handle())
                 ->where('collection', $collection->handle())
-                ->where($this->import->get('unique_field'), $data[$this->import->get('unique_field')])
-                ->first()
-            : null;
+                ->where($this->import->get('unique_field'), $uniqueFieldValue)
+                ->first();
+        }
 
         if (! $entry) {
             if (! in_array('create', $this->import->get('strategy'))) {
