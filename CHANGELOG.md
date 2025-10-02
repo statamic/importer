@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.5 (2025-10-02)
+
+### What's fixed
+* Fix issue where missing key might break import #113 by @pierrepavlov
+* Bump axios from 1.8.2 to 1.12.0 #112 by @dependabot
+
+
+
 ## 1.8.4 (2025-07-02)
 
 ### What's fixed
