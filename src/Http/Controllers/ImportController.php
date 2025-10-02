@@ -229,7 +229,7 @@ class ImportController extends CpController
         }
 
         try {
-            // When this return a non-zero exit code, it doesn't necessarily mean there's an issue.
+            // When this returns a non-zero exit code, it doesn't necessarily mean there's an issue.
             // It could be because the migration has already been published.
             Artisan::call('make:queue-batches-table');
 
