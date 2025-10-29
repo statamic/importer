@@ -1,7 +1,21 @@
 <script setup>
+import axios from 'axios';
 import { Head, Link, router } from '@statamic/cms/inertia';
-import { Header, Heading, Listing, DropdownItem, DocsCallout } from '@statamic/cms/ui';
-import CreateImportForm from "../components/CreateImportForm.vue";
+import {
+	Header,
+	Panel,
+	PanelFooter,
+	Card,
+	PublishContainer,
+	PublishFieldsProvider,
+	PublishFields,
+	Button,
+	Heading,
+	Listing,
+	DropdownItem,
+	DocsCallout
+} from '@statamic/cms/ui';
+import { ref } from 'vue';
 
 const props = defineProps({
 	icon: String,
@@ -12,11 +26,39 @@ const props = defineProps({
 	imports: Array,
 });
 
+const meta = ref(props.initialMeta);
+const values = ref(props.initialValues);
+const saving = ref(false);
+const errors = ref({});
+
 const columns = [
 	{ label: __('Name'), field: 'name' },
 	{ label: __('Type'), field: 'type', width: '15%' },
 	{ label: __('Destination'), field: 'destination', width: '25%' },
 ];
+
+const save = () => {
+	saving.value = true;
+	errors.value = {};
+
+	axios.post(props.storeUrl, values.value)
+		.then(response => {
+			saving.value = false;
+			router.get(response.data.redirect);
+		})
+		.catch(error => {
+			saving.value = false;
+
+			if (error.response && error.response.status === 422) {
+				errors.value = error.response.data.errors;
+				Statamic.$toast.error(error.response.data.message);
+
+				return;
+			}
+
+			Statamic.$toast.error(error.response.data.message || error);
+		});
+};
 </script>
 
 <template>
@@ -25,13 +67,24 @@ const columns = [
 	<div class="max-w-5xl mx-auto">
 		<Header :title="__('Importer')" :icon />
 
-		<!--	<CreateImportForm-->
-		<!--		class="mb-10"-->
-		<!--		:action="storeUrl"-->
-		<!--		:fields-->
-		<!--		:initial-meta-->
-		<!--		:initial-values-->
-		<!--	/>-->
+		<Panel :heading="__('Create a New Import')">
+			<Card>
+				<PublishContainer
+					:blueprint="fields"
+					:errors="errors"
+					:track-dirty-state="false"
+					:meta="meta"
+					v-model="values"
+				>
+					<PublishFieldsProvider :fields="fields">
+						<PublishFields />
+					</PublishFieldsProvider>
+				</PublishContainer>
+			</Card>
+			<PanelFooter>
+				<Button :text="__('Save & Continue')" variant="primary" :disabled="saving" @click="save" />
+			</PanelFooter>
+		</Panel>
 
 		<template v-if="imports.length > 0">
 			<Heading class="mb-4" :text="__('Recent Imports')" />
