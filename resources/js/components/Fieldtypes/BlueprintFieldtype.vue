@@ -11,6 +11,8 @@
 </template>
 
 <script>
+import { FieldtypeMixin as Fieldtype } from '@statamic/cms';
+
 export default {
     mixins: [Fieldtype],
 
@@ -48,15 +50,15 @@ export default {
 
     watch: {
         type() {
-            this.$emit('input', null);
+            this.update(null);
         },
 
         collection() {
-            this.$emit('input', this.options[0].handle);
+            this.update(this.options[0].handle);
         },
 
         taxonomy() {
-            this.$emit('input', this.options[0].handle);
+            this.update(this.options[0].handle);
         },
     }
 }

@@ -61,6 +61,8 @@
 </style>
 
 <script>
+import { FieldtypeMixin as Fieldtype } from '@statamic/cms';
+
 export default {
     mixins: [Fieldtype],
 
@@ -70,7 +72,7 @@ export default {
 
     methods: {
         mappingUpdated(fieldHandle, value) {
-            this.$emit('input', {
+            this.update({
                 ...this.value,
                 [fieldHandle]: value,
             });

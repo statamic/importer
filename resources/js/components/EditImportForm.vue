@@ -41,10 +41,10 @@
 </template>
 
 <script>
-import HasHiddenFields from '../../../vendor/statamic/cms/resources/js/components/publish/HasHiddenFields';
+// import HasHiddenFields from '../../../vendor/statamic/cms/resources/js/components/publish/HasHiddenFields';
 
 export default {
-    mixins: [HasHiddenFields],
+    // mixins: [HasHiddenFields],
 
     props: {
         publishContainer: String,
