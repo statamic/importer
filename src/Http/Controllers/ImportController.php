@@ -6,9 +6,11 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Statamic\CP\Breadcrumbs;
 use Statamic\Facades;
 use Statamic\Facades\Collection;
@@ -28,10 +30,12 @@ class ImportController extends CpController
     {
         $blueprint = $this->createBlueprint();
 
-        return view('importer::index', [
+        return Inertia::render('importer::Index', [
+            'icon' => File::get(__DIR__.'/../../../resources/svg/icon.svg'),
+            'storeUrl' => cp_route('utilities.importer.store'),
             'fields' => $blueprint->fields()->toPublishArray(),
-            'meta' => $blueprint->fields()->meta(),
-            'values' => $blueprint->fields()->preProcess()->values()->all(),
+            'initialMeta' => $blueprint->fields()->meta(),
+            'initialValues' => $blueprint->fields()->preProcess()->values()->all(),
             'imports' => ImportFacade::all()
                 ->map(function ($import): array {
                     $destination = match ($import->get('destination.type')) {
