@@ -25,14 +25,12 @@ defineExpose(expose);
 const mappingUpdated = (fieldHandle, value) => update({ ...props.value, [fieldHandle]: value })
 
 const errors = (prefix) => {
-	return []; // todo
-
 	return Object.keys(publishErrors.value || [])
 		.filter(key => key.startsWith(`mappings.${prefix}`))
 		.reduce((acc, key) => {
 			acc[key.replace(`mappings.${prefix}.`, '')] = publishErrors.value[key];
 			return acc;
-		});
+		}, {});
 };
 </script>
 
@@ -45,7 +43,6 @@ const errors = (prefix) => {
 		<TableRows>
 			<TableRow v-for="field in meta.fields">
 				<TableCell class="w-1/3">
-					<!-- todo: add for prop to label so its syntactically correct -->
 					<Label :text="field.display" v-tooltip="{ content: field.handle, delay: 500, autoHide: false }" />
 					<Badge :prepend="__('Type')" :text="field.fieldtype_title" />
 				</TableCell>
