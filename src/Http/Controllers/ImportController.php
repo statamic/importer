@@ -121,16 +121,14 @@ class ImportController extends CpController
             ])->all())
             ->preProcess();
 
-        return view('importer::edit', [
-            'import' => $import,
+        return Inertia::render('importer::Edit', [
+            'icon' => File::get(__DIR__.'/../../../resources/svg/icon.svg'),
+            'action' => $import->updateUrl(),
+            'initialTitle' => $import->name(),
+            'initialBlueprint' => $blueprint->toPublishArray(),
+            'initialValues' => $fields->values()->all(),
+            'initialMeta' => $fields->meta(),
             'batchesTableMissing' => ! $this->ensureJobBatchesTableExists(),
-            'breadcrumbs' => Breadcrumbs::make([
-                ['text' => __('Imports'), 'url' => cp_route('utilities.importer')],
-            ]),
-            'title' => $import->name(),
-            'values' => $fields->values()->all(),
-            'meta' => $fields->meta(),
-            'blueprint' => $blueprint->toPublishArray(),
         ]);
     }
 
@@ -138,7 +136,7 @@ class ImportController extends CpController
     {
         $blueprint = $import->blueprint();
 
-        $data = $request->except('id', 'run');
+        $data = $request->except('id', '_run');
 
         $fields = $blueprint
             ->fields()
@@ -185,7 +183,7 @@ class ImportController extends CpController
 
         $saved = $import->save();
 
-        if ($request->run) {
+        if ($request->_run) {
             $import->run();
         }
 

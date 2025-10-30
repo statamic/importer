@@ -1,5 +1,4 @@
 <script setup>
-import axios from 'axios';
 import { Head, Link, router } from '@statamic/cms/inertia';
 import {
 	Header,
@@ -15,7 +14,8 @@ import {
 	DropdownItem,
 	DocsCallout
 } from '@statamic/cms/ui';
-import { ref } from 'vue';
+import { Pipeline, Request, PipelineStopped } from '@statamic/cms/save-pipeline';
+import { useTemplateRef, ref } from 'vue';
 
 const props = defineProps({
 	icon: String,
@@ -26,6 +26,7 @@ const props = defineProps({
 	imports: Array,
 });
 
+const container = useTemplateRef('container');
 const meta = ref(props.initialMeta);
 const values = ref(props.initialValues);
 const saving = ref(false);
@@ -41,40 +42,49 @@ const save = () => {
 	saving.value = true;
 	errors.value = {};
 
-	axios.post(props.storeUrl, values.value)
-		.then(response => {
-			saving.value = false;
+	new Pipeline()
+		.provide({ container, errors, saving })
+		.through([
+			new Request(props.storeUrl, 'post'),
+		])
+		.then((response) => {
 			router.get(response.data.redirect);
 		})
-		.catch(error => {
-			saving.value = false;
-
-			if (error.response && error.response.status === 422) {
-				errors.value = error.response.data.errors;
-				Statamic.$toast.error(error.response.data.message);
-
-				return;
+		.catch((e) => {
+			if (!(e instanceof PipelineStopped)) {
+				Statamic.$toast.error(__('Something went wrong'));
+				console.error(e);
 			}
-
-			Statamic.$toast.error(error.response.data.message || error);
 		});
 };
 </script>
 
+<style>
+.importer .group-fieldtype {
+	padding: 0!important;
+}
+
+.importer .group-fieldtype .divide-y {
+	padding: 0!important;
+}
+</style>
+
 <template>
 	<Head :title="__('Importer')" />
 
-	<div class="max-w-5xl mx-auto">
+	<div class="importer max-w-5xl mx-auto">
 		<Header :title="__('Importer')" :icon />
 
 		<Panel :heading="__('Create a New Import')">
-			<Card>
+			<Card inset>
 				<PublishContainer
+					ref="container"
 					:blueprint="fields"
 					:errors="errors"
 					:track-dirty-state="false"
 					:meta="meta"
 					v-model="values"
+					as-config
 				>
 					<PublishFieldsProvider :fields="fields">
 						<PublishFields />
@@ -87,7 +97,7 @@ const save = () => {
 		</Panel>
 
 		<template v-if="imports.length > 0">
-			<Heading class="mb-4" :text="__('Recent Imports')" />
+			<Heading class="mt-12 mb-4" :text="__('Recent Imports')" />
 
 			<Listing
 				:items="imports"
