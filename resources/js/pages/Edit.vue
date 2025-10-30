@@ -67,8 +67,7 @@ onUnmounted(() => saveKeyBinding.destroy());
 			<Button :disabled="saving || batchesTableMissing" variant="primary" :text="__('Save & Run')" @click="save(true)" />
 		</Header>
 
-		<!-- TODO: Revisit later. Make it pop. -->
-		<Card v-if="batchesTableMissing">
+		<Card v-if="batchesTableMissing" class="mb-8">
 			<Heading :text="__('Please run your migrations!')" />
 			<Description :text="__('importer::messages.migrations_needed')" />
 		</Card>
