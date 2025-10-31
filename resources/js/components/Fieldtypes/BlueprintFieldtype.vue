@@ -1,63 +1,50 @@
-<template>
-    <v-select
-        searchable
-        :options="options"
-        :get-option-label="(option) => option.title"
-        :get-option-key="(option) => option.handle"
-        :value="value"
-        :reduce="opt => opt.handle"
-        @input="update($event)"
-    />
-</template>
+<script setup>
+import { Fieldtype } from '@statamic/cms';
+import { injectPublishContext, Select } from '@statamic/cms/ui';
+import { computed, watch, onMounted } from 'vue';
 
-<script>
-export default {
-    mixins: [Fieldtype],
+const { values: publishValues } = injectPublishContext();
 
-    inject: ['storeName'],
+const emit = defineEmits(Fieldtype.emits);
+const props = defineProps(Fieldtype.props);
+const { expose, update } = Fieldtype.use(emit, props);
+defineExpose(expose);
 
-    mounted() {
-        if (! this.value && this.type && (this.collection || this.taxonomy)) {
-            this.$emit('input', this.options[0].handle);
-        }
-    },
+const type = computed(() => publishValues.value.destination?.type);
+const collection = computed(() => publishValues.value.destination?.collection[0]);
+const taxonomy = computed(() => publishValues.value.destination?.taxonomy[0]);
 
-    computed: {
-        type() {
-            return this.$store.state.publish[this.storeName].values.destination.type;
-        },
+const options = computed(() => {
+	if (type.value === 'entries') {
+		return props.meta.collectionBlueprints[collection.value] ?? [];
+	}
 
-        collection() {
-            return this.$store.state.publish[this.storeName].values.destination.collection[0];
-        },
+	if (type.value === 'terms') {
+		return props.meta.taxonomyBlueprints[taxonomy.value] ?? [];
+	}
 
-        taxonomy() {
-            return this.$store.state.publish[this.storeName].values.destination.taxonomy[0];
-        },
+	return [];
+});
 
-        options() {
-            if (this.type === 'entries') {
-                return this.meta.collectionBlueprints[this.collection];
-            }
+watch(() => type.value, () => update(null));
+watch(() => collection.value, () => update(options.value[0].handle));
+watch(() => taxonomy.value, () => update(options.value[0].handle));
 
-            if (this.type === 'terms') {
-                return this.meta.taxonomyBlueprints[this.taxonomy];
-            }
-        },
-    },
-
-    watch: {
-        type() {
-            this.$emit('input', null);
-        },
-
-        collection() {
-            this.$emit('input', this.options[0].handle);
-        },
-
-        taxonomy() {
-            this.$emit('input', this.options[0].handle);
-        },
-    }
-}
+onMounted(() => {
+	if (! props.value && type.value && (collection.value || taxonomy.value)) {
+		update(options.value[0].handle);
+	}
+});
 </script>
+
+<template>
+	<Select
+		v-if="options.length > 0"
+		class="w-full"
+		:options
+		option-label="title"
+		option-value="handle"
+		:model-value="value"
+		@update:model-value="update($event)"
+	/>
+</template>

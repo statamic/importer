@@ -74,10 +74,9 @@ class Blueprint
                                 [
                                     'handle' => 'destination',
                                     'field' => [
-                                        'type' => 'group',
+                                        'type' => 'import_destination',
                                         'hide_display' => true,
-                                        'border' => false,
-                                        'fullscreen' => false,
+                                        'full_width_setting' => true,
                                         'fields' => collect([
                                             [
                                                 'handle' => 'type',
@@ -103,6 +102,7 @@ class Blueprint
                                                     'width' => 50,
                                                     'max_items' => 1,
                                                     'mode' => 'select',
+                                                    'actions' => false,
                                                     'if' => ['type' => 'entries'],
                                                     'validate' => 'required_if:destination.type,entries',
                                                 ],
@@ -116,6 +116,7 @@ class Blueprint
                                                     'width' => 50,
                                                     'max_items' => 1,
                                                     'mode' => 'select',
+                                                    'actions' => false,
                                                     'if' => ['type' => 'terms'],
                                                     'validate' => 'required_if:destination.type,terms',
                                                 ],
@@ -123,11 +124,11 @@ class Blueprint
                                             [
                                                 'handle' => 'blueprint',
                                                 'field' => [
-                                                    'type' => 'blueprint',
+                                                    'type' => 'import_blueprint',
                                                     'display' => __('Blueprint'),
                                                     'instructions' => __('importer::messages.destination_blueprint_instructions'),
                                                     'width' => 50,
-                                                    'unless' => ['type' => 'users'],
+                                                    'if' => ['type' => 'custom destinationNeedsBlueprint'],
                                                     'validate' => 'required_unless:destination.type,users',
                                                 ],
                                             ],
@@ -195,6 +196,7 @@ class Blueprint
                                         'type' => 'import_mappings',
                                         'display' => __('Field Mappings'),
                                         'instructions' => __('importer::messages.mapping_instructions'),
+                                        'full_width_setting' => true,
                                         'validate' => [
                                             'required',
                                             'array',
@@ -270,6 +272,7 @@ class Blueprint
                 'hide_display' => true,
                 'fullscreen' => false,
                 'border' => false,
+                'full_width_setting' => true,
                 'fields' => $fields->items()->all(),
             ],
         ]];

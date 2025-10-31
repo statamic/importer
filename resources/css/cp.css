@@ -1,0 +1,11 @@
+@import "@statamic/cms/tailwind.css";
+
+@source "../js";
+
+/**
+    Borders & padding will be added by the individual destination fields.
+    We don't want them on the parent destination fieldtype. It just acts as a container.
+ */
+.import_destination-fieldtype {
+    @apply border-b-0 !px-0 !py-0;
+}

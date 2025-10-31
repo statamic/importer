@@ -8,6 +8,9 @@ use Statamic\Fields\Fieldtype;
 
 class BlueprintFieldtype extends Fieldtype
 {
+    protected $selectable = false;
+    protected static $handle = 'import_blueprint';
+
     public function preload()
     {
         return [
