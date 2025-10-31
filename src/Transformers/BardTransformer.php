@@ -13,7 +13,7 @@ use Statamic\Support\Str;
 
 class BardTransformer extends AbstractTransformer
 {
-    public function transform(string $value): array
+    public function transform($value): array
     {
         if ($this->isGutenbergValue($value)) {
             $value = Gutenberg::toBard(

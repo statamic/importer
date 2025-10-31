@@ -6,7 +6,7 @@ use Statamic\Support\Str;
 
 class ListTransformer extends AbstractTransformer
 {
-    public function transform(string $value)
+    public function transform($value)
     {
         // When $value is a serialized array, deserialize it.
         if (Str::startsWith($value, 'a:')) {

@@ -4,5 +4,5 @@ namespace Statamic\Importer\Contracts;
 
 interface Transformer
 {
-    public function transform(string $value);
+    public function transform($value);
 }

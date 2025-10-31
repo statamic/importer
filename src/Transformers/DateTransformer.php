@@ -11,7 +11,7 @@ use Statamic\Support\Str;
 
 class DateTransformer extends AbstractTransformer
 {
-    public function transform(string $value): array|int|string
+    public function transform($value): array|int|string
     {
         if ($this->field->get('mode') === 'range') {
             return [
