@@ -134,17 +134,17 @@ HTML
             [
                 'type' => 'orderedList',
                 'content' => [
-                    ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Ordered One']]]]],
-                    ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Ordered Two']]]]],
-                    ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Ordered Three']]]]],
+                    ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Ordered One']]],
+                    ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Ordered Two']]],
+                    ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Ordered Three']]],
                 ],
             ],
             [
                 'type' => 'bulletList',
                 'content' => [
-                    ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Unordered One']]]]],
-                    ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Unordered Two']]]]],
-                    ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Unordered Three']]]]],
+                    ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Unordered One']]],
+                    ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Unordered Two']]],
+                    ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Unordered Three']]],
                 ],
             ],
         ], $output);
