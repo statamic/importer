@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0 (2025-10-31)
+
+* Improve support for Gutenberg quotes #115 by @duncanmcclean
+
+
+
 ## 1.8.5 (2025-10-02)
 
 ### What's fixed
