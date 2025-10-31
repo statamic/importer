@@ -52,11 +52,31 @@ class Gutenberg
                 }
 
                 if ($block['blockName'] === 'core/quote') {
+                    $innerHtmlWithoutBlockquote = (new Crawler($block['innerHTML']))->filter('blockquote')->html();
+
                     return [
                         'type' => 'blockquote',
                         'content' => collect($block['innerBlocks'])
                             ->filter(fn ($block) => $block['blockName'] === 'core/paragraph')
                             ->map(fn (array $block) => static::renderHtmlToProsemirror($field, $block['innerHTML']))
+                            ->when(! empty($innerHtmlWithoutBlockquote), function ($collection) use ($innerHtmlWithoutBlockquote) {
+                                // When the blockquote contains a <cite>, we need to append it to the blockquote.
+                                if (Str::startsWith($innerHtmlWithoutBlockquote, '<cite>')) {
+                                    return $collection->push([
+                                        'type' => 'paragraph',
+                                        'attrs' => ['textAlign' => 'left'],
+                                        'content' => [
+                                            [
+                                                'type' => 'hardBreak',
+                                            ],
+                                            [
+                                                'type' => 'text',
+                                                'text' => strip_tags($innerHtmlWithoutBlockquote),
+                                            ]
+                                        ],
+                                    ]);
+                                }
+                            })
                             ->values()
                             ->all(),
                     ];
