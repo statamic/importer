@@ -70,10 +70,10 @@ HTML);
         ], $output);
 
         $this->assertContains(['type' => 'orderedList', 'content' => [
-            ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'One']]]]],
-            ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Two']]]]],
-            ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Three']]]]],
-            ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Four']]]]],
+            ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'One']]],
+            ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Two']]],
+            ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Three']]],
+            ['type' => 'listItem', 'content' => [['type' => 'text', 'text' => 'Four']]],
         ]], $output);
 
         $this->assertContains(['type' => 'paragraph', 'attrs' => ['textAlign' => 'left'], 'content' => [
