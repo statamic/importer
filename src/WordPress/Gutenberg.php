@@ -52,11 +52,54 @@ class Gutenberg
                 }
 
                 if ($block['blockName'] === 'core/quote') {
+                    // Quotes saved in the legacy format won't have any inner blocks, so we need to parse them manually.
+                    if (empty($block['innerBlocks'])) {
+                        $crawler = new Crawler($block['innerHTML']);
+
+                        $crawler
+                            ->filter('blockquote p')
+                            ->each(function (Crawler $nodeCrawler) use (&$block) {
+                                $block['innerBlocks'][] = [
+                                    'blockName' => 'core/paragraph',
+                                    'attrs' => [],
+                                    'innerBlocks' => [],
+                                    'innerHTML' => $nodeCrawler->outerHtml(),
+                                ];
+                            });
+
+                        // innerHTML should be the <blockquote> element, but without the nested <p> elements.
+                        $crawler
+                            ->filter('p')
+                            ->each(fn (Crawler $node) => $node->getNode(0)->parentNode->removeChild($node->getNode(0)));
+
+                        $block['innerHTML'] = $crawler->html();
+                    }
+
+                    $innerHtmlWithoutBlockquote = trim((new Crawler($block['innerHTML']))->filter('blockquote')->html());
+
                     return [
                         'type' => 'blockquote',
                         'content' => collect($block['innerBlocks'])
                             ->filter(fn ($block) => $block['blockName'] === 'core/paragraph')
                             ->map(fn (array $block) => static::renderHtmlToProsemirror($field, $block['innerHTML']))
+                            ->when(! empty($innerHtmlWithoutBlockquote), function ($collection) use ($innerHtmlWithoutBlockquote) {
+                                // When the blockquote contains a <cite>, we need to append it to the blockquote.
+                                if (Str::startsWith($innerHtmlWithoutBlockquote, '<cite>')) {
+                                    return $collection->push([
+                                        'type' => 'paragraph',
+                                        'attrs' => ['textAlign' => 'left'],
+                                        'content' => [
+                                            [
+                                                'type' => 'hardBreak',
+                                            ],
+                                            [
+                                                'type' => 'text',
+                                                'text' => strip_tags($innerHtmlWithoutBlockquote),
+                                            ],
+                                        ],
+                                    ]);
+                                }
+                            })
                             ->values()
                             ->all(),
                     ];

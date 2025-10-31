@@ -163,6 +163,20 @@ HTML
 <p>Great achievements are born from collaboration; together, we can turn the impossible into the possible.</p>
 <!-- /wp:paragraph --></blockquote>
 <!-- /wp:quote -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><!-- wp:paragraph -->
+<p>Exercitation nostrud minim proident minim minim aliqua tempor incididunt laboris in. Id non reprehenderit sint excepteur cillum.</p>
+<!-- /wp:paragraph --><cite>John Doe</cite></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:quote {"align":"left"} -->
+<blockquote class="wp-block-quote has-text-align-left">
+<p>“Ea eiusmod ad non magna et tempor non qui magna. Id labore veniam Lorem do elit do veniam magna et aliquip voluptate consectetur nulla aliquip.”</p>
+<p>“Minim nisi adipisicing velit. In in magna veniam minim reprehenderit esse ut ut ea nisi sint irure nostrud. Ad dolor eiusmod culpa.”</p>
+<cite>John Doe</cite>
+</blockquote>
+<!-- /wp:quote -->
 HTML
         );
 
@@ -177,6 +191,72 @@ HTML
                             [
                                 'type' => 'text',
                                 'text' => 'Great achievements are born from collaboration; together, we can turn the impossible into the possible.',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'type' => 'blockquote',
+                'content' => [
+                    [
+                        'type' => 'paragraph',
+                        'attrs' => ['textAlign' => 'left'],
+                        'content' => [
+                            [
+                                'type' => 'text',
+                                'text' => 'Exercitation nostrud minim proident minim minim aliqua tempor incididunt laboris in. Id non reprehenderit sint excepteur cillum.',
+                            ],
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'attrs' => ['textAlign' => 'left'],
+                        'content' => [
+                            [
+                                'type' => 'hardBreak',
+                            ],
+                            [
+                                'type' => 'text',
+                                'text' => 'John Doe',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'type' => 'blockquote',
+                'content' => [
+                    [
+                        'type' => 'paragraph',
+                        'attrs' => ['textAlign' => 'left'],
+                        'content' => [
+                            [
+                                'type' => 'text',
+                                'text' => '“Ea eiusmod ad non magna et tempor non qui magna. Id labore veniam Lorem do elit do veniam magna et aliquip voluptate consectetur nulla aliquip.”',
+                            ],
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'attrs' => ['textAlign' => 'left'],
+                        'content' => [
+                            [
+                                'type' => 'text',
+                                'text' => '“Minim nisi adipisicing velit. In in magna veniam minim reprehenderit esse ut ut ea nisi sint irure nostrud. Ad dolor eiusmod culpa.”',
+                            ],
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'attrs' => ['textAlign' => 'left'],
+                        'content' => [
+                            [
+                                'type' => 'hardBreak',
+                            ],
+                            [
+                                'type' => 'text',
+                                'text' => 'John Doe',
                             ],
                         ],
                     ],
