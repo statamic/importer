@@ -6,7 +6,7 @@ use Statamic\Statamic;
 
 class ToggleTransformer extends AbstractTransformer
 {
-    public function transform(string $value): bool
+    public function transform($value): bool
     {
         if ($this->config('format') === 'boolean') {
             return match ($value) {

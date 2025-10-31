@@ -21,7 +21,7 @@ abstract class AbstractTransformer implements Transformer
         protected ?array $values = null,
     ) {}
 
-    abstract public function transform(string $value);
+    abstract public function transform($value);
 
     public function fieldItems(): array
     {
