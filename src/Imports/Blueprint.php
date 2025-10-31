@@ -130,7 +130,7 @@ class Blueprint
                                                     'display' => __('Blueprint'),
                                                     'instructions' => __('importer::messages.destination_blueprint_instructions'),
                                                     'width' => 50,
-                                                    'unless' => ['type' => 'users'],
+                                                    'if' => ['type' => 'custom destinationNeedsBlueprint'],
                                                     'validate' => 'required_unless:destination.type,users',
                                                 ],
                                             ],

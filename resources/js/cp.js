@@ -9,4 +9,9 @@ Statamic.booting(() => {
 
     Statamic.$components.register('import_blueprint-fieldtype', BlueprintFieldtype);
     Statamic.$components.register('import_mappings-fieldtype', ImportMappingsFieldtype);
+
+    Statamic.$conditions.add('destinationNeedsBlueprint', ({ container, values }) => {
+        return ['entries', 'terms'].includes(values.type)
+            && (values.collection?.length > 0 || values.taxonomy?.length > 0);
+    });
 });
