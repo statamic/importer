@@ -2,6 +2,7 @@
 
 ## 1.9.0 (2025-10-31)
 
+### What's improved
 * Improve support for Gutenberg quotes #115 by @duncanmcclean
 
 
