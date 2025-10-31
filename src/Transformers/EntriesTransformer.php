@@ -10,7 +10,7 @@ use Statamic\Support\Str;
 
 class EntriesTransformer extends AbstractTransformer
 {
-    public function transform(string $value): null|string|array
+    public function transform($value): null|string|array
     {
         // When $value is a serialized array, deserialize it.
         if (Str::startsWith($value, 'a:')) {

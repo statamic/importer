@@ -7,7 +7,7 @@ use Statamic\Support\Str;
 
 class UsersTransformer extends AbstractTransformer
 {
-    public function transform(string $value): null|string|array
+    public function transform($value): null|string|array
     {
         // When $value is a JSON string, decode it.
         if (Str::startsWith($value, ['{', '[']) || Str::startsWith($value, ['[', ']'])) {

@@ -20,7 +20,7 @@ use Statamic\Support\Str;
 
 class AssetsTransformer extends AbstractTransformer
 {
-    public function transform(string $value): null|string|array
+    public function transform($value): null|string|array
     {
         $assetContainer = $this->field->get('container')
             ? AssetContainer::find($this->field->get('container'))
