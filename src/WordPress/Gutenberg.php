@@ -52,7 +52,28 @@ class Gutenberg
                 }
 
                 if ($block['blockName'] === 'core/quote') {
-                    $innerHtmlWithoutBlockquote = (new Crawler($block['innerHTML']))->filter('blockquote')->html();
+                    // Quotes saved in the legacy format won't have any inner blocks, so we need to parse them manually.
+                    if (empty($block['innerBlocks'])) {
+                        $crawler = new Crawler($block['innerHTML']);
+
+                        $block['innerBlocks'] = [
+                            [
+                                'blockName' => 'core/paragraph',
+                                'attrs' => [],
+                                'innerBlocks' => [],
+                                'innerHTML' => implode('', $crawler->filter('blockquote p')->each(fn (Crawler $p) => $p->outerHtml())),
+                            ],
+                        ];
+
+                        // innerHTML should be the <blockquote> element, but without the nested <p> elements.
+                        $crawler
+                            ->filter('p')
+                            ->each(fn (Crawler $node) => $node->getNode(0)->parentNode->removeChild($node->getNode(0)));
+
+                        $block['innerHTML'] = $crawler->html();
+                    }
+
+                    $innerHtmlWithoutBlockquote = trim((new Crawler($block['innerHTML']))->filter('blockquote')->html());
 
                     return [
                         'type' => 'blockquote',
