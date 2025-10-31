@@ -61,7 +61,7 @@ onUnmounted(() => saveKeyBinding.destroy());
 <template>
 	<Head :title="title" />
 
-	<div class="importer max-w-5xl mx-auto">
+	<div class="max-w-5xl mx-auto">
 		<Header :title="title" :icon>
 			<Button :disabled="saving" :text="__('Save')" @click="save(false)" />
 			<Button :disabled="saving || batchesTableMissing" variant="primary" :text="__('Save & Run')" @click="save(true)" />

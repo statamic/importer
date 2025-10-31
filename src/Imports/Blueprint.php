@@ -74,10 +74,8 @@ class Blueprint
                                 [
                                     'handle' => 'destination',
                                     'field' => [
-                                        'type' => 'group',
+                                        'type' => 'import_destination',
                                         'hide_display' => true,
-                                        'border' => false,
-                                        'fullscreen' => false,
                                         'full_width_setting' => true,
                                         'fields' => collect([
                                             [

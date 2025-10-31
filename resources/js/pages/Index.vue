@@ -59,20 +59,10 @@ const save = () => {
 };
 </script>
 
-<style>
-.importer .group-fieldtype {
-	padding: 0!important;
-}
-
-.importer .group-fieldtype .divide-y {
-	padding: 0!important;
-}
-</style>
-
 <template>
 	<Head :title="__('Importer')" />
 
-	<div class="importer max-w-5xl mx-auto">
+	<div class="max-w-5xl mx-auto">
 		<Header :title="__('Importer')" :icon />
 
 		<Panel :heading="__('Create a New Import')">
