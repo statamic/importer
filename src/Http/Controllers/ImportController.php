@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Statamic\CP\Breadcrumbs;
 use Statamic\Facades;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
