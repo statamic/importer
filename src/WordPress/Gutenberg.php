@@ -56,14 +56,16 @@ class Gutenberg
                     if (empty($block['innerBlocks'])) {
                         $crawler = new Crawler($block['innerHTML']);
 
-                        $block['innerBlocks'] = [
-                            [
-                                'blockName' => 'core/paragraph',
-                                'attrs' => [],
-                                'innerBlocks' => [],
-                                'innerHTML' => implode('', $crawler->filter('blockquote p')->each(fn (Crawler $p) => $p->outerHtml())),
-                            ],
-                        ];
+                        $crawler
+                            ->filter('blockquote p')
+                            ->each(function (Crawler $nodeCrawler) use (&$block) {
+                                $block['innerBlocks'][] = [
+                                    'blockName' => 'core/paragraph',
+                                    'attrs' => [],
+                                    'innerBlocks' => [],
+                                    'innerHTML' => $nodeCrawler->outerHtml(),
+                                ];
+                            });
 
                         // innerHTML should be the <blockquote> element, but without the nested <p> elements.
                         $crawler
