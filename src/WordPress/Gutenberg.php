@@ -95,7 +95,7 @@ class Gutenberg
                                             [
                                                 'type' => 'text',
                                                 'text' => strip_tags($innerHtmlWithoutBlockquote),
-                                            ]
+                                            ],
                                         ],
                                     ]);
                                 }
