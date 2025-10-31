@@ -120,8 +120,8 @@ const save = () => {
 					<span class="text-xs">{{ value.toUpperCase() }}</span>
 				</template>
 				<template #prepended-row-actions="{ row }">
-					<DropdownItem :text="__('Edit')" :href="row.edit_url" />
-					<DropdownItem :text="__('Delete')" variant="destructive" @click="$refs[`deleter-${row.id}`].confirm()" />
+					<DropdownItem :text="__('Edit')" icon="edit" :href="row.edit_url" />
+					<DropdownItem :text="__('Delete')" icon="trash" variant="destructive" @click="$refs[`deleter-${row.id}`].confirm()" />
 				</template>
 			</Listing>
 		</template>
