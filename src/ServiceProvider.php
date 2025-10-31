@@ -28,6 +28,7 @@ class ServiceProvider extends AddonServiceProvider
         'publicDirectory' => 'dist',
         'hotFile' => 'vendor/importer/hot',
         'input' => [
+            'resources/css/cp.css',
             'resources/js/cp.js',
         ],
     ];
