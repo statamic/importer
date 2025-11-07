@@ -10,6 +10,7 @@ use Statamic\Facades\User;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
+use Inertia\Testing\AssertableInertia as Assert;
 
 class EditImportTest extends TestCase
 {
@@ -43,6 +44,6 @@ class EditImportTest extends TestCase
             ->actingAs(User::make()->makeSuper()->save())
             ->get("/cp/utilities/importer/{$import->id()}")
             ->assertOk()
-            ->assertViewHas('import');
+            ->assertInertia(fn (Assert $page) => $page->component('importer::Edit'));
     }
 }
