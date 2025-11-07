@@ -3,13 +3,13 @@
 namespace Statamic\Importer\Tests\Imports;
 
 use Illuminate\Support\Facades\File;
+use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Facades\Collection;
 use Statamic\Facades\User;
 use Statamic\Importer\Facades\Import;
 use Statamic\Importer\Tests\TestCase;
 use Statamic\Testing\Concerns\PreventsSavingStacheItemsToDisk;
-use Inertia\Testing\AssertableInertia as Assert;
 
 class ViewImportListingTest extends TestCase
 {
