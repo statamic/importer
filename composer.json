@@ -12,7 +12,7 @@
         }
     },
     "require": {
-        "statamic/cms": "^v6.0.0-alpha.15",
+        "statamic/cms": "^v6.0.0-alpha.16",
         "spatie/simple-excel": "^3.7",
         "symfony/dom-crawler": "^7.1",
         "pixelfear/composer-dist-plugin": "^0.1.5",
