@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "dev": "vite",
+        "dev": "rm -rf dist && vite",
         "build": "vite build"
     },
     "dependencies": {
