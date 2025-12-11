@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.0-beta.2 (2025-12-11)
+
+### What's fixed
+- Fixed SVG path width for the addon icon by @JayGeorge
+
+### Breaking changes
+- Dropped support for Laravel 11 & PHP 8.2 #119 by @duncanmcclean
+
+
+
 ## 2.0.0-beta.1 (2025-11-12)
 
 ### What's new
