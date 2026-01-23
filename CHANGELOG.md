@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0-beta.3 (2026-01-23)
+
+### What's improved
+- Use `Alert` component for batches table warning #121 by @duncanmcclean
+
+
+
 ## 2.0.0-beta.2 (2025-12-11)
 
 ### What's fixed
