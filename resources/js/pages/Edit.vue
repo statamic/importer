@@ -1,6 +1,6 @@
 <script setup>
 import { Head } from '@statamic/cms/inertia';
-import { Header, Button, Alert, Heading, Description, PublishContainer } from '@statamic/cms/ui';
+import { Header, Button, Alert, PublishContainer } from '@statamic/cms/ui';
 import { Pipeline, Request, PipelineStopped } from '@statamic/cms/save-pipeline';
 import { useTemplateRef, ref, onMounted, onUnmounted } from 'vue';
 
@@ -67,10 +67,13 @@ onUnmounted(() => saveKeyBinding.destroy());
 			<Button :disabled="saving || batchesTableMissing" variant="primary" :text="__('Save & Run')" @click="save(true)" />
 		</Header>
 
-		<Alert v-if="batchesTableMissing" class="mb-8" variant="warning">
-			<Heading :text="__('Please run your migrations!')" />
-			<Description :text="__('importer::messages.migrations_needed')" />
-		</Alert>
+		<Alert
+			v-if="batchesTableMissing"
+			class="mb-8"
+			variant="warning"
+			:heading="__('Please run your migrations!')"
+			:text="__('importer::messages.migrations_needed')"
+		/>
 
 		<PublishContainer
 			ref="container"
