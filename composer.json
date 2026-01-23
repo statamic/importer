@@ -44,5 +44,6 @@
             "path": "dist"
         }
     },
+    "prefer-stable": true,
     "minimum-stability": "dev"
 }
