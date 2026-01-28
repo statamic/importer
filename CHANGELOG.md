@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.0 (2026-01-28)
+
+### What's new
+- Updated for Statamic 6
+
+### Breaking changes
+- Dropped support for Laravel 11 & PHP 8.2
+- Removed string typehint from `Transformer::transform()` method #118 by @duncanmcclean
+
+
+
 ## 2.0.0-beta.3 (2026-01-23)
 
 ### What's improved
