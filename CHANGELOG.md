@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1 (2026-02-18)
+
+### What's fixed
+- Support symfony/css-selector 8.0 #124 by @duncanmcclean
+
+
+
 ## 2.0.0 (2026-01-28)
 
 ### What's new
