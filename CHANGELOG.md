@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 (2026-03-09)
+
+### What's new
+- Supports Laravel 13 #125 by @duncanmcclean
+
+### What's fixed
+- Run GitHub Actions workflows only once #126 by @duncanmcclean
+
+
+
 ## 2.0.1 (2026-02-18)
 
 ### What's fixed
