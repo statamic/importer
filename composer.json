@@ -12,7 +12,7 @@
         }
     },
     "require": {
-        "statamic/cms": "^6.0",
+        "statamic/cms": "^6.5",
         "spatie/simple-excel": "^3.7",
         "symfony/dom-crawler": "^7.1",
         "pixelfear/composer-dist-plugin": "^0.1.5",
@@ -20,9 +20,9 @@
     },
     "require-dev": {
         "laravel/pint": "^1.18",
-        "orchestra/testbench": "^10.0",
-        "phpunit/phpunit": "^11.0",
-        "spatie/laravel-ray": "^1.39"
+        "orchestra/testbench": "^10.0 || ^11.0",
+        "phpunit/phpunit": "^11.0 || ^12.0",
+        "spatie/laravel-ray": "^1.43.6"
     },
     "config": {
         "allow-plugins": {
@@ -43,5 +43,7 @@
             "url": "https://github.com/statamic/importer/releases/download/{$version}/dist.tar.gz",
             "path": "dist"
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
