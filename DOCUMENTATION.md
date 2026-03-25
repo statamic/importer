@@ -193,6 +193,8 @@ public function transform(string $value)
 }
 ```
 
+It's worth noting that these values will be raw (untransformed).
+
 ### Hooking into Gutenberg blocks
 When the Bard importer detects Gutenberg content, it will automatically handle many of the built-in blocks.
 
