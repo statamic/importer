@@ -4,13 +4,13 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@tailwindcss/vite": "^4.1.16",
-        "tailwindcss": "^4.1.16",
+        "@tailwindcss/vite": "^4.2.4",
+        "tailwindcss": "^4.2.4",
         "uniqid": "^5.4.0"
     },
     "devDependencies": {
         "@statamic/cms": "file:./vendor/statamic/cms/resources/dist-package",
-        "laravel-vite-plugin": "^1.3.0",
-        "vite": "^6.4.1"
+        "laravel-vite-plugin": "^3.0.0",
+        "vite": "^8.0.0"
     }
 }
