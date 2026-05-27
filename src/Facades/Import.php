@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Facade;
 use Statamic\Importer\Imports\ImportRepository;
 
 /**
- * @see \Statamic\Importer\Imports\ImportRepository
+ * @see ImportRepository
  */
 class Import extends Facade
 {
