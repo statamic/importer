@@ -88,8 +88,8 @@ class ImportMappingsFieldtype extends Fieldtype
         $import = $this->field()->parent();
 
         $row = match ($import->get('type')) {
-            'csv' => (new Csv($import))->getItems($import->get('path'))->first(),
-            'xml' => (new Xml($import))->getItems($import->get('path'))->first(),
+            'csv' => (new Csv($import))->getItems($import->getLocalFilePath())->first(),
+            'xml' => (new Xml($import))->getItems($import->getLocalFilePath())->first(),
         };
 
         return $import->mappingFields()->all()

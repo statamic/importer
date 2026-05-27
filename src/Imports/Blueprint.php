@@ -58,13 +58,15 @@ class Blueprint
                                                     return;
                                                 }
 
-                                                $path = "statamic/file-uploads/{$value[0]}";
+                                                $disk = config('statamic.system.file_uploads.disk', 'local');
+                                                $basePath = config('statamic.system.file_uploads.path', 'statamic/file-uploads');
+                                                $path = "{$basePath}/{$value[0]}";
 
-                                                if (! Storage::disk('local')->exists($path)) {
+                                                if (! Storage::disk($disk)->exists($path)) {
                                                     $fail('importer::validation.file_type_not_allowed')->translate();
                                                 }
 
-                                                if (! in_array(Storage::disk('local')->mimeType($path), static::$allowedMimeTypes)) {
+                                                if (! in_array(Storage::disk($disk)->mimeType($path), static::$allowedMimeTypes)) {
                                                     $fail('importer::validation.uploaded_file_not_found')->translate();
                                                 }
                                             },

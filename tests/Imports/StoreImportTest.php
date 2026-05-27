@@ -54,7 +54,7 @@ class StoreImportTest extends TestCase
         $this->assertNotNull($import);
         $this->assertEquals('Posts', $import->name());
         $this->assertEquals('csv', $import->get('type'));
-        $this->assertEquals(Storage::path('statamic/imports/posts/import.csv'), $import->get('path'));
+        $this->assertEquals('statamic/imports/posts/import.csv', $import->get('path'));
         $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
@@ -91,7 +91,7 @@ class StoreImportTest extends TestCase
         $this->assertNotNull($import);
         $this->assertEquals('Posts', $import->name());
         $this->assertEquals('csv', $import->get('type'));
-        $this->assertEquals(Storage::path('statamic/imports/posts/import.csv'), $import->get('path'));
+        $this->assertEquals('statamic/imports/posts/import.csv', $import->get('path'));
         $this->assertEquals(['create', 'update'], $import->get('strategy'));
 
         $this->assertEquals('en', $import->get('destination.site'));
@@ -185,7 +185,7 @@ class StoreImportTest extends TestCase
         $this->assertNotNull($import);
         $this->assertEquals('Categories', $import->name());
         $this->assertEquals('csv', $import->get('type'));
-        $this->assertEquals(Storage::path('statamic/imports/categories/import.csv'), $import->get('path'));
+        $this->assertEquals('statamic/imports/categories/import.csv', $import->get('path'));
         $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
@@ -212,7 +212,7 @@ class StoreImportTest extends TestCase
         $this->assertNotNull($import);
         $this->assertEquals('Users', $import->name());
         $this->assertEquals('csv', $import->get('type'));
-        $this->assertEquals(Storage::path('statamic/imports/users/import.csv'), $import->get('path'));
+        $this->assertEquals('statamic/imports/users/import.csv', $import->get('path'));
         $this->assertEquals(['create', 'update'], $import->get('strategy'));
     }
 
@@ -285,5 +285,35 @@ class StoreImportTest extends TestCase
             ->assertSessionHasErrors('strategy');
 
         $this->assertNull(Import::find('foo'));
+    }
+
+    #[Test]
+    public function it_reads_uploaded_file_from_configured_disk()
+    {
+        config(['statamic.system.file_uploads.disk' => 'uploads']);
+        config(['statamic.system.file_uploads.path' => 'temp-uploads']);
+
+        Storage::fake('uploads');
+        Storage::disk('uploads')->put('temp-uploads/123456789/import.csv', '');
+
+        $this
+            ->actingAs(User::make()->makeSuper()->save())
+            ->post('/cp/utilities/importer', [
+                'name' => 'Users',
+                'file' => ['123456789/import.csv'],
+                'destination' => [
+                    'type' => 'users',
+                ],
+                'strategy' => ['create', 'update'],
+            ])
+            ->assertJsonStructure(['saved', 'redirect']);
+
+        $import = Import::find('users');
+
+        $this->assertNotNull($import);
+
+        // File should have been moved from uploads disk to local disk
+        Storage::disk('uploads')->assertMissing('temp-uploads/123456789/import.csv');
+        Storage::disk('local')->assertExists('statamic/imports/users/import.csv');
     }
 }

@@ -53,8 +53,8 @@ class DateTransformer extends AbstractTransformer
     {
         if ($this->field->get('mode') === 'range') {
             $row = match ($this->import?->get('type')) {
-                'csv' => (new Csv($this->import))->getItems($this->import->get('path'))->first(),
-                'xml' => (new Xml($this->import))->getItems($this->import->get('path'))->first(),
+                'csv' => (new Csv($this->import))->getItems($this->import->getLocalFilePath())->first(),
+                'xml' => (new Xml($this->import))->getItems($this->import->getLocalFilePath())->first(),
             };
 
             // To prevent the field mapping from being filtered out, the Start Date is the "normal" key,

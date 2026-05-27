@@ -72,17 +72,18 @@ class ImportController extends CpController
 
         $file = $request->file[0];
 
-        $type = match (Storage::disk('local')->mimeType("statamic/file-uploads/{$file}")) {
+        $uploadsDisk = config('statamic.system.file_uploads.disk', 'local');
+        $uploadsPath = config('statamic.system.file_uploads.path', 'statamic/file-uploads');
+
+        $type = match (Storage::disk($uploadsDisk)->mimeType("{$uploadsPath}/{$file}")) {
             'text/csv', 'application/csv', 'text/plain' => 'csv',
             'application/xml', 'text/xml' => 'xml',
         };
 
-        Storage::disk('local')->move(
-            from: "statamic/file-uploads/{$file}",
-            to: $path = "statamic/imports/{$id}/".basename($file)
-        );
+        $path = "statamic/imports/{$id}/".basename($file);
 
-        $path = Storage::disk('local')->path($path);
+        Storage::disk('local')->put($path, Storage::disk($uploadsDisk)->get("{$uploadsPath}/{$file}"));
+        Storage::disk($uploadsDisk)->delete("{$uploadsPath}/{$file}");
 
         $values = $fields
             ->process()
@@ -150,17 +151,18 @@ class ImportController extends CpController
         $path = $import->get('path');
 
         if (($request->file && $file = $request->file[0]) && $file !== basename($path)) {
-            $type = match (Storage::disk('local')->mimeType("statamic/file-uploads/{$file}")) {
+            $uploadsDisk = config('statamic.system.file_uploads.disk', 'local');
+            $uploadsPath = config('statamic.system.file_uploads.path', 'statamic/file-uploads');
+
+            $type = match (Storage::disk($uploadsDisk)->mimeType("{$uploadsPath}/{$file}")) {
                 'text/csv', 'application/csv', 'text/plain' => 'csv',
                 'application/xml', 'text/xml' => 'xml',
             };
 
-            Storage::disk('local')->move(
-                from: "statamic/file-uploads/{$file}",
-                to: $path = "statamic/imports/{$import->id()}/".basename($file)
-            );
+            $path = "statamic/imports/{$import->id()}/".basename($file);
 
-            $path = Storage::disk('local')->path($path);
+            Storage::disk('local')->put($path, Storage::disk($uploadsDisk)->get("{$uploadsPath}/{$file}"));
+            Storage::disk($uploadsDisk)->delete("{$uploadsPath}/{$file}");
         }
 
         $values = $fields

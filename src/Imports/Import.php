@@ -5,6 +5,7 @@ namespace Statamic\Importer\Imports;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
@@ -73,6 +74,39 @@ class Import
     public function allBatchesHaveFinished(): bool
     {
         return $this->batches()->every(fn (Batch $batch) => $batch->finished());
+    }
+
+    public function fileExists(): bool
+    {
+        return $this->hasAbsoluteFilePath()
+            ? file_exists($this->get('path'))
+            : Storage::disk('local')->exists($this->get('path'));
+    }
+
+    public function fileMimeType(): ?string
+    {
+        return $this->hasAbsoluteFilePath()
+            ? mime_content_type($this->get('path')) ?: null
+            : Storage::disk('local')->mimeType($this->get('path'));
+    }
+
+    public function getLocalFilePath(): string
+    {
+        return $this->hasAbsoluteFilePath()
+            ? $this->get('path')
+            : Storage::disk('local')->path($this->get('path'));
+    }
+
+    public function deleteFile(): bool
+    {
+        return $this->hasAbsoluteFilePath()
+            ? @unlink($this->get('path'))
+            : Storage::disk('local')->delete($this->get('path'));
+    }
+
+    private function hasAbsoluteFilePath(): bool
+    {
+        return str_starts_with($this->get('path'), '/');
     }
 
     public function fileData(): array

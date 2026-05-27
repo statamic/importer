@@ -5,7 +5,6 @@ namespace Statamic\Importer\Imports;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Statamic\Facades\YAML;
 
@@ -55,9 +54,7 @@ class ImportRepository
     {
         File::delete($import->path());
 
-        if (Storage::disk('local')->exists($import->get('path'))) {
-            Storage::disk('local')->delete($import->get('path'));
-        }
+        $import->deleteFile();
     }
 
     public function path(): string
