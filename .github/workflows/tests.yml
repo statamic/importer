@@ -1,11 +1,13 @@
 name: Test Suite
 
-on:
+on: # zizmor: ignore[concurrency-limits]
   push:
     branches:
       - main
       - '*.x'
   pull_request:
+
+permissions: {}
 
 jobs:
   php_tests:
@@ -25,6 +27,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
@@ -33,9 +37,12 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
 
       - name: Install dependencies
+        env:
+          LARAVEL: ${{ matrix.laravel }}
+          STABILITY: ${{ matrix.stability }}
         run: |
-          composer require "illuminate/contracts:${{ matrix.laravel }}" --no-interaction --no-update
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
+          composer require "illuminate/contracts:$LARAVEL" --no-interaction --no-update
+          composer update --$STABILITY --prefer-dist --no-interaction --no-suggest
 
       - name: Run PHPUnit
         run: vendor/bin/phpunit
