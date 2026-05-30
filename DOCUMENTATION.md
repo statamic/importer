@@ -167,7 +167,6 @@ The importer includes a few transformers out of the box for Core fieldtypes, but
 3. Now, whenever that fieldtype is encountered during an import, your transformer will be used to transform the data.
 
 #### Config Fields
-
 If you need to, you can add config options for your transformer. These options will be shown in the UI when mapping fields. Simply add a `fieldItems` method to your transformer:
 
 ```php
@@ -183,6 +182,18 @@ public function fieldItems(): array
 ```
 
 You can then access these config options in your transformer via `$this->config('your_config_field')`.
+
+#### Accessing Other Values
+You may access other values from the item via the `$values` property:
+
+```php
+public function transform(string $value)
+{
+    return $this->values['prefix'] . $value . $this->values['suffix'];
+}
+```
+
+It's worth noting that these values will be raw (untransformed).
 
 ### Hooking into Gutenberg blocks
 When the Bard importer detects Gutenberg content, it will automatically handle many of the built-in blocks.

@@ -73,7 +73,7 @@ class FieldUpdater
      */
     private function updateLinkedField(array $importedField, array $config): void
     {
-        /** @var \Statamic\Fields\Fieldset $fieldset */
+        /** @var Fieldset $fieldset */
         $fieldHandle = Str::after($importedField['field'], '.');
         $fieldset = Fieldset::find(Str::before($importedField['field'], '.'));
 
@@ -117,7 +117,7 @@ class FieldUpdater
      */
     private function updateImportedField(array $config, ?string $prefix = null): void
     {
-        /** @var \Statamic\Fields\Fieldset $fieldset */
+        /** @var Fieldset $fieldset */
         $fieldset = $this->blueprint->fields()->items()
             ->filter(fn (array $field) => isset($field['import']))
             ->mapWithKeys(fn (array $field) => [
