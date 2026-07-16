@@ -58,8 +58,8 @@ class Blueprint
                                                     return;
                                                 }
 
-                                                $disk = config('statamic.system.file_uploads.disk', 'local');
-                                                $basePath = config('statamic.system.file_uploads.path', 'statamic/file-uploads');
+                                                $disk = config('statamic.system.file_uploads_disk', 'local');
+                                                $basePath = config('statamic.system.file_uploads_path', 'statamic/file-uploads');
                                                 $path = "{$basePath}/{$value[0]}";
 
                                                 if (! Storage::disk($disk)->exists($path)) {

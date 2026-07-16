@@ -123,8 +123,8 @@ class UpdateImportTest extends TestCase
     #[Test]
     public function can_replace_the_file_from_configured_disk()
     {
-        config(['statamic.system.file_uploads.disk' => 'uploads']);
-        config(['statamic.system.file_uploads.path' => 'temp-uploads']);
+        config(['statamic.system.file_uploads_disk' => 'uploads']);
+        config(['statamic.system.file_uploads_path' => 'temp-uploads']);
 
         Storage::fake('uploads');
         Storage::disk('uploads')->put('temp-uploads/123456789/latest-posts.csv', '');

@@ -72,8 +72,8 @@ class ImportController extends CpController
 
         $file = $request->file[0];
 
-        $uploadsDisk = config('statamic.system.file_uploads.disk', 'local');
-        $uploadsPath = config('statamic.system.file_uploads.path', 'statamic/file-uploads');
+        $uploadsDisk = config('statamic.system.file_uploads_disk', 'local');
+        $uploadsPath = config('statamic.system.file_uploads_path', 'statamic/file-uploads');
 
         $type = match (Storage::disk($uploadsDisk)->mimeType("{$uploadsPath}/{$file}")) {
             'text/csv', 'application/csv', 'text/plain' => 'csv',
@@ -151,8 +151,8 @@ class ImportController extends CpController
         $path = $import->get('path');
 
         if (($request->file && $file = $request->file[0]) && $file !== basename($path)) {
-            $uploadsDisk = config('statamic.system.file_uploads.disk', 'local');
-            $uploadsPath = config('statamic.system.file_uploads.path', 'statamic/file-uploads');
+            $uploadsDisk = config('statamic.system.file_uploads_disk', 'local');
+            $uploadsPath = config('statamic.system.file_uploads_path', 'statamic/file-uploads');
 
             $type = match (Storage::disk($uploadsDisk)->mimeType("{$uploadsPath}/{$file}")) {
                 'text/csv', 'application/csv', 'text/plain' => 'csv',
