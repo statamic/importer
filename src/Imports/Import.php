@@ -7,6 +7,7 @@ use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Path;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
 use Statamic\Fields\Blueprint as StatamicBlueprint;
@@ -92,7 +93,7 @@ class Import
 
     private function hasAbsoluteFilePath(): bool
     {
-        return str_starts_with($this->get('path'), '/');
+        return Path::isAbsolute($this->get('path'));
     }
 
     public function fileData(): array
