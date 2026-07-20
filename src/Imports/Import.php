@@ -76,20 +76,6 @@ class Import
         return $this->batches()->every(fn (Batch $batch) => $batch->finished());
     }
 
-    public function fileExists(): bool
-    {
-        return $this->hasAbsoluteFilePath()
-            ? file_exists($this->get('path'))
-            : Storage::disk('local')->exists($this->get('path'));
-    }
-
-    public function fileMimeType(): ?string
-    {
-        return $this->hasAbsoluteFilePath()
-            ? mime_content_type($this->get('path')) ?: null
-            : Storage::disk('local')->mimeType($this->get('path'));
-    }
-
     public function getLocalFilePath(): string
     {
         return $this->hasAbsoluteFilePath()
