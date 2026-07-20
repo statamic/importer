@@ -213,8 +213,8 @@ class AssetsTransformer extends AbstractTransformer
 
         if ($assetContainer->blueprint()->hasField('alt')) {
             $row = match ($this->import?->get('type')) {
-                'csv' => (new Csv($this->import))->getItems($this->import->get('path'))->first(),
-                'xml' => (new Xml($this->import))->getItems($this->import->get('path'))->first(),
+                'csv' => (new Csv($this->import))->getItems($this->import->getLocalFilePath())->first(),
+                'xml' => (new Xml($this->import))->getItems($this->import->getLocalFilePath())->first(),
             };
 
             $fieldItems['alt'] = [

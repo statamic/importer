@@ -28,8 +28,8 @@ class Importer
         }
 
         $items = match ($import->get('type')) {
-            'csv' => (new Csv($import))->getItems($import->get('path')),
-            'xml' => (new Xml($import))->getItems($import->get('path')),
+            'csv' => (new Csv($import))->getItems($import->getLocalFilePath()),
+            'xml' => (new Xml($import))->getItems($import->getLocalFilePath()),
         };
 
         $items

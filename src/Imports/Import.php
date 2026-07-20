@@ -5,7 +5,9 @@ namespace Statamic\Importer\Imports;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 use Statamic\Facades\Collection;
+use Statamic\Facades\Path;
 use Statamic\Facades\Taxonomy;
 use Statamic\Facades\User;
 use Statamic\Fields\Blueprint as StatamicBlueprint;
@@ -73,6 +75,25 @@ class Import
     public function allBatchesHaveFinished(): bool
     {
         return $this->batches()->every(fn (Batch $batch) => $batch->finished());
+    }
+
+    public function getLocalFilePath(): string
+    {
+        return $this->hasAbsoluteFilePath()
+            ? $this->get('path')
+            : Storage::disk('local')->path($this->get('path'));
+    }
+
+    public function deleteFile(): bool
+    {
+        return $this->hasAbsoluteFilePath()
+            ? @unlink($this->get('path'))
+            : Storage::disk('local')->delete($this->get('path'));
+    }
+
+    private function hasAbsoluteFilePath(): bool
+    {
+        return Path::isAbsolute($this->get('path'));
     }
 
     public function fileData(): array

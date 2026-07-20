@@ -121,6 +121,43 @@ class UpdateImportTest extends TestCase
     }
 
     #[Test]
+    public function can_replace_the_file_from_configured_disk()
+    {
+        config(['statamic.system.file_uploads_disk' => 'uploads']);
+        config(['statamic.system.file_uploads_path' => 'temp-uploads']);
+
+        Storage::fake('uploads');
+        Storage::disk('uploads')->put('temp-uploads/123456789/latest-posts.csv', '');
+
+        $this
+            ->actingAs(User::make()->makeSuper()->save())
+            ->patch("/cp/utilities/importer/{$this->import->id()}", [
+                'name' => 'Posts',
+                'file' => ['123456789/latest-posts.csv'],
+                'destination' => ['type' => 'entries', 'collection' => ['posts'], 'blueprint' => 'post'],
+                'strategy' => ['create', 'update'],
+                'source' => ['csv_delimiter' => ','],
+                'mappings' => [
+                    'title' => ['key' => 'Title'],
+                    'slug' => ['key' => 'Slug'],
+                    'content' => ['key' => 'Content'],
+                    'author' => ['key' => 'Author Email', 'related_field' => 'email'],
+                    'foo' => ['key' => null],
+                ],
+                'unique_field' => 'slug',
+            ])
+            ->assertOk();
+
+        $import = $this->import->fresh();
+
+        $this->assertEquals('latest-posts.csv', basename($import->get('path')));
+
+        // File should have been moved from uploads disk to local disk
+        Storage::disk('uploads')->assertMissing('temp-uploads/123456789/latest-posts.csv');
+        Storage::disk('local')->assertExists('statamic/imports/posts/latest-posts.csv');
+    }
+
+    #[Test]
     public function validation_error_is_thrown_when_file_does_not_exist()
     {
         $this
