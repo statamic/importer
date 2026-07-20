@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.2.0 (2026-07-20)
+
+### What's new
+- Support configurable file uploads disk [#133](https://github.com/statamic/importer/issues/133) by @duncanmcclean
+
+### What's fixed
+- Document accessing other values from an item by @duncanmcclean
+- Mention that `$values` property contains "raw" values by @duncanmcclean
+- Upgrade to Vite 8 [#128](https://github.com/statamic/importer/issues/128) by @duncanmcclean
+- Add `.npmrc` file [#129](https://github.com/statamic/importer/issues/129) by @duncanmcclean
+- Bump the github-actions group with 4 updates [#131](https://github.com/statamic/importer/issues/131) by @dependabot
+- Bump aglipanci/laravel-pint-action from 2.3.1 to 2.6 in the github-actions group [#132](https://github.com/statamic/importer/issues/132) by @dependabot
+- Bump the github-actions group with 2 updates [#135](https://github.com/statamic/importer/issues/135) by @dependabot
+- Bump actions/checkout from 6.0.3 to 7.0.0 in the github-actions group [#136](https://github.com/statamic/importer/issues/136) by @dependabot
+
+
+
 ## 2.1.0 (2026-03-09)
 
 ### What's new
