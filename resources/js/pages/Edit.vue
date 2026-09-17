@@ -79,7 +79,6 @@ onUnmounted(() => saveKeyBinding.destroy());
 			:text="__('importer::messages.migrations_needed')"
 		/>
 
-		<!-- The container doesn't react to blueprint changes, so it's re-mounted after saving to pick up the new field conditions. -->
 		<PublishContainer
 			ref="container"
 			:key="containerKey"
