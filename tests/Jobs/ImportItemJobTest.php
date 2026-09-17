@@ -19,6 +19,8 @@ class ImportItemJobTest extends TestCase
 {
     use PreventsSavingStacheItemsToDisk;
 
+    private string $revisionsPath = __DIR__.'/../__fixtures__/content/revisions';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -62,6 +64,13 @@ class ImportItemJobTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->app['files']->deleteDirectory($this->revisionsPath);
+
+        parent::tearDown();
     }
 
     #[Test]
@@ -369,6 +378,80 @@ class ImportItemJobTest extends TestCase
         $this->assertNull($entry->get('last_name'));
         $this->assertEquals('john.doe@example.com', $entry->get('email'));
         $this->assertEquals('CTO', $entry->get('role'));
+    }
+
+    #[Test]
+    public function it_creates_a_revision_when_revisions_are_enabled()
+    {
+        config()->set('statamic.revisions.enabled', true);
+        config()->set('statamic.revisions.path', $this->revisionsPath);
+
+        Collection::find('team')->revisionsEnabled(true)->save();
+
+        $entry = Entry::make()->collection('team')->data(['email' => 'john.doe@example.com', 'role' => 'CTO']);
+        $entry->save();
+
+        $this->assertCount(0, $entry->revisions());
+
+        $import = Import::make()->name('Team Members')->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'first_name' => ['key' => 'First Name'],
+                'last_name' => ['key' => 'Last Name'],
+                'email' => ['key' => 'Email'],
+                'role' => ['key' => 'Role'],
+            ],
+            'strategy' => ['update'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'First Name' => 'John',
+            'Last Name' => 'Doe',
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
+
+        $entry = $entry->fresh();
+
+        $this->assertEquals('CEO', $entry->get('role'));
+        $this->assertCount(1, $entry->revisions());
+
+        $revision = $entry->latestRevision();
+
+        $this->assertEquals('publish', $revision->action());
+        $this->assertEquals('Imported via Team Members', $revision->message());
+        $this->assertEquals('CEO', $revision->attributes()['data']['role']);
+    }
+
+    #[Test]
+    public function it_doesnt_create_a_revision_when_revisions_are_disabled()
+    {
+        config()->set('statamic.revisions.enabled', true);
+        config()->set('statamic.revisions.path', $this->revisionsPath);
+
+        $entry = Entry::make()->collection('team')->data(['email' => 'john.doe@example.com', 'role' => 'CTO']);
+        $entry->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
+            'unique_field' => 'email',
+            'mappings' => [
+                'role' => ['key' => 'Role'],
+                'email' => ['key' => 'Email'],
+            ],
+            'strategy' => ['update'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Email' => 'john.doe@example.com',
+            'Role' => 'CEO',
+        ]);
+
+        $entry = $entry->fresh();
+
+        $this->assertEquals('CEO', $entry->get('role'));
+        $this->assertCount(0, $entry->revisions());
     }
 
     #[Test]

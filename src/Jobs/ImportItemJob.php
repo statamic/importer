@@ -118,6 +118,14 @@ class ImportItemJob implements ShouldQueue
 
         $entry->merge($data);
         $entry->save();
+
+        if ($entry->revisionsEnabled()) {
+            $entry
+                ->makeRevision()
+                ->action('publish')
+                ->message(__('Imported via :name', ['name' => $this->import->name()]))
+                ->save();
+        }
     }
 
     protected function findOrCreateTerm(array $data): void
