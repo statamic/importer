@@ -199,6 +199,7 @@ class Blueprint
                                         'display' => __('Field Mappings'),
                                         'instructions' => __('importer::messages.mapping_instructions'),
                                         'full_width_setting' => true,
+                                        'always_save' => true,
                                         'validate' => [
                                             'required',
                                             'array',
@@ -231,6 +232,7 @@ class Blueprint
                                             ->filter(fn ($field) => in_array($field->type(), ['text', 'integer', 'slug']))
                                             ->map(fn ($field) => ['key' => $field->handle(), 'value' => $field->display()])
                                             ->values(),
+                                        'always_save' => true,
                                         'validate' => [
                                             'required_if:destination.type,entries',
                                             function (string $attribute, mixed $value, Closure $fail) {

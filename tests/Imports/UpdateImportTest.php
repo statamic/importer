@@ -157,6 +157,21 @@ class UpdateImportTest extends TestCase
         Storage::disk('local')->assertExists('statamic/imports/posts/latest-posts.csv');
     }
 
+    /**
+     * The mappings & unique field are hidden when the file or destination changes.
+     * They still need to be submitted, otherwise validation fails and the import can't be saved.
+     *
+     * @see https://github.com/statamic/importer/issues/137
+     */
+    #[Test]
+    public function mappings_and_unique_field_are_kept_when_the_file_is_replaced()
+    {
+        $blueprint = $this->import->blueprint();
+
+        $this->assertTrue($blueprint->field('mappings')->alwaysSave());
+        $this->assertTrue($blueprint->field('unique_field')->alwaysSave());
+    }
+
     #[Test]
     public function validation_error_is_thrown_when_file_does_not_exist()
     {
