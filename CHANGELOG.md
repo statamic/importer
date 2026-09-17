@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.1 (2026-09-17)
+
+### What's fixed
+- Fix saving imports after replacing the file [#142](https://github.com/statamic/importer/issues/142) by @duncanmcclean
+
+
+
 ## 2.3.0 (2026-09-17)
 
 ### What's new
