@@ -19,6 +19,7 @@ const title = ref(props.initialTitle);
 const blueprint = ref(props.initialBlueprint);
 const values = ref(props.initialValues);
 const meta = ref(props.initialMeta);
+const containerKey = ref(0);
 const saving = ref(false);
 const errors = ref({});
 
@@ -35,6 +36,9 @@ const save = (shouldRun = false) => {
 		])
 		.then((response) => {
 			title.value = response.data.data.name;
+			blueprint.value = response.data.data.blueprint;
+			meta.value = response.data.data.meta;
+			containerKey.value++;
 			Statamic.$dirty.remove(container.value.name);
 			Statamic.$toast.success(__('Saved'));
 		})
@@ -77,6 +81,7 @@ onUnmounted(() => saveKeyBinding.destroy());
 
 		<PublishContainer
 			ref="container"
+			:key="containerKey"
 			name="import"
 			:blueprint
 			:errors
