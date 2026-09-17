@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.3.0 (2026-09-17)
+
+### What's new
+- Create revisions when importing entries [#141](https://github.com/statamic/importer/issues/141) by @duncanmcclean
+
+### What's fixed
+- Bump actions/checkout from 7.0.0 to 7.0.1 in the github-actions group [#138](https://github.com/statamic/importer/issues/138) by @dependabot
+
+
+
 ## 2.2.0 (2026-07-20)
 
 ### What's new
