@@ -30,7 +30,7 @@ class EntriesTransformer extends AbstractTransformer
             $entry = Entry::query()
                 ->whereIn('collection', Arr::wrap($this->field->get('collections')))
                 ->when(! $this->field->get('select_across_sites'), function ($query) {
-                    $query->where('locale', $this->import->get('destination.site') ?? Site::default()->handle());
+                    $query->where('site', $this->import->get('destination.site') ?? Site::default()->handle());
                 })
                 ->where($this->config('related_field'), $value)
                 ->first();
