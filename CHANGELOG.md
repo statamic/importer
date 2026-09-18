@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.2 (2026-09-18)
+
+### What's fixed
+- Fix related entries not being found when using the Eloquent driver [#148](https://github.com/statamic/importer/issues/148) by @duncanmcclean
+
+
+
 ## 2.3.1 (2026-09-17)
 
 ### What's fixed
