@@ -35,6 +35,7 @@ class ImportItemJobTest extends TestCase
                         ['handle' => 'last_name', 'field' => ['type' => 'text']],
                         ['handle' => 'email', 'field' => ['type' => 'text']],
                         ['handle' => 'role', 'field' => ['type' => 'text']],
+                        ['handle' => 'slug', 'field' => ['type' => 'slug']],
                     ],
                 ],
             ],
@@ -249,6 +250,32 @@ class ImportItemJobTest extends TestCase
         $this->assertEquals('Doe', $entry->get('last_name'));
         $this->assertEquals('john.doe@example.com', $entry->get('email'));
         $this->assertEquals('CEO', $entry->get('role'));
+    }
+
+    /** @see https://github.com/statamic/importer/issues/150 */
+    #[Test]
+    public function it_updates_an_existing_entry_when_the_slug_needs_slugifying()
+    {
+        $entry = Entry::make()->collection('team')->slug('john-doe')->data(['role' => 'CTO']);
+        $entry->save();
+
+        $import = Import::make()->config([
+            'destination' => ['type' => 'entries', 'collection' => 'team', 'blueprint' => 'team'],
+            'unique_field' => 'slug',
+            'mappings' => [
+                'slug' => ['key' => 'Slug'],
+                'role' => ['key' => 'Role'],
+            ],
+            'strategy' => ['create', 'update'],
+        ]);
+
+        ImportItemJob::dispatch($import, [
+            'Slug' => 'John Doe',
+            'Role' => 'CEO',
+        ]);
+
+        $this->assertCount(1, Entry::query()->where('collection', 'team')->get());
+        $this->assertEquals('CEO', $entry->fresh()->get('role'));
     }
 
     #[Test]
