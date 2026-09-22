@@ -18,6 +18,7 @@ use Statamic\Facades\Term;
 use Statamic\Facades\User;
 use Statamic\Importer\Importer;
 use Statamic\Importer\Imports\Import;
+use Statamic\Support\Str;
 
 class ImportItemJob implements ShouldQueue
 {
@@ -63,6 +64,10 @@ class ImportItemJob implements ShouldQueue
         $site = Site::get($this->import->get('destination.site') ?? Site::default()->handle());
 
         if ($uniqueFieldValue = Arr::get($data, $this->import->get('unique_field'))) {
+            if ($this->import->get('unique_field') === 'slug') {
+                $uniqueFieldValue = Str::slug($uniqueFieldValue, '-', $site->lang());
+            }
+
             $entry = Entry::query()
                 ->where('site', $site->handle())
                 ->where('collection', $collection->handle())
