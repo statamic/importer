@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.3 (2026-09-22)
+
+### What's fixed
+- Fix duplicate entries being created when the unique field is the slug [#151](https://github.com/statamic/importer/issues/151) by @duncanmcclean
+
+
+
 ## 2.3.2 (2026-09-18)
 
 ### What's fixed
