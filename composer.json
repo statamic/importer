@@ -12,7 +12,7 @@
         }
     },
     "require": {
-        "statamic/cms": "^6.25",
+        "statamic/cms": "^6.36",
         "spatie/simple-excel": "^3.7",
         "symfony/dom-crawler": "^7.1",
         "symfony/css-selector": "^7.1 || ^8.0"
