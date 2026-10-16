@@ -33,7 +33,5 @@
                 "Statamic\\Importer\\ServiceProvider"
             ]
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
