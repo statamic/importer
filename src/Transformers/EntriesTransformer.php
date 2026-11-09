@@ -14,7 +14,9 @@ class EntriesTransformer extends AbstractTransformer
     {
         // When $value is a serialized array, deserialize it.
         if (Str::startsWith($value, 'a:')) {
-            $value = collect(unserialize($value))->join('|');
+            $value = collect(unserialize($value, ['allowed_classes' => false]))
+                ->filter(fn ($item) => is_scalar($item))
+                ->join('|');
         }
 
         // When $value is a JSON string, decode it.

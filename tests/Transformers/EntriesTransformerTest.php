@@ -50,6 +50,21 @@ class EntriesTransformerTest extends TestCase
     }
 
     #[Test]
+    public function it_unserializes_entry_ids_without_instantiating_objects()
+    {
+        $transformer = new EntriesTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: ['related_field' => 'id']
+        );
+
+        $output = $transformer->transform('a:3:{i:0;s:3:"one";i:1;O:7:"Closure":0:{}i:2;s:3:"two";}');
+
+        $this->assertEquals(['one', 'two'], $output);
+    }
+
+    #[Test]
     public function it_finds_existing_entries()
     {
         Entry::make()->collection('pages')->id('one')->set('title', 'Entry One')->save();
