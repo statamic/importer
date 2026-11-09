@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.4 (2026-11-09)
+
+### What's fixed
+- Prevent object instantiation when unserializing import values [#157](https://github.com/statamic/importer/issues/157) by @duncanmcclean
+
+
+
 ## 2.3.3 (2026-10-19)
 
 ### What's fixed
