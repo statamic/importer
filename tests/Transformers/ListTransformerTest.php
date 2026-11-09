@@ -46,4 +46,19 @@ class ListTransformerTest extends TestCase
 
         $this->assertEquals(['Vanilla', 'Chocolate', 'Honeycomb', 'Strawberry', 'Pistachio'], $output);
     }
+
+    #[Test]
+    public function it_unserializes_arrays_without_instantiating_objects()
+    {
+        $transformer = new ListTransformer(
+            import: $this->import,
+            blueprint: $this->blueprint,
+            field: $this->field,
+            config: []
+        );
+
+        $output = $transformer->transform('a:3:{i:0;s:7:"Vanilla";i:1;O:7:"Closure":0:{}i:2;s:9:"Chocolate";}');
+
+        $this->assertEquals(['Vanilla', 'Chocolate'], $output);
+    }
 }
